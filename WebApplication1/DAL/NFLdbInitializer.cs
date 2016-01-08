@@ -31,4 +31,10 @@ namespace WebApplication1.DAL {
             Gamecontext.SaveChanges();
         }
     }
+
+    public class FFdbInitializer : System.Data.Entity.DropCreateDatabaseIfModelChanges<FF> {
+        protected override void Seed(FF FFcontext) {
+
+        }
+    }
 }

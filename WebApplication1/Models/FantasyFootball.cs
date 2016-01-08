@@ -32,8 +32,8 @@ namespace WebApplication1.Models {
         public int QBStart { get; set; }
         public int RBStart { get; set; }
         public bool WRTESame { get; set; }
-        public int WRStart { get; set; }
-        public int TEStart { get; set; }
+        public int? WRStart { get; set; }
+        public int? TEStart { get; set; }
         public int DEFStart { get; set; }
         //containers
         public int FFLeagueID { get; set; }
