@@ -1,0 +1,80 @@
+﻿@model NFLPlayer
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>NFLPlayer</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.team)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.team)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PassingStats)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PassingStats)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RushingStats)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RushingStats)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ReceivingStats)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReceivingStats)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FumbleStats)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FumbleStats)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.KickingStats)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.KickingStats)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>
