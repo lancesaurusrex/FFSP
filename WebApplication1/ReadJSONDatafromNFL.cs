@@ -40,21 +40,23 @@ public class ReadJSONDatafromNFL {
         List<String> playerIDKeys = new List<string>();
         List<NFLPlayer> PlayerList = new List<NFLPlayer>();     //List of made NFL Players
 
-        foreach (KeyValuePair<string, string> child in StatsChildren) {
-            foreach (KeyValuePair<string, JObject> objName in JObjectHomeAway) {
+        using (var db = new NFLdatabase()) {
+            //goes by passing, rushing, rec, etc. goes by home/away player
+            foreach (KeyValuePair<string, string> child in StatsChildren) {
+                foreach (KeyValuePair<string, JObject> objName in JObjectHomeAway) {
 
-                JObject statsJObj = objName.Value;   //passed in from dict, is either the homeStats or awayStats jObject
-                string objPropertyName = objName.Key;
-                JObject getIDs = (JObject)statsJObj[child.Key];
+                    JObject statsJObj = objName.Value;   //passed in from dict, is either the homeStats or awayStats jObject
+                    string objPropertyName = objName.Key;
+                    JObject getIDs = (JObject)statsJObj[child.Key];
 
-                playerIDKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
+                    playerIDKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
 
-                foreach (string playerID in playerIDKeys) {
-                    /*PsC - Create list of players
-                      Get PlayerID of player about to be added
-                     Compare to List of players
-                     If Found*/
-                    using (var db = new NFLdatabase()) {
+                    foreach (string playerID in playerIDKeys) {
+                        /*PsC - Create list of players
+                          Get PlayerID of player about to be added
+                         Compare to List of players
+                         If Found*/
+
                         NFLPlayer NFLFoundPlayer = null;
 
                         //going through the list of already made players and pulling the player if the id's match
@@ -109,12 +111,15 @@ public class ReadJSONDatafromNFL {
                         //add in NFLPlayer to Playerlist and DB,  sep function?
                         PlayerList.Add(NFLFoundPlayer);
                         db.NFLPlayer.Add(NFLFoundPlayer);
-                        db.SaveChanges();
+                        //moved save changes from here
                         //NFLPlayer NFLPlayer = (Plays)serializer.Deserialize(new JTokenReader(playsInCurrentDrive[key]), typeof(Plays));
-                    }
-                    playerIDKeys.Clear();   //empty keys for next iteration
+                        //empty keys for next iteration
+
+                    }                  
+                    playerIDKeys.Clear();
                 }
             }
+            db.SaveChanges();
         }
     }
 
