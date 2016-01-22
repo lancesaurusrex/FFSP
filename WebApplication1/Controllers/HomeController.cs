@@ -24,5 +24,10 @@ namespace WebApplication1.Controllers {
         public ActionResult NFLPlayers() {
             return View();
         }
+
+        public ActionResult FFLeague()
+        {
+            return View();
+        }
     }
 }

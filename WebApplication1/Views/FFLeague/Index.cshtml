@@ -1,0 +1,75 @@
+﻿@model IEnumerable<WebApplication1.Models.FFLeague>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.NumberOfTeams)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PlayoffWeekStart)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.QBStart)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RBStart)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.WRTESame)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.WRStart)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TEStart)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DEFStart)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.NumberOfTeams)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PlayoffWeekStart)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.QBStart)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.RBStart)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.WRTESame)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.WRStart)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TEStart)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DEFStart)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.FFLeagueID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.FFLeagueID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.FFLeagueID })
+        </td>
+    </tr>
+}
+
+</table>

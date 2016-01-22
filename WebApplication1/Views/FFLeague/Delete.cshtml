@@ -1,0 +1,88 @@
+﻿@model WebApplication1.Models.FFLeague
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>FFLeague</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.NumberOfTeams)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NumberOfTeams)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PlayoffWeekStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PlayoffWeekStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.QBStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.QBStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RBStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RBStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.WRTESame)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.WRTESame)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.WRStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.WRStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TEStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TEStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DEFStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DEFStart)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

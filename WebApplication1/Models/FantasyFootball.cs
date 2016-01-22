@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models {
-    public class FantasyFootball {}
+//used to be called FantasyFootball but deleted class may have to rename file?
 
     public class FFTeam {
+        [Key]
         public int FFTeamID { get; set; }
         public string TeamName { get; set; }
         public decimal Win { get; set; }
@@ -18,6 +21,7 @@ namespace WebApplication1.Models {
     }
 
     public class FFGame {
+        [Key]
         public int FFGameID { get; set; }
         public decimal HScore { get; set; }
         public decimal VScore { get; set; }
@@ -32,10 +36,11 @@ namespace WebApplication1.Models {
         public int QBStart { get; set; }
         public int RBStart { get; set; }
         public bool WRTESame { get; set; }
-        public int? WRStart { get; set; }
-        public int? TEStart { get; set; }
+        public int WRStart { get; set; }
+        public int TEStart { get; set; }
         public int DEFStart { get; set; }
         //containers
+        [Key]
         public int FFLeagueID { get; set; }
         public List<int> FFTeamIDList { get; set; }
     }
