@@ -20,7 +20,8 @@ public class NFLPlayer
         KickingStats = new KickingGameStats();
     }
 
-    public string id { get; set; }
+    //figure out way to get into int.
+    public int id { get; set; }
 
     public string name { get; set; }
 

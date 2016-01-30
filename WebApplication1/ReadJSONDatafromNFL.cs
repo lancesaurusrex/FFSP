@@ -10,6 +10,7 @@ using System.Web.UI.WebControls;
 using System.Net;
 using System.IO;
 using System.Data;
+using System.Text;
 using WebApplication1.Models;
 using WebApplication1.DAL;
 /// <summary>
@@ -19,6 +20,60 @@ using WebApplication1.DAL;
 
 
 public class ReadJSONDatafromNFL {
+    public void DeserializeData(string FileName)
+    {
+        //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
+        //dynamic game = NFLData;
+        //dynamic newGame = new JObject();
+        //string FileName = "2015101200_gtd.json";
+
+        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
+        string gameID = ID.ToString();      //Needs to be in string for JSON calls.
+
+        string Root = HttpContext.Current.Server.MapPath("~/");
+        string FullPath = Root + FileName;
+        var results = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
+        JObject NFLData = JObject.Parse(File.ReadAllText(FullPath));
+        List<NFLEPMarkov> ExpectedPointData = new List<NFLEPMarkov>();
+
+        string excelFileName = "MARKOVDATA.xlsx";
+        string excelFullPath = Root + excelFileName;
+
+        //How to do this better?  Don't pass the List pass a number or something to the list?  make list static?
+        ExpectedPointData = LoadExpectedPointsData(excelFullPath);
+
+        var score = (string)NFLData.SelectToken(gameID + ".home.score.1");
+        var homeScore1 = NFLData["2015101200"]["home"]["score"];
+        var homeScoreres = results[gameID]["home"]["score"];
+
+        var firstDrive = results[gameID]["drives"]["1"];
+        var secDrive = results[gameID]["drives"]["2"];
+
+        string homeTeam = results[gameID]["home"]["abbr"];
+        string awayTeam = results[gameID]["away"]["abbr"];
+        JObject homeStats = results[gameID]["home"]["stats"];
+        JObject awayStats = results[gameID]["away"]["stats"];
+
+        DeserializePlayerStats(homeStats, homeTeam, awayStats, awayTeam);
+        DeserializeTeamStats(homeStats, homeTeam, awayStats, awayTeam);
+
+        int totalDrives = results[gameID]["drives"]["crntdrv"];     //if game is over crntdrive will be the total # of drives
+        JObject drives = results[gameID]["drives"];
+
+        DeserializeDrives(ExpectedPointData, totalDrives, drives);
+    }
+    public static string RemoveSpecialCharacters(string str)
+    {
+        StringBuilder sb = new StringBuilder();
+        foreach (char c in str)
+        {
+            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_')
+            {
+                sb.Append(c);
+            }
+        }
+        return sb.ToString();
+    }
     public void DeserializePlayerStats(JObject homeStats, string homeTeam, JObject awayStats, string awayTeam) {
 
         //This is the names of the two different properties in the JSON 
@@ -37,7 +92,7 @@ public class ReadJSONDatafromNFL {
         Dictionary<string, JObject> JObjectHomeAway = new Dictionary<string, JObject>();
         JObjectHomeAway.Add("homeStats", homeStats);
         JObjectHomeAway.Add("awayStats", awayStats);
-        List<String> playerIDKeys = new List<string>();
+        List<string> playerIDStringKeys = new List<string>();
         List<NFLPlayer> PlayerList = new List<NFLPlayer>();     //List of made NFL Players
 
         using (var db = new NFLdatabase()) {
@@ -49,28 +104,31 @@ public class ReadJSONDatafromNFL {
                     string objPropertyName = objName.Key;
                     JObject getIDs = (JObject)statsJObj[child.Key];
 
-                    playerIDKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
-
-                    foreach (string playerID in playerIDKeys) {
+                    playerIDStringKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
+                    
+                    foreach (string playerID in playerIDStringKeys) {
                         /*PsC - Create list of players
                           Get PlayerID of player about to be added
                          Compare to List of players
                          If Found*/
-
                         NFLPlayer NFLFoundPlayer = null;
+
+                            string s = RemoveSpecialCharacters(playerID);   //converts string to int, need int for the key, need string to search JOBject
+                            int playerIDInt = Convert.ToInt32(s);
 
                         //going through the list of already made players and pulling the player if the id's match
                         //if found add stats according to child (pass,rec, rush, etc)
                         //if not found, create player and copy material
                         if (PlayerList.Count() != 0) {
-                            NFLFoundPlayer = PlayerList.Find(x => x.id.Contains(playerID));
+                            NFLFoundPlayer = PlayerList.Find(x => x.id == playerIDInt);
                         }
 
 
                         //Player not found if null, so create and fill in player info
                         if (NFLFoundPlayer == null) {
                             NFLFoundPlayer = new NFLPlayer();
-                            NFLFoundPlayer.id = playerID;
+                            //NEED to turn off auto key!
+                            NFLFoundPlayer.id = playerIDInt;
                             //Using homeStats and awayStats as property names., jObj is home or awayStats jObject                  
                             NFLFoundPlayer.name = statsJObj[child.Key][playerID]["name"].ToString();
 
@@ -115,54 +173,12 @@ public class ReadJSONDatafromNFL {
                         //NFLPlayer NFLPlayer = (Plays)serializer.Deserialize(new JTokenReader(playsInCurrentDrive[key]), typeof(Plays));
                         //empty keys for next iteration
 
-                    }                  
-                    playerIDKeys.Clear();
+                    }
+                    playerIDStringKeys.Clear();
                 }
             }
             db.SaveChanges();
         }
-    }
-
-    public void DeserializeData(string FileName) {
-        //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
-        //dynamic game = NFLData;
-        //dynamic newGame = new JObject();
-        //string FileName = "2015101200_gtd.json";
-
-        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
-        string gameID = ID.ToString();      //Needs to be in string for JSON calls.
-
-        string Root = HttpContext.Current.Server.MapPath("~/");
-        string FullPath = Root + FileName;
-        var results = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
-        JObject NFLData = JObject.Parse(File.ReadAllText(FullPath));
-        List<NFLEPMarkov> ExpectedPointData = new List<NFLEPMarkov>();
-
-        string excelFileName = "MARKOVDATA.xlsx";
-        string excelFullPath = Root + excelFileName;
-
-        //How to do this better?  Don't pass the List pass a number or something to the list?  make list static?
-        ExpectedPointData = LoadExpectedPointsData(excelFullPath);
-
-        var score = (string)NFLData.SelectToken(gameID + ".home.score.1");
-        var homeScore1 = NFLData["2015101200"]["home"]["score"];
-        var homeScoreres = results[gameID]["home"]["score"];
-
-        var firstDrive = results[gameID]["drives"]["1"];
-        var secDrive = results[gameID]["drives"]["2"];
-
-        string homeTeam = results[gameID]["home"]["abbr"];
-        string awayTeam = results[gameID]["away"]["abbr"];
-        JObject homeStats = results[gameID]["home"]["stats"];
-        JObject awayStats = results[gameID]["away"]["stats"];
-
-        DeserializePlayerStats(homeStats, homeTeam, awayStats, awayTeam);
-        DeserializeTeamStats(homeStats, homeTeam, awayStats, awayTeam);
-
-        int totalDrives = results[gameID]["drives"]["crntdrv"];     //if game is over crntdrive will be the total # of drives
-        JObject drives = results[gameID]["drives"];
-
-        DeserializeDrives(ExpectedPointData, totalDrives, drives);
     }
 
     //Quick change don't need the whole table just the states, that's how I'll link them.

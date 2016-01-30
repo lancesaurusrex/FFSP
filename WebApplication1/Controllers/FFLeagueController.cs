@@ -17,6 +17,11 @@ namespace WebApplication1.Controllers
     {
         private FF db = new FF();
 
+        public void CreateLeagueID(FFLeague obj)
+        {
+
+        }
+
         // GET: FFLeague
         public ActionResult Index()
         {
@@ -30,18 +35,18 @@ namespace WebApplication1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            FFLeague fFLeague = db.FFLeagueDB.Find(id);
-            if (fFLeague == null)
+            FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
+            if (FFLeagueCO == null)
             {
                 return HttpNotFound();
             }
-            return View(fFLeague);
+            return View(FFLeagueCO);
         }
 
         // GET: FFLeague/Create
         public ActionResult Create()
         {
-            return View();
+            return View(new FFLeague());
         }
 
         // POST: FFLeague/Create
@@ -49,16 +54,16 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FFLeagueID,NumberOfTeams,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague fFLeague)
+        public ActionResult Create([Bind(Include = "FFLeagueID,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
         {
             if (ModelState.IsValid)
             {
-                db.FFLeagueDB.Add(fFLeague);
+                db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(fFLeague);
+            return View(FFLeagueCO);
         }
 
         // GET: FFLeague/Edit/5
@@ -68,12 +73,12 @@ namespace WebApplication1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            FFLeague fFLeague = db.FFLeagueDB.Find(id);
-            if (fFLeague == null)
+            FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
+            if (FFLeagueCO == null)
             {
                 return HttpNotFound();
             }
-            return View(fFLeague);
+            return View(FFLeagueCO);
         }
 
         // POST: FFLeague/Edit/5
@@ -81,15 +86,15 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "FFLeagueID,NumberOfTeams,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague fFLeague)
+        public ActionResult Edit([Bind(Include = "FFLeagueID,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(fFLeague).State = EntityState.Modified;
+                db.Entry(FFLeagueCO).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(fFLeague);
+            return View(FFLeagueCO);
         }
 
         // GET: FFLeague/Delete/5
@@ -99,12 +104,12 @@ namespace WebApplication1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            FFLeague fFLeague = db.FFLeagueDB.Find(id);
-            if (fFLeague == null)
+            FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
+            if (FFLeagueCO == null)
             {
                 return HttpNotFound();
             }
-            return View(fFLeague);
+            return View(FFLeagueCO);
         }
 
         // POST: FFLeague/Delete/5
@@ -112,8 +117,8 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            FFLeague fFLeague = db.FFLeagueDB.Find(id);
-            db.FFLeagueDB.Remove(fFLeague);
+            FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
+            db.FFLeagueDB.Remove(FFLeagueCO);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

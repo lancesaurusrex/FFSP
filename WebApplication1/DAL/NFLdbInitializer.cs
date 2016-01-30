@@ -23,13 +23,14 @@ namespace WebApplication1.DAL {
 
     public class GamedbInitializer : System.Data.Entity.DropCreateDatabaseIfModelChanges<NFLgame> {
         protected override void Seed(NFLgame Gamecontext) {
+            //Deal with later
 
-            String FileName = "2015101200_gtd.json";
+            //String FileName = "2015101200_gtd.json";
 
-            ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
-            j.DeserializeData(FileName);
-            //will just need players for this project
-            Gamecontext.SaveChanges();
+            //ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
+            //j.DeserializeData(FileName);
+            ////will just need players for this project
+            //Gamecontext.SaveChanges();
         }
     }
 
