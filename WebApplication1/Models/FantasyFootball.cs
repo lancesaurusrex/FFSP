@@ -17,7 +17,7 @@ namespace WebApplication1.Models {
         public decimal Lose { get; set; }
         public decimal Tie { get; set; }
         public decimal FPTotal { get; set; }
-        List<string> NFLPlayerIDList { get; set; }  //List of NFLPlayer id's which are just strings.
+        List<int> NFLPlayerIDList { get; set; }  //List of NFLPlayer id's which are just strings.
         List<FFGame> FFGameIDList { get; set; }
     }
 
@@ -48,6 +48,7 @@ namespace WebApplication1.Models {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFLeagueID { get; set; }
+        public string FFLeagueName { get; set; }
         //settings
         public int NumberOfTeams { get; set; }
         public int NumberOfDivision { get; set; }

@@ -17,9 +17,11 @@ namespace WebApplication1.Controllers
     {
         private FF db = new FF();
 
-        public void CreateLeagueID(FFLeague obj)
+        //GetUserName from dbo.AspNetUsers and displayTeam?
+        //Create League Created Successfully screen
+        public ActionResult CreateLeagueSuccess(int id)
         {
-
+            return View();
         }
 
         // GET: FFLeague
@@ -54,13 +56,13 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FFLeagueID,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
+        public ActionResult Create([Bind(Include = "FFLeagueID, FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
         {
             if (ModelState.IsValid)
             {
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("CreateLeagueSuccess", new { @id = FFLeagueCO.FFLeagueID });   //Goto Create Team and add team to league, make team that create league commissioner, can edit later
             }
 
             return View(FFLeagueCO);
@@ -86,7 +88,7 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "FFLeagueID,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
+        public ActionResult Edit([Bind(Include = "FFLeagueID,FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
         {
             if (ModelState.IsValid)
             {

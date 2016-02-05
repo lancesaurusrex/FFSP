@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 /// <summary>
@@ -20,8 +21,11 @@ public class NFLPlayer
         KickingStats = new KickingGameStats();
     }
 
-    //figure out way to get into int.
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int id { get; set; }
+
+    //should make string and int "translator" or just save has both formats nfl string and my string to int format
+    //public string id_nflformat { set; get; }
 
     public string name { get; set; }
 
