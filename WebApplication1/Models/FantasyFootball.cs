@@ -70,6 +70,16 @@ namespace WebApplication1.Models {
         public List<int> NumberOfWRStList { get; set; }
         public List<int> NumberOfTEStList { get; set; }
         public List<int> NumberOfDEFStList { get; set; }
+    }
 
+    public class FFLeagueTeams
+    {
+        [Key]
+        [ForeignKey("FFLeague")]
+        public int FFLeagueID { get; set; }
+        [ForeignKey("FFTeam")]
+        public int TeamID { get; set; }
+        public string UserID { get; set; }
+        public bool isCommish { get; set; }
     }
 }

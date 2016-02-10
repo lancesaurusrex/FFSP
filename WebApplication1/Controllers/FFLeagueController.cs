@@ -19,8 +19,19 @@ namespace WebApplication1.Controllers
 
         //GetUserName from dbo.AspNetUsers and displayTeam?
         //Create League Created Successfully screen
-        public ActionResult CreateLeagueSuccess(int id)
+        public ActionResult CreateLeagueSuccess(int id, string leagueName)
         {
+            //When League is first created make LeagueTeams object and insert creator into db
+            //Creator of league is automatically commish
+            ViewBag.leagueName = leagueName;
+            //From CreateLeagueSuccess go to CreateTeam, need FFLeagueid (id), UserID, User.Identity.Name?, TeamID, will create in Team Creation, IsCommish will be true since coming from
+            return RedirectToAction("CreateTeam", new { id = id });
+        }
+
+        public ActionResult LeagueXMainPage()
+        {
+            //what do we want to do with the main page without enough teams
+            //if numberofregistered teams == numofteams
             return View();
         }
 
@@ -62,7 +73,7 @@ namespace WebApplication1.Controllers
             {
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
-                return RedirectToAction("CreateLeagueSuccess", new { @id = FFLeagueCO.FFLeagueID });   //Goto Create Team and add team to league, make team that create league commissioner, can edit later
+                return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create Team and add team to league, make team that create league commissioner, can edit later
             }
 
             return View(FFLeagueCO);
