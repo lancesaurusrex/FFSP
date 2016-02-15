@@ -83,15 +83,17 @@ namespace WebApplication1.Models {
 
     public class FFPlayer {
 
-        //in constructor set NFLPlayer = to FFPlayerID?
-        public NFLPlayer NFLPlayer { get; set; }
+        //This is the FF(NFL)PlayerID with the link to the FFTeam, don't want to make the actual NFLPlayer class the FFPlayer class, make them seperate
         [Key]
         public int FFPlayerID { get; set; }
         // A player has a team
         public virtual int FFTeamID { get; set; }
         [ForeignKey("FFTeamID")]
         public virtual FFTeam FFTeam { get; set; }
-
+        //This is the seperate NFLPlayer and link to it (NFLPlayerID)
+        public NFLPlayer NFLPlayer { get; set; }
+        public int NFLPlayerID { get; set; }
+        //Weekly Scores and Stats
     }
 }
 
