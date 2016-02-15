@@ -17,7 +17,7 @@ namespace WebApplication1.Controllers
     {
         private FF db = new FF();
 
-        //GetUserName from dbo.AspNetUsers and displayTeam?
+        //Tells user league was created and sends LeagueID to CreateTeam 
         //Create League Created Successfully screen
         public ActionResult CreateLeagueSuccess(int id, string leagueName)
         {
@@ -30,7 +30,6 @@ namespace WebApplication1.Controllers
         }
 
         //Add Team to League
-        //Just need LeagueID can find it if needed
         public ActionResult CreateTeam(int LeagueID) 
         {
             return View();   

@@ -64,7 +64,11 @@ namespace WebApplication1.Models {
         //A Team plays multiple games
         public virtual ICollection<FFGame> Games { get; set; }
         //A Team has multiple players
-        public virtual ICollection<NFLPlayer> Players { get; set; }
+        public virtual ICollection<FFPlayer> Players { get; set; }
+        //Team is in a league
+        public virtual int FFLeagueID { get; set; }
+        [ForeignKey("FFLeagueID")]
+        public virtual FFLeague FFLeague { get; set; }
     }
 
     public class FFGame {
@@ -73,28 +77,22 @@ namespace WebApplication1.Models {
         public int FFGameID { get; set; }
         public decimal HScore { get; set; }
         public decimal VScore { get; set; }
-        int HomeTeamID { get; set; }
-        int VisTeamID { get; set; }
+        public int HomeTeamID { get; set; }
+        public int VisTeamID { get; set; }
     }
 
-    //public class FFLeagueTeams {
-    //    [Key]
-    //    [ForeignKey("FFLeagueID")]
-    //    public virtual FFLeague League { get; set; }
-    //    [ForeignKey("FFTeamID")]
-    //    public virtual FFTeam Team { get; set; }
-    //    public string UserID { get; set; }
-    //    public bool isCommish { get; set; }
-    //}
+    public class FFPlayer {
 
-    //public class FFTeamPlayers {
+        //in constructor set NFLPlayer = to FFPlayerID?
+        public NFLPlayer NFLPlayer { get; set; }
+        [Key]
+        public int FFPlayerID { get; set; }
+        // A player has a team
+        public virtual int FFTeamID { get; set; }
+        [ForeignKey("FFTeamID")]
+        public virtual FFTeam FFTeam { get; set; }
 
-    //    [Key]
-    //    [ForeignKey("FFTeam")]
-    //    public virtual FFTeam Team { get; set; }
-    //    [ForeignKey("NFLPlayer")]
-    //    public virtual NFLPlayer NFLPlayer { get; set; }
-    //}
+    }
 }
 
 //public virtual int UserId { get; set; }

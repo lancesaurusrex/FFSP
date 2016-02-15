@@ -24,6 +24,7 @@ public class NFLPlayer
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int id { get; set; }
 
+    public int FFTeamID {get;set;}
     //should make string and int "translator" or just save has both formats nfl string and my string to int format
     //public string id_nflformat { set; get; }
 
