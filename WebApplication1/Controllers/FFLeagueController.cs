@@ -24,10 +24,17 @@ namespace WebApplication1.Controllers
             //When League is first created make LeagueTeams object and insert creator into db
             //Creator of league is automatically commish
             ViewBag.leagueName = leagueName;
-            //From CreateLeagueSuccess go to CreateTeam, need FFLeagueid (id), UserID, User.Identity.Name?, TeamID, will create in Team Creation, IsCommish will be true since coming from
+            ViewBag.id = id;
+
             return View();
-            //Button of go to CreateTeam
-            //return RedirectToAction("CreateTeam", new { id = id });
+        }
+
+        //Add Team to League
+        //Just need LeagueID can find it if needed
+        public ActionResult CreateTeam(int LeagueID) 
+        {
+            return View();   
+
         }
 
         public ActionResult LeagueXMainPage()
@@ -75,7 +82,7 @@ namespace WebApplication1.Controllers
             {
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
-                return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create Team and add team to league, make team that create league commissioner, can edit later
+                return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create League Success then create team
             }
 
             return View(FFLeagueCO);

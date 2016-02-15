@@ -1,4 +1,4 @@
-﻿
+﻿@model WebApplication1.Models.FFLeague
 @{
     ViewBag.Title = "CreateLeagueSuccess";
 }
@@ -6,3 +6,4 @@
 <h2>League @ViewBag.leagueName Created Successfully</h2>
 
 Continue to League @ViewBag.leagueName main page to create team.
+@Html.ActionLink("Go To League Main Page", "CreateTeam", new { LeagueID = ViewBag.id })

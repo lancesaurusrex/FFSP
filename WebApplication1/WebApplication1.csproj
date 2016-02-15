@@ -251,6 +251,7 @@
     <Content Include="Views\FFLeague\Edit.cshtml" />
     <Content Include="Views\FFLeague\Index.cshtml" />
     <Content Include="Views\FFLeague\CreateLeagueSuccess.cshtml" />
+    <Content Include="Views\FFLeague\CreateTeam.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
