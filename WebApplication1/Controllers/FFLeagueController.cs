@@ -25,7 +25,9 @@ namespace WebApplication1.Controllers
             //Creator of league is automatically commish
             ViewBag.leagueName = leagueName;
             //From CreateLeagueSuccess go to CreateTeam, need FFLeagueid (id), UserID, User.Identity.Name?, TeamID, will create in Team Creation, IsCommish will be true since coming from
-            return RedirectToAction("CreateTeam", new { id = id });
+            return View();
+            //Button of go to CreateTeam
+            //return RedirectToAction("CreateTeam", new { id = id });
         }
 
         public ActionResult LeagueXMainPage()
@@ -38,7 +40,7 @@ namespace WebApplication1.Controllers
         // GET: FFLeague
         public ActionResult Index()
         {
-            return View(db.FFLeagueDB.ToList());
+           return View(db.FFLeagueDB.ToList());
         }
 
         // GET: FFLeague/Details/5
