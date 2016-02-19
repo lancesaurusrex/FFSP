@@ -161,6 +161,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\FFLeagueController.cs" />
+    <Compile Include="Controllers\FFTeamsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\NFLPlayersController.cs" />
@@ -251,7 +252,13 @@
     <Content Include="Views\FFLeague\Edit.cshtml" />
     <Content Include="Views\FFLeague\Index.cshtml" />
     <Content Include="Views\FFLeague\CreateLeagueSuccess.cshtml" />
-    <Content Include="Views\FFLeague\CreateTeam.cshtml" />
+    <Content Include="Views\FFLeague\JoinLeague.cshtml" />
+    <Content Include="Views\FFTeams\Create.cshtml" />
+    <Content Include="Views\FFTeams\Delete.cshtml" />
+    <Content Include="Views\FFTeams\Details.cshtml" />
+    <Content Include="Views\FFTeams\Edit.cshtml" />
+    <Content Include="Views\FFTeams\Index.cshtml" />
+    <Content Include="Views\FFTeams\CreateTeam.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

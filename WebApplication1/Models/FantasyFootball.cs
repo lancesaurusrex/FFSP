@@ -51,6 +51,12 @@ namespace WebApplication1.Models {
     }
 
     public class FFTeam {
+        public FFTeam() { }
+        public FFTeam(int LeagueID) {
+            this.FFLeagueID = LeagueID;
+        }
+
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFTeamID { get; set; }
@@ -94,6 +100,7 @@ namespace WebApplication1.Models {
         public NFLPlayer NFLPlayer { get; set; }
         public int NFLPlayerID { get; set; }
         //Weekly Scores and Stats
+
     }
 }
 

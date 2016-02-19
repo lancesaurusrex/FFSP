@@ -1,0 +1,66 @@
+﻿@model WebApplication1.Models.FFTeam
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>FFTeam</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.FFLeague.FFLeagueName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FFLeague.FFLeagueName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TeamName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TeamName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Win)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Win)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Lose)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Lose)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Tie)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Tie)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FPTotal)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FPTotal)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.FFTeamID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

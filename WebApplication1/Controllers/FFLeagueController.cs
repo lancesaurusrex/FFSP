@@ -17,6 +17,26 @@ namespace WebApplication1.Controllers
     {
         private FF db = new FF();
 
+        //GET:FFLEAGUE/JOINLEAGUE
+        public ActionResult JoinLeague() 
+        {
+            //FFLeague FFLeagueJoin = new FFLeague();
+            return View();
+        }
+
+        //I don't think the bind is necessary
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult JoinLeague([Bind(Include = "FFLeagueID")]FFLeague FFLeagueJoin) {
+
+            FFLeague FFLeagueFound = db.FFLeagueDB.Find(FFLeagueJoin.FFLeagueID);
+
+            if (FFLeagueFound != null)
+                return RedirectToAction("CreateTeam", "FFTeams", new { LeagueID = FFLeagueFound.FFLeagueID });
+            else
+                return RedirectToAction("Index");
+        }
+
         //Tells user league was created and sends LeagueID to CreateTeam 
         //Create League Created Successfully screen
         public ActionResult CreateLeagueSuccess(int id, string leagueName)
@@ -29,15 +49,13 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        //Add Team to League
-        public ActionResult CreateTeam(int LeagueID) 
-        {
-            return View();   
 
-        }
 
         public ActionResult LeagueXMainPage()
         {
+            //var currentUser = User.Identity.Name;
+            //string userId = ((Guid)Membership.GetUser().ProviderUserKey).ToString();
+            //var ident = System.Web.HttpContext.Current.User.Identity;
             //what do we want to do with the main page without enough teams
             //if numberofregistered teams == numofteams
             return View();

@@ -1,0 +1,63 @@
+﻿@model IEnumerable<WebApplication1.Models.FFTeam>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FFLeague.FFLeagueName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TeamName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Win)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Lose)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Tie)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FPTotal)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.FFLeague.FFLeagueName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TeamName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Win)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Lose)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Tie)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FPTotal)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.FFTeamID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.FFTeamID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.FFTeamID })
+        </td>
+    </tr>
+}
+
+</table>
