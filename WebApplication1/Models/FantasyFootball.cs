@@ -9,7 +9,7 @@ namespace WebApplication1.Models {
 //used to be called FantasyFootball but deleted class may have to rename file?
     public class FFLeague {
 
-        public FFLeague() {
+        public FFLeague() { //These are the View
             NumberOfTeamsList = new List<int>() { 8, 10, 12 };
             NumberOfDivisionsList = new List<int>() { 2, 3, 4 };
             NumberOfPlayoffWeekStartList = new List<int>() { 14, 15 };
@@ -37,6 +37,8 @@ namespace WebApplication1.Models {
         public int DEFStart { get; set; }
         //containers       
         public List<int> FFTeamIDList { get; set; }
+        //A League has many players
+        public List<FFPlayer> NFLPlayerList { get; set; }
         //Settings Containers
         public List<int> NumberOfTeamsList { get; set; }
         public List<int> NumberOfDivisionsList { get; set; }
@@ -55,7 +57,6 @@ namespace WebApplication1.Models {
         public FFTeam(int LeagueID) {
             this.FFLeagueID = LeagueID;
         }
-
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -92,14 +93,20 @@ namespace WebApplication1.Models {
         //This is the FF(NFL)PlayerID with the link to the FFTeam, don't want to make the actual NFLPlayer class the FFPlayer class, make them seperate
         [Key]
         public int FFPlayerID { get; set; }
+
+        //This is the seperate NFLPlayer and link to it (NFLPlayerID)
+        public NFLPlayer NFLPlayer { get; set; }
+        //I think this is foreign key
+        public int NFLPlayerID { get; set; }
+        //Weekly Scores and Stats (List of Games)
+
+        //Ownership
         // A player has a team
         public virtual int FFTeamID { get; set; }
         [ForeignKey("FFTeamID")]
         public virtual FFTeam FFTeam { get; set; }
-        //This is the seperate NFLPlayer and link to it (NFLPlayerID)
-        public NFLPlayer NFLPlayer { get; set; }
-        public int NFLPlayerID { get; set; }
-        //Weekly Scores and Stats
+        //A player ownership check
+        public bool isOwned { get; set; }
 
     }
 }

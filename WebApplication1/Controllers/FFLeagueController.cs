@@ -24,7 +24,6 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        //I don't think the bind is necessary
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult JoinLeague([Bind(Include = "FFLeagueID")]FFLeague FFLeagueJoin) {
