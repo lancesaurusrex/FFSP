@@ -24,6 +24,9 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        //POST FFLEAGUE/JoinLeague
+        /*  JoinLeague is by LeagueID.  Enter LeagueID to join that league. 
+            JoinLeague searches db by leagueID, then checks to see if the league is full or not */
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult JoinLeague([Bind(Include = "FFLeagueID")]FFLeague FFLeagueJoin) {
@@ -31,9 +34,20 @@ namespace WebApplication1.Controllers
             FFLeague FFLeagueFound = db.FFLeagueDB.Find(FFLeagueJoin.FFLeagueID);
 
             if (FFLeagueFound != null)
-                return RedirectToAction("CreateTeam", "FFTeams", new { LeagueID = FFLeagueFound.FFLeagueID });
+            {
+                //Count numofTeams in League
+                var sql = "SELECT COUNT(FFLeagueID) FROM FFTeams WHERE FFLeagueID = " + FFLeagueFound.FFLeagueID;
+                var numTeams = db.Database.SqlQuery<int>(sql).Single();
+                //NumTeams = num of teams currently in league, FFLea... = MAX_TEAMS allowed in league
+
+                if (numTeams < FFLeagueFound.NumberOfTeams)
+                    return RedirectToAction("CreateTeam", "FFTeams", new { LeagueID = FFLeagueFound.FFLeagueID });
+                else
+                    return View("Error - League Full");
+            }
             else
-                return RedirectToAction("Index");
+                return View(ViewBag.Message);
+            
         }
 
         //Tells user league was created and sends LeagueID to CreateTeam 
@@ -95,7 +109,9 @@ namespace WebApplication1.Controllers
         public ActionResult Create([Bind(Include = "FFLeagueID, FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
         {
             if (ModelState.IsValid)
-            {
+            {               
+                //Add Players to League
+                FFLeagueCO.NFLPlayerList = db.FFPlayerDB.ToList();
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
                 return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create League Success then create team

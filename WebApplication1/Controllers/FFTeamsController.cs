@@ -18,10 +18,10 @@ namespace WebApplication1.Controllers
 
         //Add Team to League
         public ActionResult CreateTeam(int LeagueID) {
-
+            
             //Passed LeagueID through HTML.Hidden from (CreateTeam) get to post.  
             ViewBag.LeagueID = LeagueID;
-
+            
             return View();
         }
 
@@ -30,14 +30,11 @@ namespace WebApplication1.Controllers
         public ActionResult CreateTeam([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam FFTeam) {
             if (ModelState.IsValid) {
 
-                db.FFTeamDB.Add(FFTeam);
-                //db.Entry(FFTeam).State = EntityState.Modified;
-                
+                db.FFTeamDB.Add(FFTeam);               
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            //ViewBag.FFLeagueID = new SelectList(db.FFLeagueDB, "FFLeagueID", "FFLeagueName", FFTeam.FFLeagueID);
             return View(FFTeam);
         }
 

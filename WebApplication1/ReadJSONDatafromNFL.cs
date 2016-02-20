@@ -13,6 +13,7 @@ using System.Data;
 using System.Text;
 using WebApplication1.Models;
 using WebApplication1.DAL;
+using System.Data.Entity;
 /// <summary>
 /// Summary description for ReadJSONDatafromNFL
 /// </summary>
@@ -62,6 +63,7 @@ public class ReadJSONDatafromNFL {
 
         DeserializeDrives(ExpectedPointData, totalDrives, drives);
     }
+
     public static string RemoveSpecialCharacters(string str)
     {
         StringBuilder sb = new StringBuilder();
@@ -74,6 +76,7 @@ public class ReadJSONDatafromNFL {
         }
         return sb.ToString();
     }
+
     public void DeserializePlayerStats(JObject homeStats, string homeTeam, JObject awayStats, string awayTeam) {
 
         //This is the names of the two different properties in the JSON 
@@ -111,7 +114,7 @@ public class ReadJSONDatafromNFL {
                           Get PlayerID of player about to be added
                          Compare to List of players
                          If Found*/
-                        NFLPlayer NFLFoundPlayer = null;
+                        NFLPlayer NFLFoundPlayer = null;                       
 
                             string s = RemoveSpecialCharacters(playerID);   //converts string to int, need int for the key, need string to search JOBject
                             int playerIDInt = Convert.ToInt32(s);
@@ -127,8 +130,9 @@ public class ReadJSONDatafromNFL {
                         //Player not found if null, so create and fill in player info
                         if (NFLFoundPlayer == null) {
                             NFLFoundPlayer = new NFLPlayer();
-                            //NEED to turn off auto key!
-                            NFLFoundPlayer.id = playerIDInt;
+
+                            NFLFoundPlayer.id = playerIDInt;    //PlayerID in int format
+                            NFLFoundPlayer.id_nflformat = playerID;     //PlayerID in NFL string format
                             //Using homeStats and awayStats as property names., jObj is home or awayStats jObject                  
                             NFLFoundPlayer.name = statsJObj[child.Key][playerID]["name"].ToString();
 
@@ -141,6 +145,7 @@ public class ReadJSONDatafromNFL {
                             else {
                                 NFLFoundPlayer.team = "XXX";
                             }
+
                         }
                         else { }
 
@@ -166,18 +171,41 @@ public class ReadJSONDatafromNFL {
                         else { //throw exception
                         }
 
-                        //add in NFLPlayer to Playerlist and DB,  sep function?
-                        PlayerList.Add(NFLFoundPlayer);
-                        db.NFLPlayer.Add(NFLFoundPlayer);
-                        //moved save changes from here
-                        //NFLPlayer NFLPlayer = (Plays)serializer.Deserialize(new JTokenReader(playsInCurrentDrive[key]), typeof(Plays));
+                        //add in NFLPlayer to Playerlist and DB,  sep function?    
+                        var dbaddorupdate = PlayerList.Find(x => x.id == NFLFoundPlayer.id);
+                        if (dbaddorupdate == null)
+                        {
+                            PlayerList.Add(NFLFoundPlayer);
+                            db.NFLPlayer.Add(NFLFoundPlayer);
+                            db.SaveChanges();
+                        }
+                        else
+                        {
+                            db.Entry(NFLFoundPlayer).State = EntityState.Modified;
+                            db.SaveChanges();
+                        }
                         //empty keys for next iteration
-
                     }
                     playerIDStringKeys.Clear();
                 }
             }
-            db.SaveChanges();
+            foreach(NFLPlayer player in PlayerList)
+                AddNFLPlayertoFFPlayer(player);
+            
+        }
+    }
+    
+    public void AddNFLPlayertoFFPlayer(NFLPlayer NFLFoundPlayer)
+    {
+        using (var FFPlayerContext = new FF()) {
+
+            FFPlayer FF = new FFPlayer();
+            //assign NFLPlayer attr. to FFPlayer
+            FF.NFLPlayer = NFLFoundPlayer;
+            //FF.NFLID = NFLFoundPlayer.id;
+
+            FFPlayerContext.FFPlayerDB.Add(FF);
+            FFPlayerContext.SaveChanges();
         }
     }
 

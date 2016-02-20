@@ -5,15 +5,15 @@ using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using WebApplication1.Models;
 
 /// <summary>
 /// Summary description for NFLPlayer
 /// </summary>
 public class NFLPlayer
 {
-    public NFLPlayer() {
-
+    public NFLPlayer()
+    {
         PassingStats = new PassingGameStats();
         RushingStats = new RushingGameStats();
         ReceivingStats = new ReceivingGameStats();
@@ -24,14 +24,18 @@ public class NFLPlayer
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int id { get; set; }
 
-    //should make string and int "translator" or just save has both formats nfl string and my string to int format
-    //public string id_nflformat { set; get; }
+    //should keep string or just save has both formats nfl string and my string to int 
+    public string id_nflformat { set; get; }
 
     public string name { get; set; }
 
     public string team { get; set; }
 
-    //public string pos { get; set; }
+    public string pos { get; set; }
+
+    public List<NFLGame> ScheduleGames { get; set; }
+
+    //These need to be put in a game object
 
     public PassingGameStats PassingStats { get; set; }
 
@@ -42,6 +46,19 @@ public class NFLPlayer
     public FumbleGameStats FumbleStats { get; set; }
 
     public KickingGameStats KickingStats { get; set; }
+}
+
+public class NFLGame
+{
+    //A game has players, players can play in one game per week but can be in multiple games
+    //A game has 2 teams, all game goes in a week
+    //A game has stats for the 2teams
+}
+
+public class NFLTeam
+{
+    //A team has players, A player can only be on one team
+    //A team has games, plays other teams on a weekly basis
 }
 
 public class PassingGameStats

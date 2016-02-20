@@ -18,7 +18,7 @@ namespace WebApplication1.Models {
             NumberOfRBStList = new List<int>() { 0, 1, 2, 3 };
             NumberOfWRStList = new List<int>() { 0, 1, 2, 3 };
             NumberOfTEStList = new List<int>() { 0, 1, 2 };
-            NumberOfDEFStList = new List<int>() { 0, 1, 2 };
+            NumberOfDEFStList = new List<int>() { 0, 1, 2 };           
         }
 
         [Key]
@@ -26,7 +26,7 @@ namespace WebApplication1.Models {
         public int FFLeagueID { get; set; }
         public string FFLeagueName { get; set; }
         //settings
-        public int NumberOfTeams { get; set; }
+        public int NumberOfTeams { get; set; }  //Technically MAX_TEAMS
         public int NumberOfDivision { get; set; }
         public int PlayoffWeekStart { get; set; }
         public int QBStart { get; set; }
@@ -37,7 +37,8 @@ namespace WebApplication1.Models {
         public int DEFStart { get; set; }
         //containers       
         public List<int> FFTeamIDList { get; set; }
-        //A League has many players
+        //A League has many players/A player can be in many leagues
+        //fluent API - Many to many
         public List<FFPlayer> NFLPlayerList { get; set; }
         //Settings Containers
         public List<int> NumberOfTeamsList { get; set; }
@@ -66,7 +67,7 @@ namespace WebApplication1.Models {
         public decimal Lose { get; set; }
         public decimal Tie { get; set; }
         public decimal FPTotal { get; set; }
-        List<int> NFLPlayerIDList { get; set; }  //List of NFLPlayer id's which are just strings.
+
         List<FFGame> FFGameIDList { get; set; }
         //A Team plays multiple games
         public virtual ICollection<FFGame> Games { get; set; }
@@ -94,20 +95,19 @@ namespace WebApplication1.Models {
         [Key]
         public int FFPlayerID { get; set; }
 
-        //This is the seperate NFLPlayer and link to it (NFLPlayerID)
-        public NFLPlayer NFLPlayer { get; set; }
-        //I think this is foreign key
-        public int NFLPlayerID { get; set; }
-        //Weekly Scores and Stats (List of Games)
+        //This is the seperate NFLPlayer and link to it
+        //No idea if this is how I should do it, can't link to foreignkey due to different tables so fuck it we'll try this
+        public NFLPlayer NFLPlayer { get; set; }       
+
+        //Weekly Scores(List of Games)
 
         //Ownership
         // A player has a team
-        public virtual int FFTeamID { get; set; }
-        [ForeignKey("FFTeamID")]
-        public virtual FFTeam FFTeam { get; set; }
+        //public virtual int FFTeamID { get; set; }
+        //[ForeignKey("FFTeamID")]
+        //public virtual FFTeam FFTeam { get; set; }
         //A player ownership check
         public bool isOwned { get; set; }
-
     }
 }
 
