@@ -32,8 +32,8 @@ public class NFLPlayer
     public string team { get; set; }
 
     public string pos { get; set; }
-
-    public List<NFLGame> ScheduleGames { get; set; }
+    
+    //public List<NFLGame> ScheduleGames { get; set; }
 
     //These need to be put in a game object
 
@@ -48,18 +48,18 @@ public class NFLPlayer
     public KickingGameStats KickingStats { get; set; }
 }
 
-public class NFLGame
-{
-    //A game has players, players can play in one game per week but can be in multiple games
-    //A game has 2 teams, all game goes in a week
-    //A game has stats for the 2teams
-}
+//public class NFLGame
+//{
+//    //A game has players, players can play in one game per week but can be in multiple games
+//    //A game has 2 teams, all game goes in a week
+//    //A game has stats for the 2teams
+//}
 
-public class NFLTeam
-{
-    //A team has players, A player can only be on one team
-    //A team has games, plays other teams on a weekly basis
-}
+//public class NFLTeam
+//{
+//    //A team has players, A player can only be on one team
+//    //A team has games, plays other teams on a weekly basis
+//}
 
 public class PassingGameStats
 {

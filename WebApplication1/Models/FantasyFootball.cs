@@ -109,6 +109,14 @@ namespace WebApplication1.Models {
         //A player ownership check
         public bool isOwned { get; set; }
     }
+    //Basically same as mine
+    public class Team_Player {
+
+        public int Team_ID { get; set; }
+        public int Player_ID { get; set; }
+        public int position { get; set; }
+        public bool isActive { get; set; }
+    }
 }
 
 //public virtual int UserId { get; set; }
