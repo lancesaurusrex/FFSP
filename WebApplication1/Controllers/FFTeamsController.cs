@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using WebApplication1.DAL;
 using WebApplication1.Models;
+using Microsoft.AspNet.Identity;
 
 namespace WebApplication1.Controllers
 {
@@ -17,6 +18,7 @@ namespace WebApplication1.Controllers
 
 
         //Add Team to League
+        [Authorize]
         public ActionResult CreateTeam(int LeagueID) {
             
             //Passed LeagueID through HTML.Hidden from (CreateTeam) get to post.  
@@ -25,24 +27,35 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        //Needs to be signed in! for get and post
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CreateTeam([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam FFTeam) {
             if (ModelState.IsValid) {
 
+                //User Needs to be logged in (Authorize)
+                FFTeam.UserID = User.Identity.GetUserId();
+                //Find League in DB
+                FFLeague CurrLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
+                //Add team to model/db
+                CurrLeague.Teams.Add(FFTeam);
                 db.FFTeamDB.Add(FFTeam);               
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
             }
 
             return View(FFTeam);
         }
 
+        //code snippet displays teams in league var fFTeamDB = db.FFTeamDB.Include(f => f.FFLeague);
         // GET: FFTeams
-        public ActionResult Index()
+        public ActionResult Index(int TeamID)
         {
-            var fFTeamDB = db.FFTeamDB.Include(f => f.FFLeague);
-            return View(fFTeamDB.ToList());
+            //load once will have to figure out how to do that
+            FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            //Team View, Edit Team, Team Schedule
+            return View(FFTeam);
         }
 
         // GET: FFTeams/Details/5
@@ -76,6 +89,7 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid)
             {
+                
                 db.FFTeamDB.Add(fFTeam);
                 db.SaveChanges();
                 return RedirectToAction("Index");

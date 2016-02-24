@@ -11,11 +11,12 @@ Type in League ID to join League:
 @using (Html.BeginForm()) {
     
     @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "This is in HTML.validationsummary", new { @class = "text-danger" })
 <div class="form-group">
     @Html.LabelFor(model => model.FFLeagueID, htmlAttributes: new { @class = "control-label col-md-2" })
     <div class="col-md-10">
         @Html.EditorFor(model => model.FFLeagueID, new { htmlAttributes = new { @class = "form-control" } })
-        @Html.ValidationMessageFor(model => model.FFLeagueID, "", new { @class = "text-danger" })
+        @Html.ValidationMessageFor(model => model.FFLeagueID, "*", new { @class = "text-danger" })
     </div>
 </div>
     

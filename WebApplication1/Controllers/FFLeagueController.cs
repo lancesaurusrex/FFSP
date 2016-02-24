@@ -25,7 +25,9 @@ namespace WebApplication1.Controllers
         }
 
         //POST FFLEAGUE/JoinLeague
-        /*  JoinLeague is by LeagueID.  Enter LeagueID to join that league. 
+        /*  JoinLeague is by League
+         * 
+         *  Enter LeagueID to join that league. 
             JoinLeague searches db by leagueID, then checks to see if the league is full or not */
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -46,11 +48,13 @@ namespace WebApplication1.Controllers
                     return View("Error - League Full");
             }
             else
-                return View(ViewBag.Message);
+                return View();
             
         }
 
-        //Tells user league was created and sends LeagueID to CreateTeam 
+        //Tells 
+        
+        //league was created and sends LeagueID to CreateTeam 
         //Create League Created Successfully screen
         public ActionResult CreateLeagueSuccess(int id, string leagueName)
         {
@@ -66,6 +70,10 @@ namespace WebApplication1.Controllers
 
         public ActionResult LeagueXMainPage()
         {
+            //if (User != null) {
+            
+
+            //}
             //var currentUser = User.Identity.Name;
             //string userId = ((Guid)Membership.GetUser().ProviderUserKey).ToString();
             //var ident = System.Web.HttpContext.Current.User.Identity;
