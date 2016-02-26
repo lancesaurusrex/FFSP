@@ -44,8 +44,12 @@ namespace WebApplication1.Models {
         public List<int> NumberOfWRStList { get; set; }
         public List<int> NumberOfTEStList { get; set; }
         public List<int> NumberOfDEFStList { get; set; }
+
+        //Stuff in League
         //A League has multiple teams in it
         public virtual ICollection<FFTeam> Teams { get; set; }
+        //A League has a schedule of many games
+        public virtual ICollection<FFGame> Schedule { get; set; }
         //A League has many players/A player can be in many leagues
         //fluent API - Many to many
         public List<FFPlayer> NFLPlayerList { get; set; }
@@ -67,10 +71,6 @@ namespace WebApplication1.Models {
         public decimal FPTotal { get; set; }
         //A User "owns" a team
         public string UserID { get; set; }
-        //[ForeignKey("UserId")]
-        //public virtual ApplicationUser User { get; set; }
-
-        List<FFGame> FFGameIDList { get; set; }
         //A Team plays multiple games
         public virtual ICollection<FFGame> Games { get; set; }
         //A Team has multiple players
@@ -85,8 +85,10 @@ namespace WebApplication1.Models {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFGameID { get; set; }
+        public int Week { get; set; }
+        public int Year { get; set; }
         public decimal HScore { get; set; }
-        public decimal VScore { get; set; }
+        public decimal VScore { get; set; } 
         public int HomeTeamID { get; set; }
         public int VisTeamID { get; set; }
     }
@@ -120,9 +122,12 @@ namespace WebApplication1.Models {
      */
     public class Team_Player {
 
+        public int NFLPlayerID { get; set; }
         public int Team_ID { get; set; }
-        public int Player_ID { get; set; }
         public int position { get; set; }
+        //A player ownership check
+        public bool isOwned { get; set; }
+        //A player active check
         public bool isActive { get; set; }
     }
 }

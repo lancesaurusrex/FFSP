@@ -1,14 +1,14 @@
-﻿@model IEnumerable<WebApplication1.Models.FFTeam>
+﻿@model WebApplication1.Models.FFTeam
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = @Model.FFLeague.FFLeagueName;
 }
 
-<h2>Index</h2>
+<h2>@Html.DisplayFor(model => model.TeamName)</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+    
+@Model.TeamName
+
 <table class="table">
     <tr>
         <th>
@@ -32,32 +32,26 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.FFLeague.FFLeagueName)
+            @Html.DisplayFor(model => model.FFLeague.FFLeagueName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.TeamName)
+            @Html.DisplayFor(model => model.TeamName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Win)
+            @Html.DisplayFor(model => model.Win)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Lose)
+            @Html.DisplayFor(model => model.Lose)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Tie)
+            @Html.DisplayFor(model => model.Tie)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.FPTotal)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.FFTeamID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.FFTeamID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.FFTeamID })
+            @Html.DisplayFor(model => model.FPTotal)
         </td>
     </tr>
-}
+
 
 </table>
