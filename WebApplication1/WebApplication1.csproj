@@ -177,7 +177,6 @@
     <Compile Include="DAL\NFLdatabase.cs" />
     <Compile Include="Models\NFLEPMarkov.cs" />
     <Compile Include="Models\NFLPlayer.cs" />
-    <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadJSONDatafromNFL.cs" />
     <Compile Include="Startup.cs" />
@@ -260,6 +259,7 @@
     <Content Include="Views\FFTeams\Edit.cshtml" />
     <Content Include="Views\FFTeams\Index.cshtml" />
     <Content Include="Views\FFTeams\CreateTeam.cshtml" />
+    <Content Include="Views\FFTeams\AvailablePlayers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

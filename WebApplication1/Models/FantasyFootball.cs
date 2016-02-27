@@ -52,7 +52,7 @@ namespace WebApplication1.Models {
         public virtual ICollection<FFGame> Schedule { get; set; }
         //A League has many players/A player can be in many leagues
         //fluent API - Many to many
-        public List<FFPlayer> NFLPlayerList { get; set; }
+        public virtual List<NFLPlayer> NFLPlayerList { get; set; }
     }
 
     public class FFTeam {
@@ -74,7 +74,7 @@ namespace WebApplication1.Models {
         //A Team plays multiple games
         public virtual ICollection<FFGame> Games { get; set; }
         //A Team has multiple players
-        public virtual ICollection<FFPlayer> Players { get; set; }
+        public virtual ICollection<NFLPlayer> Players { get; set; }
         //Team is in a league
         public virtual int FFLeagueID { get; set; }
         [ForeignKey("FFLeagueID")]
@@ -93,29 +93,14 @@ namespace WebApplication1.Models {
         public int VisTeamID { get; set; }
     }
 
-    public class FFPlayer {
+    //public class FFPlayer {
 
-        //This is the FF(NFL)PlayerID with the link to the FFTeam, don't want to make the actual NFLPlayer class the FFPlayer class, make them seperate
-        [Key]
-        public int FFPlayerID { get; set; }
+    //    //This is the FF(NFL)PlayerID with the link to the FFTeam, don't want to make the actual NFLPlayer class the FFPlayer class, make them seperate
+    //    public virtual ICollection<FFPlayer> Players { get; set; }
 
-        //This is the seperate NFLPlayer and link to it
-        //No idea if this is how I should do it, can't link to foreignkey due to different tables so fuck it we'll try this
-        public NFLPlayer NFLPlayer { get; set; }
-
-        //Weekly Scores(List of Games)
-
-        //Ownership
-        // A player has a team
-        //public virtual int FFTeamID { get; set; }
-        //[ForeignKey("FFTeamID")]
-        //public virtual FFTeam FFTeam { get; set; }
-
-        //A player ownership check
-        public bool isOwned { get; set; }
-        //A player active check
-        public bool isActive { get; set; }
-    }
+    //    //A player active check
+    //    public bool isActive { get; set; }
+    //}
 
     /*  Example keep FFPlayer just need one list of players
      *  Have a seperate list of players_team that link a playerid to a teamid, since all teamid are unique no need for leagueid!
@@ -125,8 +110,6 @@ namespace WebApplication1.Models {
         public int NFLPlayerID { get; set; }
         public int Team_ID { get; set; }
         public int position { get; set; }
-        //A player ownership check
-        public bool isOwned { get; set; }
         //A player active check
         public bool isActive { get; set; }
     }

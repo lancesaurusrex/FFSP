@@ -17,8 +17,6 @@ using System.Data.Entity;
 /// <summary>
 /// Summary description for ReadJSONDatafromNFL
 /// </summary>
-/// 
-
 
 public class ReadJSONDatafromNFL {
     public void DeserializeData(string FileName)
@@ -189,25 +187,10 @@ public class ReadJSONDatafromNFL {
                     playerIDStringKeys.Clear();
                 }
             }
-            foreach(NFLPlayer player in PlayerList)
-                AddNFLPlayertoFFPlayer(player);
             
         }
     }
     
-    public void AddNFLPlayertoFFPlayer(NFLPlayer NFLFoundPlayer)
-    {
-        using (var FFPlayerContext = new FF()) {
-
-            FFPlayer FF = new FFPlayer();
-            //assign NFLPlayer attr. to FFPlayer
-            FF.NFLPlayer = NFLFoundPlayer;
-            //FF.NFLID = NFLFoundPlayer.id;
-
-            FFPlayerContext.FFPlayerDB.Add(FF);
-            FFPlayerContext.SaveChanges();
-        }
-    }
 
     //Quick change don't need the whole table just the states, that's how I'll link them.
     public List<NFLEPMarkov> LoadExpectedPointsData(string path) {

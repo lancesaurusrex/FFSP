@@ -52,6 +52,7 @@
             @Html.DisplayFor(model => model.FPTotal)
         </td>
     </tr>
-
+    
 
 </table>
+@Html.ActionLink("Available Players", "AvailablePlayers", new { TeamID = Model.FFTeamID })

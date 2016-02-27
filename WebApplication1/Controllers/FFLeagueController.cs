@@ -16,6 +16,7 @@ namespace WebApplication1.Controllers
     public class FFLeagueController : Controller
     {
         private FF db = new FF();
+        private NFLdatabase NFLdb = new NFLdatabase();
 
         //GET:FFLEAGUE/JOINLEAGUE
         public ActionResult JoinLeague() 
@@ -119,7 +120,7 @@ namespace WebApplication1.Controllers
             if (ModelState.IsValid)
             {               
                 //Add Players to League
-                FFLeagueCO.NFLPlayerList = db.FFPlayerDB.ToList();
+                FFLeagueCO.NFLPlayerList = NFLdb.NFLPlayer.ToList();
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
                 return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create League Success then create team

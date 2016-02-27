@@ -14,6 +14,7 @@ public class NFLPlayer
 {
     public NFLPlayer()
     {
+        isAvailable = true;
         PassingStats = new PassingGameStats();
         RushingStats = new RushingGameStats();
         ReceivingStats = new ReceivingGameStats();
@@ -32,6 +33,9 @@ public class NFLPlayer
     public string team { get; set; }
 
     public string pos { get; set; }
+    //For Availability in TeamController
+    public bool isAvailable { get; set; }
+    public bool isChecked { get; set; }
     
     //public List<NFLGame> ScheduleGames { get; set; }
 

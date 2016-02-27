@@ -16,6 +16,34 @@ namespace WebApplication1.Controllers
     {
         private FF db = new FF();
 
+        public IQueryable<NFLPlayer> GetAllFFPlayers()
+        {
+            //if call in another function will crash due to still accessing context
+            using (var NFLContext = new NFLdatabase()) {
+
+                return NFLContext.NFLPlayer;
+            }
+        }
+
+        //should use viewmodel due to only needing 3 of the data things, formcollection?
+        public ActionResult AvailablePlayers(int TeamID)
+        {
+            FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
+            IList<NFLPlayer> AvailablePlayer = FFLeague.NFLPlayerList;
+            ViewBag.TeamID = TeamID;
+
+            return View(AvailablePlayer);
+        }
+
+        [HttpPost]
+        public ActionResult AvailablePlayers(List<NFLPlayer> AvailablePlayer, FormCollection collection)
+        {
+            //put into map thing and them savedb and change playervalues
+            var idCollection = collection["item.id"];
+            var checkedCollection = collection["item.isChecked"];
+            return View(AvailablePlayer);
+        }
 
         //Add Team to League
         [Authorize]
