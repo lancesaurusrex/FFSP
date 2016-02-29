@@ -5,19 +5,16 @@
 
 <h2>Available Players</h2>
 
-@using (Html.BeginForm("AvailablePlayers","FFTeams"))
-{
+@using (Html.BeginForm("AvailablePlayers", "FFTeams")) {
     @Html.AntiForgeryToken()
 
     var altRow = false;
 
-    foreach (var item in Model)
-    {
+    foreach (var item in Model) {
         <table>
             <tr>            
                 <td style="background-color:@(altRow ? "#fff" : "#E0EBEB"); height:40px;width:100px;">
-                    @Html.HiddenFor(x => item.id)
-                    @Html.CheckBoxFor(x => item.isChecked, new { Style = "vertical align:13px" })
+                    @Html.CheckBoxFor(x => item.isChecked, new { @Name = item.id })
                 </td>
                 <td style="background-color:@(altRow ? "#fff" : "#E0EBEB"); height:40px;width:200px;">
                     @Html.DisplayFor(modelItem => item.name)
@@ -27,7 +24,8 @@
             </tr>
         </table>
     
-     }
+    }
+     <input type=hidden name="TeamID" value="ViewBag.TeamID"/>
      <input type= "submit" value="GO"/>
 }
 

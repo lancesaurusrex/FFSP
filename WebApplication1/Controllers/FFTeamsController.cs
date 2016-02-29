@@ -10,11 +10,13 @@ using WebApplication1.DAL;
 using WebApplication1.Models;
 using Microsoft.AspNet.Identity;
 
+
 namespace WebApplication1.Controllers
 {
     public class FFTeamsController : Controller
     {
         private FF db = new FF();
+        private NFLdatabase NFLdb = new NFLdatabase();
 
         public IQueryable<NFLPlayer> GetAllFFPlayers()
         {
@@ -30,18 +32,38 @@ namespace WebApplication1.Controllers
         {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
-            IList<NFLPlayer> AvailablePlayer = FFLeague.NFLPlayerList;
+            IList<NFLPlayer> AvailablePlayer = FFLeague.NFLPlayerList.FindAll(x=>x.isAvailable==true);
             ViewBag.TeamID = TeamID;
-
+            Session["TeamID"] = TeamID;
             return View(AvailablePlayer);
         }
 
         [HttpPost]
-        public ActionResult AvailablePlayers(List<NFLPlayer> AvailablePlayer, FormCollection collection)
-        {
-            //put into map thing and them savedb and change playervalues
-            var idCollection = collection["item.id"];
-            var checkedCollection = collection["item.isChecked"];
+        public ActionResult AvailablePlayers(IList<NFLPlayer> AvailablePlayer, FormCollection collection) {
+            //Pass TeamID from get to post
+            var TeamID = Session["TeamID"];
+            Session["TeamID"] = null;
+            //Find team and league in db
+            FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            FFLeague FFLeague1 = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
+
+            foreach (string id in collection.Keys) {
+
+                if (id.All(Char.IsDigit) && FFTeam != null) {
+
+                    NFLPlayer NFLPlayer = NFLdb.NFLPlayer.Find(id);
+                    FFTeam.Players.Add(NFLPlayer);  //add player to team
+                    //add player teamplayer db
+
+                    //flip isAvailable from leagueplayerlist
+                    NFLPlayer LeaguePlayerFound = FFLeague1.NFLPlayerList.Find(x => x.id == Convert.ToInt32(id));
+                    if (LeaguePlayerFound != null)
+                        LeaguePlayerFound.isAvailable = false;
+                    else
+                        throw new NoNullAllowedException("Player not Found in League!");
+                }
+            }
+
             return View(AvailablePlayer);
         }
 

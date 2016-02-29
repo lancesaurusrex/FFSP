@@ -9,7 +9,6 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 namespace WebApplication1.DAL {
 
     public class NFLdatabase : DbContext  {
-    //Data Developer Center Code First to a New Database
         public NFLdatabase() : base("NFLContext") {}
 
         public DbSet<NFLPlayer> NFLPlayer { get; set; }
