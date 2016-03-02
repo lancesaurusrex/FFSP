@@ -36,7 +36,8 @@ public class NFLPlayer
     //For Availability in TeamController
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
-    
+
+    public virtual List<FFTeam> Teams { get; set; }
     //public List<NFLGame> ScheduleGames { get; set; }
 
     //These need to be put in a game object

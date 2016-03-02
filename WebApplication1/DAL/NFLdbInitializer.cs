@@ -30,7 +30,12 @@ namespace WebApplication1.DAL {
     public class FFdbInitializer : System.Data.Entity.DropCreateDatabaseIfModelChanges<FF> {
         protected override void Seed(FF FFcontext) {
 
+            String FileName = "2015101200_gtd.json";
 
+            ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
+            j.DeserializeData(FileName);
+            //will just need players for this project
+            FFcontext.SaveChanges();
         }
     }
 }

@@ -260,6 +260,8 @@
     <Content Include="Views\FFTeams\Index.cshtml" />
     <Content Include="Views\FFTeams\CreateTeam.cshtml" />
     <Content Include="Views\FFTeams\AvailablePlayers.cshtml" />
+    <Content Include="Views\FFTeams\ViewPlayersOnTeam.cshtml" />
+    <Content Include="Views\FFTeams\ViewPlayere.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

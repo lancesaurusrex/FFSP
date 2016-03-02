@@ -16,12 +16,11 @@ namespace WebApplication1.Controllers
     public class FFLeagueController : Controller
     {
         private FF db = new FF();
-        private NFLdatabase NFLdb = new NFLdatabase();
 
         //GET:FFLEAGUE/JOINLEAGUE
         public ActionResult JoinLeague() 
         {
-            //FFLeague FFLeagueJoin = new FFLeague();
+            
             return View();
         }
 
@@ -32,9 +31,9 @@ namespace WebApplication1.Controllers
             JoinLeague searches db by leagueID, then checks to see if the league is full or not */
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult JoinLeague([Bind(Include = "FFLeagueID")]FFLeague FFLeagueJoin) {
+        public ActionResult JoinLeague([Bind(Include = "FFLeagueID")]FFLeague FFLeagueCO) {
 
-            FFLeague FFLeagueFound = db.FFLeagueDB.Find(FFLeagueJoin.FFLeagueID);
+            FFLeague FFLeagueFound = db.FFLeagueDB.Find(FFLeagueCO.FFLeagueID);
 
             if (FFLeagueFound != null)
             {
@@ -107,7 +106,10 @@ namespace WebApplication1.Controllers
         // GET: FFLeague/Create
         public ActionResult Create()
         {
-            return View(new FFLeague());
+            FFLeague FFLeagueCO = new FFLeague();
+
+            return View(FFLeagueCO);
+            //return View(new FFLeague());
         }
 
         // POST: FFLeague/Create
@@ -120,7 +122,6 @@ namespace WebApplication1.Controllers
             if (ModelState.IsValid)
             {               
                 //Add Players to League
-                FFLeagueCO.NFLPlayerList = NFLdb.NFLPlayer.ToList();
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
                 return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create League Success then create team
@@ -186,10 +187,8 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Index");
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
                 db.Dispose();
             }
             base.Dispose(disposing);

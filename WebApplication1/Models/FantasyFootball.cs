@@ -52,7 +52,7 @@ namespace WebApplication1.Models {
         public virtual ICollection<FFGame> Schedule { get; set; }
         //A League has many players/A player can be in many leagues
         //fluent API - Many to many
-        public virtual List<NFLPlayer> NFLPlayerList { get; set; }
+        public virtual List<NFLPlayer> AllNFLPlayerList { get; set; }
     }
 
     public class FFTeam {
@@ -73,10 +73,11 @@ namespace WebApplication1.Models {
         public string UserID { get; set; }
         //A Team plays multiple games
         public virtual ICollection<FFGame> Games { get; set; }
-        //A Team has multiple players
+        //A Team has multiple player
         public virtual ICollection<NFLPlayer> Players { get; set; }
+
         //Team is in a league
-        public virtual int FFLeagueID { get; set; }
+        public int FFLeagueID { get; set; }
         [ForeignKey("FFLeagueID")]
         public virtual FFLeague FFLeague { get; set; }
     }
@@ -105,10 +106,16 @@ namespace WebApplication1.Models {
     /*  Example keep FFPlayer just need one list of players
      *  Have a seperate list of players_team that link a playerid to a teamid, since all teamid are unique no need for leagueid!
      */
-    public class Team_Player {
+    public class TeamNFLPlayer {
+        public TeamNFLPlayer() {
+        }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int TNPID { get; set; }
 
-        public int NFLPlayerID { get; set; }
-        public int Team_ID { get; set; }
+        public int TeamID { get; set; }
+        public int PlayerID { get; set; }
+        //public virtual ICollection<FFTeam> FFTeams { get; set; }
         public int position { get; set; }
         //A player active check
         public bool isActive { get; set; }

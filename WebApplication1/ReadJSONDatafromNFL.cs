@@ -96,7 +96,7 @@ public class ReadJSONDatafromNFL {
         List<string> playerIDStringKeys = new List<string>();
         List<NFLPlayer> PlayerList = new List<NFLPlayer>();     //List of made NFL Players
 
-        using (var db = new NFLdatabase()) {
+        using (var db = new FF()) {
             //goes by passing, rushing, rec, etc. goes by home/away player
             foreach (KeyValuePair<string, string> child in StatsChildren) {
                 foreach (KeyValuePair<string, JObject> objName in JObjectHomeAway) {

@@ -1,0 +1,28 @@
+﻿@model IEnumerable<NFLPlayer>
+
+@{
+    ViewBag.Title = "View Players On Team";
+}
+
+<h2>View Players on Your Team</h2>
+
+<table class="table">
+
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.team)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.pos)
+            </td>
+            <td>
+
+            </td>
+        </tr>
+    }
+
+</table>

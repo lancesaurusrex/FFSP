@@ -1,0 +1,93 @@
+﻿@model IEnumerable<NFLPlayer>
+
+@{
+    ViewBag.Title = "ViewPlayere";
+}
+
+<h2>ViewPlayere</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.id_nflformat)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.team)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.pos)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.isAvailable)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.isChecked)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PassingStats)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RushingStats)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ReceivingStats)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FumbleStats)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.KickingStats)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.id_nflformat)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.team)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.pos)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isAvailable)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isChecked)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PassingStats)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.RushingStats)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ReceivingStats)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FumbleStats)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.KickingStats)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.id })
+        </td>
+    </tr>
+}
+
+</table>

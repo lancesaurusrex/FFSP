@@ -12,7 +12,7 @@ namespace WebApplication1.Controllers
 {
     public class NFLPlayersController : Controller
     {
-        private NFLdatabase db = new NFLdatabase();
+        private FF db = new FF();
 
         // GET: NFLPlayers
         public ActionResult Index()
