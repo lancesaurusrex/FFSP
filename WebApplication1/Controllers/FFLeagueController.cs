@@ -8,19 +8,17 @@ using System.Web;
 using System.Web.Mvc;
 using WebApplication1.DAL;
 using WebApplication1.Models;
+using Microsoft.AspNet.Identity;
 
 //https://datatellblog.wordpress.com/2015/02/11/unit-of-work-repository-entity-framework-and-persistence-ignorance/
 
-namespace WebApplication1.Controllers
-{
-    public class FFLeagueController : Controller
-    {
+namespace WebApplication1.Controllers {
+    public class FFLeagueController : Controller {
         private FF db = new FF();
 
         //GET:FFLEAGUE/JOINLEAGUE
-        public ActionResult JoinLeague() 
-        {
-            
+        public ActionResult JoinLeague() {
+
             return View();
         }
 
@@ -35,8 +33,7 @@ namespace WebApplication1.Controllers
 
             FFLeague FFLeagueFound = db.FFLeagueDB.Find(FFLeagueCO.FFLeagueID);
 
-            if (FFLeagueFound != null)
-            {
+            if (FFLeagueFound != null) {
                 //Count numofTeams in League
                 var sql = "SELECT COUNT(FFLeagueID) FROM FFTeams WHERE FFLeagueID = " + FFLeagueFound.FFLeagueID;
                 var numTeams = db.Database.SqlQuery<int>(sql).Single();
@@ -49,15 +46,14 @@ namespace WebApplication1.Controllers
             }
             else
                 return View();
-            
+
         }
 
         //Tells 
-        
+
         //league was created and sends LeagueID to CreateTeam 
         //Create League Created Successfully screen
-        public ActionResult CreateLeagueSuccess(int id, string leagueName)
-        {
+        public ActionResult CreateLeagueSuccess(int id, string leagueName) {
             //When League is first created make LeagueTeams object and insert creator into db
             //Creator of league is automatically commish
             ViewBag.leagueName = leagueName;
@@ -68,10 +64,9 @@ namespace WebApplication1.Controllers
 
 
 
-        public ActionResult LeagueXMainPage()
-        {
+        public ActionResult LeagueXMainPage() {
             //if (User != null) {
-            
+
 
             //}
             //var currentUser = User.Identity.Name;
@@ -82,30 +77,57 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        //Gets All LeagueId and TeamId From UserID: returns Dictionary int, int <TeamID, LeagueID>
+        public IDictionary<int, int> GetLeagueIDsFromUserID(string UserID) {
+
+            var s = db.FFTeamDB.Where(x => x.UserID == UserID).ToDictionary(x => x.FFTeamID, x => x.FFLeagueID);
+            return s;
+        }
+
+        //Gets League object from a LeagueID: returns FFLEague
+        FFLeague GetLeagueFromLeagueID(int LeagueID) {
+
+            FFLeague league = db.FFLeagueDB.Find(LeagueID);
+            return league;
+        }
+
         // GET: FFLeague
-        public ActionResult Index()
-        {
-           return View(db.FFLeagueDB.ToList());
+        public ActionResult Index() {
+
+            string UserID = User.Identity.GetUserId();
+            if (UserID != null) {
+                var ListOfLeagueIDFromUserID = GetLeagueIDsFromUserID(UserID);
+                var TeamIDLeaguesFromUserID = new Dictionary<int,FFLeague>();
+
+                if (ListOfLeagueIDFromUserID != null) {
+
+                    foreach (KeyValuePair<int,int> TeamAndLeagueIDs in ListOfLeagueIDFromUserID) {
+
+                        TeamIDLeaguesFromUserID.Add(TeamAndLeagueIDs.Key, GetLeagueFromLeagueID(TeamAndLeagueIDs.Value));
+
+                    }
+                    return View(TeamIDLeaguesFromUserID);
+                }
+                else { throw new Exception("Join a league"); }
+            }
+            else
+                return View(db.FFLeagueDB.ToList());    //won't work redirect to CreateLeagues
         }
 
         // GET: FFLeague/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
+        public ActionResult Details(int? id) {
+            if (id == null) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
-            if (FFLeagueCO == null)
-            {
+            if (FFLeagueCO == null) {
                 return HttpNotFound();
             }
             return View(FFLeagueCO);
         }
 
         // GET: FFLeague/Create
-        public ActionResult Create()
-        {
+        public ActionResult Create() {
             FFLeague FFLeagueCO = new FFLeague();
 
             return View(FFLeagueCO);
@@ -117,10 +139,8 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FFLeagueID, FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
-        {
-            if (ModelState.IsValid)
-            {               
+        public ActionResult Create([Bind(Include = "FFLeagueID, FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO) {
+            if (ModelState.IsValid) {
                 //Add Players to League
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
@@ -131,15 +151,12 @@ namespace WebApplication1.Controllers
         }
 
         // GET: FFLeague/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
+        public ActionResult Edit(int? id) {
+            if (id == null) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
-            if (FFLeagueCO == null)
-            {
+            if (FFLeagueCO == null) {
                 return HttpNotFound();
             }
             return View(FFLeagueCO);
@@ -150,10 +167,8 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "FFLeagueID,FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO)
-        {
-            if (ModelState.IsValid)
-            {
+        public ActionResult Edit([Bind(Include = "FFLeagueID,FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO) {
+            if (ModelState.IsValid) {
                 db.Entry(FFLeagueCO).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -162,15 +177,12 @@ namespace WebApplication1.Controllers
         }
 
         // GET: FFLeague/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
+        public ActionResult Delete(int? id) {
+            if (id == null) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
-            if (FFLeagueCO == null)
-            {
+            if (FFLeagueCO == null) {
                 return HttpNotFound();
             }
             return View(FFLeagueCO);
@@ -179,8 +191,7 @@ namespace WebApplication1.Controllers
         // POST: FFLeague/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
+        public ActionResult DeleteConfirmed(int id) {
             FFLeague FFLeagueCO = db.FFLeagueDB.Find(id);
             db.FFLeagueDB.Remove(FFLeagueCO);
             db.SaveChanges();

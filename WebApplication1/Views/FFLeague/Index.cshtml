@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebApplication1.Models.FFLeague>
+﻿@model Dictionary<int,WebApplication1.Models.FFLeague>
 
 @{
     ViewBag.Title = "Index";
@@ -11,79 +11,80 @@
 </p>
 
 @Html.ActionLink("Have a League ID and need to join your league? Click Here", "JoinLeague")
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.FFLeagueName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NumberOfTeams)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NumberOfDivision)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PlayoffWeekStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.QBStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.RBStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.WRTESame)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.WRStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TEStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DEFStart)
-        </th>
-        <th></th>
-    </tr>
-
 @foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.FFLeagueName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.NumberOfTeams)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.NumberOfDivision)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PlayoffWeekStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.QBStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.RBStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.WRTESame)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.WRStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TEStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DEFStart)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.FFLeagueID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.FFLeagueID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.FFLeagueID })
-        </td>
-    </tr>
-}
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.FFLeagueName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.NumberOfTeams)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.NumberOfDivision)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.PlayoffWeekStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.QBStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.RBStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.WRTESame)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.WRStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.TEStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => item.Value.DEFStart)
+            </th>
+            <th></th>
+        </tr>
 
-</table>
+
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.FFLeagueName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.NumberOfTeams)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.NumberOfDivision)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.PlayoffWeekStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.QBStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.RBStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.WRTESame)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.WRStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.TEStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value.DEFStart)
+            </td>
+            <td>
+                @Html.ActionLink("Team Main Page", "Index", "FFTeams", new { TeamID = item.Key }, null) |
+                @Html.ActionLink("Edit", "Edit", new { id = item.Value.FFLeagueID }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Value.FFLeagueID }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Value.FFLeagueID })
+            </td>
+        </tr>
+    </table>
+}

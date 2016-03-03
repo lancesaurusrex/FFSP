@@ -8,20 +8,20 @@
 
 <table class="table">
 
+    @{bool altRow = false;}   
     @foreach (var item in Model) {
+
         <tr>
-            <td>
+            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
                 @Html.DisplayFor(modelItem => item.name)
             </td>
-            <td>
+            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
                 @Html.DisplayFor(modelItem => item.team)
             </td>
-            <td>
+            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
                 @Html.DisplayFor(modelItem => item.pos)
             </td>
-            <td>
-
-            </td>
+            @{altRow = !altRow;}
         </tr>
     }
 

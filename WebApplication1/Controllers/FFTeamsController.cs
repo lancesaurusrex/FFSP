@@ -73,6 +73,12 @@ namespace WebApplication1.Controllers {
             return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
         }
 
+        /* Database Pulls
+         * GetAllFFPlayers - Return all NFL Players from the NFL.com pull site
+         * GetAllTeamIDFromLeague - Return all TeamIDs in one League
+         * GetAllPlayersIDOnTeamsInLeague - Return all PlayerID's from all teams in one league
+         * GetAllPlayersOnTeamsInLeagues - Return all Players from all teams in one league
+         */
         //Gets all NFLPlayer from NFLDB
         public IQueryable<NFLPlayer> GetAllFFPlayers() {
             return db.NFLPlayer;
