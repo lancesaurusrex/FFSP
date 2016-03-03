@@ -104,7 +104,6 @@ namespace WebApplication1.Controllers {
                     foreach (KeyValuePair<int,int> TeamAndLeagueIDs in ListOfLeagueIDFromUserID) {
 
                         TeamIDLeaguesFromUserID.Add(TeamAndLeagueIDs.Key, GetLeagueFromLeagueID(TeamAndLeagueIDs.Value));
-
                     }
                     return View(TeamIDLeaguesFromUserID);
                 }

@@ -21,7 +21,7 @@ namespace WebApplication1.Controllers {
     public class FFTeamsController : Controller {
         private FF db = new FF();
  
-
+        //
         public ActionResult AvailablePlayers(int TeamID) {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
@@ -45,22 +45,20 @@ namespace WebApplication1.Controllers {
             FFLeague FFLeague1 = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
 
             foreach (string id in collection.Keys) {
-
-                if (id.All(Char.IsDigit) && FFTeam != null) {
+                //if the key is a digit in the collection and FFTeam is found
+                if (id.All(Char.IsDigit) && FFTeam != null && FFLeague1 != null) {
+                    //Find NFLPlayer
                     int playerIDconvert = Convert.ToInt32(id);
                     NFLPlayer NFLPlayer = db.NFLPlayer.Find(playerIDconvert);
-
+                    //Add to Team;s Players list
                     if (NFLPlayer != null)
                         FFTeam.Players.Add(NFLPlayer);  //add player to team                   
                     else
                         throw new NoNullAllowedException("Player not found in NFLPlayerDB");
                     //add player teamplayer db
-
-                    //db.Entry(FFTeam).State = EntityState.Modified;
-                    //db.SaveChanges();
+                    //could make a addplayer function
                     TeamNFLPlayer TeamPlayer = new TeamNFLPlayer();
                     TeamPlayer.TNPID = Convert.ToInt32("" + TeamID + playerIDconvert);
-
                     TeamPlayer.PlayerID = playerIDconvert;
                     TeamPlayer.TeamID = TeamID;
                     TeamPlayer.isActive = false;
@@ -78,7 +76,7 @@ namespace WebApplication1.Controllers {
          * GetAllTeamIDFromLeague - Return all TeamIDs in one League
          * GetAllPlayersIDOnTeamsInLeague - Return all PlayerID's from all teams in one league
          * GetAllPlayersOnTeamsInLeagues - Return all Players from all teams in one league
-         */
+         --------------------------------------------------------------------------------------------------*/
         //Gets all NFLPlayer from NFLDB
         public IQueryable<NFLPlayer> GetAllFFPlayers() {
             return db.NFLPlayer;
@@ -122,6 +120,58 @@ namespace WebApplication1.Controllers {
             var mergedPlayers = dict.Values.ToList();
 
             return mergedPlayers;
+        }
+        //-----------------------------------------------------------------------------------------------------
+
+        public ActionResult RemovePlayers(int TeamID) {
+
+            FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
+
+            var PlayersOnTeam = FFTeam.Players.ToList();
+
+            ViewBag.TeamID = TeamID;
+            Session["TeamID"] = TeamID;
+
+            return View(PlayersOnTeam);
+        }
+
+        [HttpPost]
+        public ActionResult RemovePlayers(FormCollection Collection) {
+            //Pass TeamID from get to post
+            var PassedTID = Session["TeamID"];
+            int TeamID = Convert.ToInt32(PassedTID);
+            Session["TeamID"] = null;
+
+             //Find team and league in db
+            FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            FFLeague FFLeague1 = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
+
+            foreach (string id in Collection.Keys) {
+
+                if (id.All(Char.IsDigit) && FFTeam != null && FFLeague1 != null) {
+                    int playerIDconvert = Convert.ToInt32(id);
+                    NFLPlayer NFLPlayer = db.NFLPlayer.Find(playerIDconvert);
+                    if (NFLPlayer != null)
+                        //Remove From FFTeam Players List
+                        FFTeam.Players.Remove(NFLPlayer);
+                    else
+                        throw new NullReferenceException("NFLPlayer not found in NFLPlayer db, has to exist to remove");
+                    //Remove from TeamPlayers DB
+                    //Could put remove in seperate function
+                    int TNPID = Convert.ToInt32("" + TeamID + playerIDconvert);
+                    TeamNFLPlayer TeamPlayer = db.FFTeamNFLPlayer.Find(TNPID);
+
+                    if (TeamPlayer != null) {
+                        db.FFTeamNFLPlayer.Remove(TeamPlayer);
+                        db.SaveChanges();
+                    }
+                    else
+                        throw new NullReferenceException("TeamPlayer should not be null, it has to be in the FFTeamNFLPlayerdb to be deleted.");
+                }
+            }
+
+            return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
         }
 
         public ActionResult ViewPlayersOnTeam(int TeamID) {
