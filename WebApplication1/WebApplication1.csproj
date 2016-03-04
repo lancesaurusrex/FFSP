@@ -263,6 +263,8 @@
     <Content Include="Views\FFTeams\ViewPlayersOnTeam.cshtml" />
     <Content Include="Views\FFTeams\ViewPlayere.cshtml" />
     <Content Include="Views\FFTeams\RemovePlayers.cshtml" />
+    <Content Include="Views\FFTeams\ViewTeamsInLeague.cshtml" />
+    <Content Include="Views\FFTeams\Schedule.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

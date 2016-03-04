@@ -19,6 +19,8 @@ namespace WebApplication1.Models {
             NumberOfWRStList = new List<int>() { 0, 1, 2, 3 };
             NumberOfTEStList = new List<int>() { 0, 1, 2 };
             NumberOfDEFStList = new List<int>() { 0, 1, 2 };
+            Teams = new List<FFTeam>();
+            Schedule = new List<FFGame>();
         }
 
         [Key]
@@ -83,6 +85,9 @@ namespace WebApplication1.Models {
     }
 
     public class FFGame {
+        public FFGame() { }
+        public FFGame(int pWeek, int pYear, int pHScore, int pVScore, int pHomeTeamID, int pVisTeamID)
+        { Week = pWeek; Year = pYear; HScore = pHScore; VScore = pVScore; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFGameID { get; set; }
@@ -107,15 +112,14 @@ namespace WebApplication1.Models {
      *  Have a seperate list of players_team that link a playerid to a teamid, since all teamid are unique no need for leagueid!
      */
     public class TeamNFLPlayer {
-        public TeamNFLPlayer() {
-        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int TNPID { get; set; }
 
         public int TeamID { get; set; }
         public int PlayerID { get; set; }
-        //public virtual ICollection<FFTeam> FFTeams { get; set; }
+
         public int position { get; set; }
         //A player active check
         public bool isActive { get; set; }

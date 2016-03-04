@@ -56,6 +56,8 @@
 
 </table>
 
-@Html.ActionLink("Available Players", "AvailablePlayers", new { TeamID = Model.FFTeamID })
-@Html.ActionLink("Remove Players", "RemovePlayers", new { TeamID = Model.FFTeamID })
-@Html.ActionLink("View Lineup", "ViewPlayersOnTeam", new { TeamID = Model.FFTeamID })
+@Html.ActionLink("Available Players", "AvailablePlayers", new { TeamID = Model.FFTeamID }) |
+@Html.ActionLink("Remove Players", "RemovePlayers", new { TeamID = Model.FFTeamID }) |
+@Html.ActionLink("View Lineup", "ViewPlayersOnTeam", new { TeamID = Model.FFTeamID }) |
+@Html.ActionLink("Standings", "ViewTeamsInLeague", new { TeamID = Model.FFTeamID }) |
+@Html.ActionLink("Schedule", "Schedule", new { TeamID = Model.FFTeamID }) 

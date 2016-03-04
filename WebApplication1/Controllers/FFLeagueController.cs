@@ -76,7 +76,11 @@ namespace WebApplication1.Controllers {
             //if numberofregistered teams == numofteams
             return View();
         }
-
+        /* 
+        *DBPULLS
+        *
+        *
+        */
         //Gets All LeagueId and TeamId From UserID: returns Dictionary int, int <TeamID, LeagueID>
         public IDictionary<int, int> GetLeagueIDsFromUserID(string UserID) {
 
@@ -92,11 +96,12 @@ namespace WebApplication1.Controllers {
         }
 
         // GET: FFLeague
+        //Shows all the teams owned by the LoggedIn User
         public ActionResult Index() {
 
             string UserID = User.Identity.GetUserId();
             if (UserID != null) {
-                var ListOfLeagueIDFromUserID = GetLeagueIDsFromUserID(UserID);
+                var ListOfLeagueIDFromUserID = GetLeagueIDsFromUserID(UserID);  //List
                 var TeamIDLeaguesFromUserID = new Dictionary<int,FFLeague>();
 
                 if (ListOfLeagueIDFromUserID != null) {
@@ -140,9 +145,11 @@ namespace WebApplication1.Controllers {
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "FFLeagueID, FFLeagueName,NumberOfTeams,NumberOfDivision,PlayoffWeekStart,QBStart,RBStart,WRTESame,WRStart,TEStart,DEFStart")] FFLeague FFLeagueCO) {
             if (ModelState.IsValid) {
+                
                 //Add Players to League
                 db.FFLeagueDB.Add(FFLeagueCO);
                 db.SaveChanges();
+
                 return RedirectToAction("CreateLeagueSuccess", new { id = FFLeagueCO.FFLeagueID, leagueName = FFLeagueCO.FFLeagueName });   //Goto Create League Success then create team
             }
 

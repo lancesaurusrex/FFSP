@@ -21,7 +21,7 @@ namespace WebApplication1.Controllers {
     public class FFTeamsController : Controller {
         private FF db = new FF();
  
-        //
+        //Displays All AvailablePlayers and can add selected ones to the team
         public ActionResult AvailablePlayers(int TeamID) {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
@@ -174,6 +174,17 @@ namespace WebApplication1.Controllers {
             return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
         }
 
+        public ActionResult ViewTeamsInLeague(int TeamID)
+        {
+            FFTeam Team = db.FFTeamDB.Find(TeamID);
+            FFLeague League = db.FFLeagueDB.Find(Team.FFLeagueID);
+
+            if (League != null)
+                return View(League.Teams);
+            else
+                throw new NullReferenceException("League cannot be null to view all teams in league");
+        }
+
         public ActionResult ViewPlayersOnTeam(int TeamID) {
 
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
@@ -182,7 +193,38 @@ namespace WebApplication1.Controllers {
                 return View(FFTeam.Players);
             else
                 throw new NoNullAllowedException("No Players on Team");
+        }
+        /*
+        Schedule Time Ladies and Gents!
+        2 ways to access schedule League.Schedule and Team.FFLeague.Games
+        */
+        //Make Link in Schedule?
+        public ActionResult Schedule(int TeamID)
+        {
+            FFTeam Team = db.FFTeamDB.Find(TeamID);
+            FFLeague League = db.FFLeagueDB.Find(Team.FFLeagueID);
 
+            return View(Team.FFLeague.Schedule);
+        }
+
+        public ActionResult CreateSchedule(int TeamID)
+        {
+            FFTeam Team = db.FFTeamDB.Find(TeamID);
+            FFLeague League = db.FFLeagueDB.Find(Team.FFLeagueID);
+
+            if (League != null)
+            {
+                if (League.NumberOfTeams == League.Teams.Count())
+                {
+                    return View(); //make compiler stop bitchin
+                }
+                else
+                {
+                    string err = "Need correct amount of Teams in League to create schedule";
+                    return View(err);
+                }
+            }
+            return View();  //make compiler stop bitchin
         }
 
         //Add Team to League
@@ -215,7 +257,7 @@ namespace WebApplication1.Controllers {
 
             return View(FFTeam);
         }
-
+        
         //code snippet displays teams in league var fFTeamDB = db.FFTeamDB.Include(f => f.FFLeague);
         // GET: FFTeams
         public ActionResult Index(int TeamID) {
@@ -225,6 +267,7 @@ namespace WebApplication1.Controllers {
             //Team View, Edit Team, Team Schedule
             return View(FFTeam);
         }
+        
 
         // GET: FFTeams/Details/5
         public ActionResult Details(int? id) {
