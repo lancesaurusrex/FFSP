@@ -17,12 +17,15 @@ using Microsoft.AspNet.Identity;
 //}
 //var mergedPlayers = dict.Values.ToList();
 
-namespace WebApplication1.Controllers {
-    public class FFTeamsController : Controller {
+namespace WebApplication1.Controllers
+{
+    public class FFTeamsController : Controller
+    {
         private FF db = new FF();
- 
+
         //Displays All AvailablePlayers and can add selected ones to the team
-        public ActionResult AvailablePlayers(int TeamID) {
+        public ActionResult AvailablePlayers(int TeamID)
+        {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
 
@@ -35,7 +38,8 @@ namespace WebApplication1.Controllers {
 
         //I dont think passing AvailablePlayer is necessary
         [HttpPost]
-        public ActionResult AvailablePlayers(IList<NFLPlayer> AvailablePlayer, FormCollection collection) {
+        public ActionResult AvailablePlayers(IList<NFLPlayer> AvailablePlayer, FormCollection collection)
+        {
             //Pass TeamID from get to post
             var PassedTID = Session["TeamID"];
             int TeamID = Convert.ToInt32(PassedTID);
@@ -44,9 +48,11 @@ namespace WebApplication1.Controllers {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague1 = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
 
-            foreach (string id in collection.Keys) {
+            foreach (string id in collection.Keys)
+            {
                 //if the key is a digit in the collection and FFTeam is found
-                if (id.All(Char.IsDigit) && FFTeam != null && FFLeague1 != null) {
+                if (id.All(Char.IsDigit) && FFTeam != null && FFLeague1 != null)
+                {
                     //Find NFLPlayer
                     int playerIDconvert = Convert.ToInt32(id);
                     NFLPlayer NFLPlayer = db.NFLPlayer.Find(playerIDconvert);
@@ -78,35 +84,41 @@ namespace WebApplication1.Controllers {
          * GetAllPlayersOnTeamsInLeagues - Return all Players from all teams in one league
          --------------------------------------------------------------------------------------------------*/
         //Gets all NFLPlayer from NFLDB
-        public IQueryable<NFLPlayer> GetAllFFPlayers() {
+        public IQueryable<NFLPlayer> GetAllFFPlayers()
+        {
             return db.NFLPlayer;
         }
 
         //Gets All Teams from a LeagueID **Returns collection of teamID's
-        public ICollection<int> GetAllTeamIDFromLeague(int leagueID) {
+        public ICollection<int> GetAllTeamIDFromLeague(int leagueID)
+        {
             var TeamsInLeague = (from t in db.FFTeamDB where t.FFLeagueID == leagueID select t.FFTeamID).ToList();
             return TeamsInLeague;
         }
 
         //Gets All Player ID on All Teams in one league  
-        public IQueryable<int> GetAllPlayersIDOnTeamsInLeague(ICollection<int> AllTeamIDInLeague) {
+        public IQueryable<int> GetAllPlayersIDOnTeamsInLeague(ICollection<int> AllTeamIDInLeague)
+        {
 
             IQueryable<int> AllPlayersTakenID = null;
-            
-            foreach (int TeamID in AllTeamIDInLeague) {
-            AllPlayersTakenID = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
+
+            foreach (int TeamID in AllTeamIDInLeague)
+            {
+                AllPlayersTakenID = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
             }
 
             return AllPlayersTakenID;
         }
 
         //Gets all players on all teams in one league into NFLPlayer obj 
-        public ICollection<NFLPlayer> GetAllPlayersOnTeamsInLeague(IQueryable<int> AllPlayersTakenID){
+        public ICollection<NFLPlayer> GetAllPlayersOnTeamsInLeague(IQueryable<int> AllPlayersTakenID)
+        {
             List<NFLPlayer> AllPlayersTaken = new List<NFLPlayer>();
             List<NFLPlayer> AllPlayers = GetAllFFPlayers().ToList();
 
             //finding each takenplayer by id in AllPlayers and storing them as a player
-            foreach (int playerID in AllPlayersTakenID ) {
+            foreach (int playerID in AllPlayersTakenID)
+            {
 
                 AllPlayersTaken.Add(AllPlayers.Find(x => x.id == playerID));
             }
@@ -114,7 +126,8 @@ namespace WebApplication1.Controllers {
             //Looping through allplayerslist and removing players that are taken
             //AllPlayers = AllPlayers.Intersect(AllPlayersTaken).ToList();
             var dict = AllPlayers.ToDictionary(x => x.id);
-            foreach (var player in AllPlayersTaken) {
+            foreach (var player in AllPlayersTaken)
+            {
                 dict.Remove(player.id);
             }
             var mergedPlayers = dict.Values.ToList();
@@ -123,7 +136,8 @@ namespace WebApplication1.Controllers {
         }
         //-----------------------------------------------------------------------------------------------------
 
-        public ActionResult RemovePlayers(int TeamID) {
+        public ActionResult RemovePlayers(int TeamID)
+        {
 
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
@@ -137,19 +151,22 @@ namespace WebApplication1.Controllers {
         }
 
         [HttpPost]
-        public ActionResult RemovePlayers(FormCollection Collection) {
+        public ActionResult RemovePlayers(FormCollection Collection)
+        {
             //Pass TeamID from get to post
             var PassedTID = Session["TeamID"];
             int TeamID = Convert.ToInt32(PassedTID);
             Session["TeamID"] = null;
 
-             //Find team and league in db
+            //Find team and league in db
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague FFLeague1 = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
 
-            foreach (string id in Collection.Keys) {
+            foreach (string id in Collection.Keys)
+            {
 
-                if (id.All(Char.IsDigit) && FFTeam != null && FFLeague1 != null) {
+                if (id.All(Char.IsDigit) && FFTeam != null && FFLeague1 != null)
+                {
                     int playerIDconvert = Convert.ToInt32(id);
                     NFLPlayer NFLPlayer = db.NFLPlayer.Find(playerIDconvert);
                     if (NFLPlayer != null)
@@ -162,7 +179,8 @@ namespace WebApplication1.Controllers {
                     int TNPID = Convert.ToInt32("" + TeamID + playerIDconvert);
                     TeamNFLPlayer TeamPlayer = db.FFTeamNFLPlayer.Find(TNPID);
 
-                    if (TeamPlayer != null) {
+                    if (TeamPlayer != null)
+                    {
                         db.FFTeamNFLPlayer.Remove(TeamPlayer);
                         db.SaveChanges();
                     }
@@ -185,7 +203,8 @@ namespace WebApplication1.Controllers {
                 throw new NullReferenceException("League cannot be null to view all teams in league");
         }
 
-        public ActionResult ViewPlayersOnTeam(int TeamID) {
+        public ActionResult ViewPlayersOnTeam(int TeamID)
+        {
 
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
 
@@ -226,6 +245,7 @@ namespace WebApplication1.Controllers {
                 if (Team.DivisionID == 0 || Team.DivisionID == null)
                 {
                     Dictionary<int, List<int>> DictOfOppoList = new Dictionary<int, List<int>>();
+                    Dictionary<int, List<int>> MasterDict = new Dictionary<int, List<int>>();
                     DictOfOppoList.Add(0, Listof0oppo);
                     DictOfOppoList.Add(1, Listof1oppo);
                     DictOfOppoList.Add(2, Listof2oppo);
@@ -237,70 +257,69 @@ namespace WebApplication1.Controllers {
 
                     for (int weekCntr = 1; weekCntr < League.PlayoffWeekStart; ++weekCntr)
                     {
-                        int teamCntr = League.NumberOfTeams;   //works as indexer for list (0:numteams)
+                        /*Best idea - Make this code simple as possible atm.  Take first and second of list and have them play each other
+                        Listof0oppo = 1,2,3,4,5,6,7
+                        Listof1opoo = 0,2,3,4,5,6,7
+                        Listof2oppo = 0,1,3,4,5,6,7
+                        ...
+                        Weekoppo = 0,1,2,3,4,5,6,7
+                        each List take first num
+                        Listof0 is 1 -> 0v1, rem 0,1 from weekoppo, remove individual opponent from list
+                        WeekOppo = 2,3,4,5,6,7
+                        List of Lists -> next list 2
+                        Listof2 is 0,++,1,++,3,2v3, rem 2,3
+                        WeekOppo = 4,5,6,7
+                        LoL -> 4
+                        Listof4 0,++,5 rem 4,5
+                        LoL->6
+                        Listof6 0,++,7 rem 6,7
+                        next iter */
+
                         List<FFTeam> NoChangeListTeams = League.Teams.ToList();
                         List<int> WeekCheckList = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7 };
-                        
-                            /*Best idea - Make this code simple as possible atm.  Take first and second of list and have them play each other
-                            Listof0oppo = 1,2,3,4,5,6,7
-                            Listof1opoo = 0,2,3,4,5,6,7
-                            Listof2oppo = 0,1,3,4,5,6,7
-                            ...
-                            Weekoppo = 0,1,2,3,4,5,6,7
-                            each List take first num
-                            Listof0 is 1 -> 0v1, rem 0,1 from weekoppo, remove individual opponent from list
-                            WeekOppo = 2,3,4,5,6,7
-                            List of Lists -> next list 2
-                            Listof2 is 0,++,1,++,3,2v3, rem 2,3
-                            WeekOppo = 4,5,6,7
-                            LoL -> 4
-                            Listof4 0,++,5 rem 4,5
-                            LoL->6
-                            Listof6 0,++,7 rem 6,7
-                            next iter
-                            
-                            */                  
+                        DictOfOppoList = MasterDict.ToDictionary(entry => entry.Key, entry => entry.Value); //"refill" from master with correct list values
 
-                            while (DictOfOppoList.Count != 0)
+                        while (DictOfOppoList.Count != 0)
+                        {
+                            var WeekCheckListIterator = 0;  //needs to reset on every iteration
+
+                            var oppoList = DictOfOppoList.First().Value;  //oppoList is ListofXopponent
+                            int FirstTeamKey = DictOfOppoList.First().Key;  //The Key is the num of the first team
+
+                            int oppIndex = -1;   //jump into while for first result, -1 = nf so do..while, will inf.loop if never found
+
+                            while (oppIndex == -1)  //if not found keep going
                             {
-                                var WeekCheckListIterator = 0;  //needs to reset on every iteration
-
-                                var oppoList = DictOfOppoList.First().Value;  //oppoList is ListofXopponent
-                                int FirstTeamKey = DictOfOppoList.First().Key;  //The Key is the num of the first team
-
-                                int oppIndex = -1;   //jump into while for first result
-
-                                while (oppIndex == -1)  //if not found keep going
-                                {
-                                    //finding the opponent in the first list of LOL
-                                    //Find the Index of the first opponent in the oppoX List, if not found go to next available opponent
-                                    oppIndex = oppoList.FindIndex(x => x == WeekCheckList[WeekCheckListIterator]);   //backwards?
-                                    WeekCheckListIterator += 1;
-                                }
-                                //Found opponent in oppoList and finding in dictofoppo
-                                var secondTeamoppoListValue = oppoList[oppIndex];
-
-                                var firstTeam = NoChangeListTeams.ElementAt(FirstTeamKey);
-                                var secondTeam = NoChangeListTeams.ElementAt(secondTeamoppoListValue);
-
-                                //FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID)
-                                FFGame Game = new FFGame(weekCntr, FFLeague.YEAR, firstTeam.FFTeamID, secondTeam.FFTeamID);
-                                Listof0oppo.Remove(FirstTeamKey);
-                                List<int> whatever = Listof0oppo;
-                                DictOfOppoList[FirstTeamKey] = whatever;
-                                DictOfOppoList.Remove(FirstTeamKey);  //Remove FirstTeam from Dict
-                                var removeDict = DictOfOppoList.First(x => x.Key == (secondTeamoppoListValue));
-                                DictOfOppoList.Remove(removeDict.Key);
-
-                                WeekCheckList.Remove(WeekCheckList.ElementAt(0));//remove first two entries od weekcheecklist
-                                WeekCheckList.Remove(WeekCheckList.ElementAt(0));
-
-                                //I need to take out of ListofXoppo, readadd edited list into dict
+                                //Find the Index of the first opponent in the oppoX List, if not found go to next available opponent in weekcheck(opponent)list
+                                oppIndex = oppoList.FindIndex(x => x == WeekCheckList[WeekCheckListIterator]);
+                                WeekCheckListIterator += 1;
                             }
+                            
+                            var secondTeamoppoListValue = oppoList[oppIndex];   //Storing value (opponentNum) in var
 
-                            teamCntr = DictOfOppoList.Count();
-                            //move team list by one
+                            var firstTeam = NoChangeListTeams.ElementAt(FirstTeamKey);
+                            var secondTeam = NoChangeListTeams.ElementAt(secondTeamoppoListValue);
+
+                            //FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID)
+                            FFGame Game = new FFGame(weekCntr, FFLeague.YEAR, firstTeam.FFTeamID, secondTeam.FFTeamID);
+                            League.Schedule.Add(Game);
+
+                            db.FFGameDB.Add(Game);
+                            //db.SaveChanges();
                         
+                            //Remove opponents from oppolist in dictionary
+                            DictOfOppoList[FirstTeamKey].Remove(secondTeamoppoListValue);
+                            DictOfOppoList[secondTeamoppoListValue].Remove(FirstTeamKey);
+                            //Need MasterDict, copy current dict to master
+                            MasterDict = DictOfOppoList.ToDictionary(entry => entry.Key, entry => entry.Value);
+
+                            DictOfOppoList.Remove(FirstTeamKey);  //Remove FirstTeam from Dict
+                            var removeDict = DictOfOppoList.First(x => x.Key == (secondTeamoppoListValue));
+                            DictOfOppoList.Remove(removeDict.Key);
+
+                            WeekCheckList.Remove(WeekCheckList.ElementAt(0));//remove first two entries od weekcheecklist
+                            WeekCheckList.Remove(WeekCheckList.ElementAt(0));
+                        }
                     }
                 }
             }
@@ -314,7 +333,8 @@ namespace WebApplication1.Controllers {
 
         //Add Team to League
         [Authorize]
-        public ActionResult CreateTeam(int LeagueID) {
+        public ActionResult CreateTeam(int LeagueID)
+        {
 
             //Passed LeagueID through HTML.Hidden from (CreateTeam) get to post.  
             ViewBag.LeagueID = LeagueID;
@@ -326,8 +346,10 @@ namespace WebApplication1.Controllers {
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateTeam([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam FFTeam) {
-            if (ModelState.IsValid) {
+        public ActionResult CreateTeam([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam FFTeam)
+        {
+            if (ModelState.IsValid)
+            {
 
                 //User Needs to be logged in (Authorize)
                 FFTeam.UserID = User.Identity.GetUserId();
@@ -342,32 +364,37 @@ namespace WebApplication1.Controllers {
 
             return View(FFTeam);
         }
-        
+
         //code snippet displays teams in league var fFTeamDB = db.FFTeamDB.Include(f => f.FFLeague);
         // GET: FFTeams
-        public ActionResult Index(int TeamID) {
+        public ActionResult Index(int TeamID)
+        {
             //load once will have to figure out how to do that
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague League = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
             //Team View, Edit Team, Team Schedule
             return View(FFTeam);
         }
-        
+
 
         // GET: FFTeams/Details/5
-        public ActionResult Details(int? id) {
-            if (id == null) {
+        public ActionResult Details(int? id)
+        {
+            if (id == null)
+            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             FFTeam fFTeam = db.FFTeamDB.Find(id);
-            if (fFTeam == null) {
+            if (fFTeam == null)
+            {
                 return HttpNotFound();
             }
             return View(fFTeam);
         }
 
         // GET: FFTeams/Create
-        public ActionResult Create() {
+        public ActionResult Create()
+        {
             //ViewBag.FFLeagueID = new SelectList(db.FFLeagueDB, "FFLeagueID", "FFLeagueName");
             return View();
         }
@@ -377,8 +404,10 @@ namespace WebApplication1.Controllers {
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam fFTeam) {
-            if (ModelState.IsValid) {
+        public ActionResult Create([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam fFTeam)
+        {
+            if (ModelState.IsValid)
+            {
 
                 db.FFTeamDB.Add(fFTeam);
                 db.SaveChanges();
@@ -390,12 +419,15 @@ namespace WebApplication1.Controllers {
         }
 
         // GET: FFTeams/Edit/5
-        public ActionResult Edit(int? id) {
-            if (id == null) {
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             FFTeam fFTeam = db.FFTeamDB.Find(id);
-            if (fFTeam == null) {
+            if (fFTeam == null)
+            {
                 return HttpNotFound();
             }
             ViewBag.FFLeagueID = new SelectList(db.FFLeagueDB, "FFLeagueID", "FFLeagueName", fFTeam.FFLeagueID);
@@ -407,8 +439,10 @@ namespace WebApplication1.Controllers {
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam fFTeam) {
-            if (ModelState.IsValid) {
+        public ActionResult Edit([Bind(Include = "FFTeamID,TeamName,Win,Lose,Tie,FPTotal,FFLeagueID")] FFTeam fFTeam)
+        {
+            if (ModelState.IsValid)
+            {
                 db.Entry(fFTeam).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -418,12 +452,15 @@ namespace WebApplication1.Controllers {
         }
 
         // GET: FFTeams/Delete/5
-        public ActionResult Delete(int? id) {
-            if (id == null) {
+        public ActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             FFTeam fFTeam = db.FFTeamDB.Find(id);
-            if (fFTeam == null) {
+            if (fFTeam == null)
+            {
                 return HttpNotFound();
             }
             return View(fFTeam);
@@ -432,15 +469,18 @@ namespace WebApplication1.Controllers {
         // POST: FFTeams/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id) {
+        public ActionResult DeleteConfirmed(int id)
+        {
             FFTeam fFTeam = db.FFTeamDB.Find(id);
             db.FFTeamDB.Remove(fFTeam);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
 
-        protected override void Dispose(bool disposing) {
-            if (disposing) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
                 db.Dispose();
             }
             base.Dispose(disposing);
