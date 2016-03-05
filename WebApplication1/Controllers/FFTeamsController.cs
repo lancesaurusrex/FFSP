@@ -225,15 +225,22 @@ namespace WebApplication1.Controllers {
             {
                 if (Team.DivisionID == 0 || Team.DivisionID == null)
                 {
+                    Dictionary<int, List<int>> DictOfOppoList = new Dictionary<int, List<int>>();
+                    DictOfOppoList.Add(0, Listof0oppo);
+                    DictOfOppoList.Add(1, Listof1oppo);
+                    DictOfOppoList.Add(2, Listof2oppo);
+                    DictOfOppoList.Add(3, Listof3oppo);
+                    DictOfOppoList.Add(4, Listof4oppo);
+                    DictOfOppoList.Add(5, Listof5oppo);
+                    DictOfOppoList.Add(6, Listof6oppo);
+                    DictOfOppoList.Add(7, Listof7oppo);
+
                     for (int weekCntr = 1; weekCntr < League.PlayoffWeekStart; ++weekCntr)
                     {
-                        int teamCntr = 0;   //works as indexer for list (0:numteams-1)
-                        List<FFTeam> ListTeams = League.Teams.ToList();
+                        int teamCntr = League.NumberOfTeams;   //works as indexer for list (0:numteams)
+                        List<FFTeam> NoChangeListTeams = League.Teams.ToList();
                         List<int> WeekCheckList = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7 };
-
-
-                        while (teamCntr != (League.NumberOfTeams - 1))
-                        {
+                        
                             /*Best idea - Make this code simple as possible atm.  Take first and second of list and have them play each other
                             Listof0oppo = 1,2,3,4,5,6,7
                             Listof1opoo = 0,2,3,4,5,6,7
@@ -253,62 +260,47 @@ namespace WebApplication1.Controllers {
                             next iter
                             
                             */                  
-                            Dictionary<int, List<int>> DictOfOppoList = new Dictionary<int, List<int>>();
-                            DictOfOppoList.Add(0, Listof0oppo);
-                            DictOfOppoList.Add(1, Listof1oppo);
-                            DictOfOppoList.Add(2, Listof2oppo);
-                            DictOfOppoList.Add(3, Listof3oppo);
-                            DictOfOppoList.Add(4, Listof4oppo);
-                            DictOfOppoList.Add(5, Listof5oppo);
-                            DictOfOppoList.Add(6, Listof6oppo);
-                            DictOfOppoList.Add(7, Listof7oppo);
 
                             while (DictOfOppoList.Count != 0)
                             {
-                                //Weekoppo = 0,1,2,3,4,5,6,7
-                                //each List take first num
-                                //Listof0 is 1-> 0v1, rem 0,1 from weekoppo, remove individual opponent from list
                                 var WeekCheckListIterator = 0;  //needs to reset on every iteration
-                                List<int> keyList = new List<int>(DictOfOppoList.Keys);
 
                                 var oppoList = DictOfOppoList.First().Value;  //oppoList is ListofXopponent
-                                int FirstTeamIndex = 0;    //DictofOppoList should be edited together
+                                int FirstTeamKey = DictOfOppoList.First().Key;  //The Key is the num of the first team
 
                                 int oppIndex = -1;   //jump into while for first result
 
                                 while (oppIndex == -1)  //if not found keep going
                                 {
                                     //finding the opponent in the first list of LOL
-                                    //Take The First List in LOL which gives us the first team LOL[x} pos x is the team
-                                    oppIndex = oppoList.Find(x => x == WeekCheckList[WeekCheckListIterator]);
+                                    //Find the Index of the first opponent in the oppoX List, if not found go to next available opponent
+                                    oppIndex = oppoList.FindIndex(x => x == WeekCheckList[WeekCheckListIterator]);   //backwards?
                                     WeekCheckListIterator += 1;
                                 }
+                                //Found opponent in oppoList and finding in dictofoppo
+                                var secondTeamoppoListValue = oppoList[oppIndex];
 
-                                var secondFFTeam = DictOfOppoList[oppIndex];
-                                var secondTeamIndex = oppIndex;
-
-                                var firstTeam = ListTeams[FirstTeamIndex];
-                                var secondTeam = ListTeams[oppoList[oppIndex]];
-
-                                ListTeams.Remove(ListTeams[FirstTeamIndex]); //remove teams from available pool
-                                ListTeams.Remove(secondFFTeam);
+                                var firstTeam = NoChangeListTeams.ElementAt(FirstTeamKey);
+                                var secondTeam = NoChangeListTeams.ElementAt(secondTeamoppoListValue);
 
                                 //FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID)
                                 FFGame Game = new FFGame(weekCntr, FFLeague.YEAR, firstTeam.FFTeamID, secondTeam.FFTeamID);
-
-                                DictOfOppoList.Remove(FirstTeamIndex);  //Remove FirstTeam from Dict
-                                var removeDict = DictOfOppoList.First(x => x.Key == oppoList[oppIndex]);
+                                Listof0oppo.Remove(FirstTeamKey);
+                                List<int> whatever = Listof0oppo;
+                                DictOfOppoList[FirstTeamKey] = whatever;
+                                DictOfOppoList.Remove(FirstTeamKey);  //Remove FirstTeam from Dict
+                                var removeDict = DictOfOppoList.First(x => x.Key == (secondTeamoppoListValue));
                                 DictOfOppoList.Remove(removeDict.Key);
-                                keyList.Remove(FirstTeamIndex);
-                                keyList.Remove(removeDict.Key);
 
                                 WeekCheckList.Remove(WeekCheckList.ElementAt(0));//remove first two entries od weekcheecklist
                                 WeekCheckList.Remove(WeekCheckList.ElementAt(0));
+
+                                //I need to take out of ListofXoppo, readadd edited list into dict
                             }
 
-                            teamCntr = ListTeams.Count();
+                            teamCntr = DictOfOppoList.Count();
                             //move team list by one
-                        }
+                        
                     }
                 }
             }
