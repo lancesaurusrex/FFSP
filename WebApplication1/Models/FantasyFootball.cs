@@ -22,6 +22,7 @@ namespace WebApplication1.Models {
             Teams = new List<FFTeam>();
             Schedule = new List<FFGame>();
         }
+        public const int YEAR = 2016;
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -71,6 +72,8 @@ namespace WebApplication1.Models {
         public decimal Lose { get; set; }
         public decimal Tie { get; set; }
         public decimal FPTotal { get; set; }
+        //Division
+        public int? DivisionID { get; set; }
         //A User "owns" a team
         public string UserID { get; set; }
         //A Team plays multiple games
@@ -86,17 +89,22 @@ namespace WebApplication1.Models {
 
     public class FFGame {
         public FFGame() { }
-        public FFGame(int pWeek, int pYear, int pHScore, int pVScore, int pHomeTeamID, int pVisTeamID)
-        { Week = pWeek; Year = pYear; HScore = pHScore; VScore = pVScore; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
+        public FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID)
+        { Week = pWeek; Year = pYear; HScore = null; VScore = null; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFGameID { get; set; }
         public int Week { get; set; }
         public int Year { get; set; }
-        public decimal HScore { get; set; }
-        public decimal VScore { get; set; } 
+        public decimal? HScore { get; set; }
+        public decimal? VScore { get; set; } 
         public int HomeTeamID { get; set; }
         public int VisTeamID { get; set; }
+        //A game is part of a league
+        public int FFLeagueID { get; set; }
+        [ForeignKey("FFLeagueID")]
+        public virtual FFLeague League { get; set; }
+
     }
 
     //public class FFPlayer {

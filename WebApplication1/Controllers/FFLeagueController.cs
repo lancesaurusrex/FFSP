@@ -132,10 +132,10 @@ namespace WebApplication1.Controllers {
 
         // GET: FFLeague/Create
         public ActionResult Create() {
-            FFLeague FFLeagueCO = new FFLeague();
 
-            return View(FFLeagueCO);
-            //return View(new FFLeague());
+
+            //return View();
+            return View(new FFLeague());
         }
 
         // POST: FFLeague/Create
