@@ -20,6 +20,7 @@ using Microsoft.AspNet.Identity;
 namespace WebApplication1.Controllers {
     public class FFTeamsController : Controller {
         private FF db = new FF();
+        const int CURRENTWEEK = 1;
 
         //Displays All AvailablePlayers and can add selected ones to the team
         public ActionResult AvailablePlayers(int TeamID) {
@@ -69,6 +70,37 @@ namespace WebApplication1.Controllers {
             }
 
             return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
+        }
+
+        public IEnumerable<FFGame> FillWeekScoreboard(int TeamID, int? numWeek) {
+            FFTeam team = db.FFTeamDB.Find(TeamID);
+
+            var leagueSchedule = team.FFLeague.Schedule;
+
+            if (leagueSchedule != null || leagueSchedule.Count != 0) {
+
+            }
+            else { }
+                //Pull schedule from db
+
+            IEnumerable<FFGame> currentWeekSchedule = null;
+
+            if (numWeek == null)
+                currentWeekSchedule = leagueSchedule.Where(x => x.Week == CURRENTWEEK);
+            else
+                currentWeekSchedule = leagueSchedule.Where(x => x.Week == numWeek);
+
+            return currentWeekSchedule;
+
+        }
+
+        public ActionResult Scoreboard(int TeamID) {
+
+            //FillWeekScoreboard(int TeamID, int? numWeek)    
+            var currentWeek = FillWeekScoreboard(TeamID, null);
+            //signalr asp.net tutorial
+
+            return View();  //compiler stop bitching
         }
 
         /* Database Pulls

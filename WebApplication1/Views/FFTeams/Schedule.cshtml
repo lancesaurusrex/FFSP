@@ -9,6 +9,7 @@
 <p>
     @Html.ActionLink("Create New", "CreateSchedule", new { TeamID = ViewBag.TeamID })
 </p>
+
 <table class="table">
     <tr>
         <th>
@@ -24,10 +25,10 @@
             @Html.DisplayNameFor(model => model.VScore)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.HomeTeamID)
+            @Html.DisplayNameFor(model => model.HomeTeam)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.VisTeamID)
+            @Html.DisplayNameFor(model => model.VisTeam)
         </th>
         <th></th>
     </tr>
@@ -47,10 +48,10 @@
             @Html.DisplayFor(modelItem => item.VScore)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.HomeTeamID)
+            @Html.DisplayFor(modelItem => item.HomeTeam.TeamName)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.VisTeamID)
+            @Html.DisplayFor(modelItem => item.VisTeam.TeamName)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.FFGameID }) |

@@ -97,9 +97,13 @@ namespace WebApplication1.Models {
         public int Week { get; set; }
         public int Year { get; set; }
         public decimal? HScore { get; set; }
-        public decimal? VScore { get; set; } 
-        public int HomeTeamID { get; set; }
-        public int VisTeamID { get; set; }
+        public decimal? VScore { get; set; }
+        public int? HomeTeamID { get; set; }
+        [ForeignKey("HomeTeamID")]
+        public virtual FFTeam HomeTeam { get; set; }
+        public int? VisTeamID { get; set; }
+        [ForeignKey("VisTeamID")]
+        public virtual FFTeam VisTeam { get; set; }
         //A game is part of a league
         public int FFLeagueID { get; set; }
         [ForeignKey("FFLeagueID")]

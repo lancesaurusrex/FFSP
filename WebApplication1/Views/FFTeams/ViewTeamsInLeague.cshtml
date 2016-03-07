@@ -10,7 +10,7 @@ Teams Needed in League = @Model.First().FFLeague.NumberOfTeams
 Number of Teams in League = @Model.First().FFLeague.Teams.Count()
 
 @{var TeamsNeeded = (@Model.First().FFLeague.NumberOfTeams - @Model.First().FFLeague.Teams.Count());}
-Teams Needed to Complete League = @TeamsNeeded;
+Teams Needed to Complete League = @TeamsNeeded
 
 <table class="table">
     <tr>
