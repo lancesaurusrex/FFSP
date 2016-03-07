@@ -391,12 +391,7 @@ namespace WebApplication1.Controllers {
             return View(FFTeam);
         }
 
-        public ActionResult StartLive() {
-            NFLLiveViewModel n = new NFLLiveViewModel();
-            n.dostuff();
 
-            return View();
-        }
         // GET: FFTeams/Details/5
         public ActionResult Details(int? id) {
             if (id == null) {
@@ -488,17 +483,8 @@ namespace WebApplication1.Controllers {
             }
             base.Dispose(disposing);
         }
-
-        public void runLive(int gameID) {
-
-            
-        }
-
     }
 }
-
-
-
 //Schedule Algortihtntngkm
 /*Best idea - Make this code simple as possible atm.  Take first and second of list and have them play each other
 Listof0oppo = 1,2,3,4,5,6,7
@@ -508,7 +494,7 @@ Listof2oppo = 0,1,3,4,5,6,7
 Weekoppo = 0,1,2,3,4,5,6,7
 each List take first num
 Listof0 is 1 -> 0v1, rem 0,1 from weekoppo, remove individual opponent from list
-WeekOppo = 2,3,4,5,6,7 
+WeekOppo = 2,3,4,5,6,7
 List of Lists -> next list 2
 Listof2 is 0,++,1,++,3,2v3, rem 2,3
 WeekOppo = 4,5,6,7
