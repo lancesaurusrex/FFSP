@@ -72,44 +72,46 @@ namespace WebApplication1.Controllers {
             return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
         }
 
-        public IEnumerable<FFGame> FillWeekScoreboard(int TeamID, int? numWeek) {
-            FFTeam team = db.FFTeamDB.Find(TeamID);
-
-            var leagueSchedule = team.FFLeague.Schedule;
-
-            if (leagueSchedule != null || leagueSchedule.Count != 0) {
-
-            }
-            else { }
-                //Pull schedule from db
-
-            IEnumerable<FFGame> currentWeekSchedule = null;
-
-            if (numWeek == null)
-                currentWeekSchedule = leagueSchedule.Where(x => x.Week == CURRENTWEEK);
-            else
-                currentWeekSchedule = leagueSchedule.Where(x => x.Week == numWeek);
-
-            return currentWeekSchedule;
-
-        }
 
         public ActionResult Scoreboard(int TeamID) {
 
             //FillWeekScoreboard(int TeamID, int? numWeek)    
             var currentWeek = FillWeekScoreboard(TeamID, null);
             //signalr asp.net tutorial
+            if (currentWeek == null)
+                throw new NullReferenceException("currentWeek is null, which means games arent in the db for that week");
 
-            return View();  //compiler stop bitching
+            return View(currentWeek);  //compiler stop bitching
         }
 
         /* Database Pulls
+         * FillWeekScoreboard
          * GetAllFFPlayers - Return all NFL Players from the NFL.com pull site
          * GetAllTeamIDFromLeague - Return all TeamIDs in one League
          * GetAllPlayersIDOnTeamsInLeague - Return all PlayerID's from all teams in one league
          * GetAllPlayersOnTeamsInLeagues - Return all Players from all teams in one league
          --------------------------------------------------------------------------------------------------*/
         //Gets all NFLPlayer from NFLDB
+        public IEnumerable<FFGame> FillWeekScoreboard(int TeamID, int? numWeek) {
+            FFTeam team = db.FFTeamDB.Find(TeamID);
+            //Team is null check
+            var leagueSchedule = team.FFLeague.Schedule;
+            IEnumerable<FFGame> currentWeekSchedule = null;
+
+            if (leagueSchedule != null || leagueSchedule.Count != 0) {
+                
+
+                if (numWeek != null)
+                    currentWeekSchedule = leagueSchedule.Where(x => x.Week == numWeek);
+                else
+                    currentWeekSchedule = leagueSchedule.ToList();
+            }
+            else { }
+            //Pull schedule from db
+
+            return currentWeekSchedule;
+        }
+
         public IQueryable<NFLPlayer> GetAllFFPlayers() {
             return db.NFLPlayer;
         }
