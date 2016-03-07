@@ -19,6 +19,62 @@ using System.Data.Entity;
 /// </summary>
 
 public class ReadJSONDatafromNFL {
+    public ReadJSONDatafromNFL() { }
+    public ReadJSONDatafromNFL(string FileName) {
+        endOfGame = false;
+        isUpdate = false;
+        play = null;
+        count = 35;
+        drivesNum = "1";
+
+        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
+        gameID = ID.ToString();      //Needs to be in string for JSON calls.
+
+        string Root = HttpContext.Current.Server.MapPath("~/");
+        string FullPath = Root + FileName;
+        NFLData = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
+        int totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
+        
+    }
+    public string gameID { get; set; }
+    public bool endOfGame { get; set; }
+    public bool isUpdate { get; set; }
+    public JObject play { get; set; }
+    static public int count { get; set; }
+    public JObject NFLData { get; set; }
+    public int totalDrives { get; set; }
+    static public string drivesNum { get; set; }
+
+    public bool QuickDe(string FileName) {
+        //reset
+        play = null;
+        isUpdate = false;
+
+        string playNum = Convert.ToString(count);
+        while (Convert.ToInt16(drivesNum) < totalDrives) {
+
+            if (play == null) {
+                count += 1;
+                playNum = Convert.ToString(count);
+            }
+            else  
+                return (isUpdate = true);
+           
+            play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][playNum];
+            //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
+            if (play != null) {
+                var endpl = NFLData[gameID]["drives"][drivesNum]["end"]["yrdln"].ToString();
+                var currplayend = play["yrdln"].ToString();
+                if (endpl == currplayend) {
+                    var a = Convert.ToInt32(drivesNum);
+                    drivesNum = Convert.ToString(a+1);
+
+                }
+            }
+        }
+        return (endOfGame = true);
+    }
+
     public void DeserializeData(string FileName)
     {
         //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
@@ -186,8 +242,7 @@ public class ReadJSONDatafromNFL {
                     }
                     playerIDStringKeys.Clear();
                 }
-            }
-            
+            }            
         }
     }
     
