@@ -491,7 +491,7 @@ namespace WebApplication1.Controllers {
 
         public void runLive(int gameID) {
 
-            
+            //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
         }
 
     }
