@@ -488,12 +488,13 @@ namespace WebApplication1.Controllers {
             }
             base.Dispose(disposing);
         }
-        public JsonResult GetPlay(NFLLiveViewModel n)
-        {
-            var play = n.GetPlay();
+        //public JsonResult GetPlay(FFGame n)
+        //{
+        //    var play = n.GetPlay();
 
-            return Json(play, JsonRequestBehavior.AllowGet);
-        }
+        //    return Json(play, JsonRequestBehavior.AllowGet);
+        //}
+
         public ActionResult RunLive(int gameID) {
 
             //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
@@ -502,10 +503,10 @@ namespace WebApplication1.Controllers {
 
             return View(game);           
         }
+
         public ActionResult StartLive()
         {
-            NFLLiveViewModel n = new NFLLiveViewModel();
-            n.dostuff();
+          
 
             return View();
         }
@@ -540,7 +541,8 @@ namespace WebApplication1.Controllers {
 public class PingData
 {
     public int UserID { get; set; }
-    public DateTime Date { get; set; } = DateTime.Now;
+    public DateTime Date { get; set; }
+    //missing data
 }
 
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json.Linq;
 
 namespace WebApplication1.Models {
     //used to be called FantasyFootball but deleted class may have to rename file?
@@ -89,8 +90,7 @@ namespace WebApplication1.Models {
 
     public class FFGame {
         public FFGame() { }
-        public FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID)
-        { Week = pWeek; Year = pYear; HScore = null; VScore = null; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
+        public FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID) { Week = pWeek; Year = pYear; HScore = null; VScore = null; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFGameID { get; set; }
@@ -108,7 +108,6 @@ namespace WebApplication1.Models {
         public int FFLeagueID { get; set; }
         [ForeignKey("FFLeagueID")]
         public virtual FFLeague League { get; set; }
-
     }
 
     //public class FFPlayer {
@@ -137,6 +136,7 @@ namespace WebApplication1.Models {
         public bool isActive { get; set; }
     }
 }
+
 
 //public virtual int UserId { get; set; }
 

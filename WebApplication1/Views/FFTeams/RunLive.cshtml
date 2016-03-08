@@ -1,6 +1,18 @@
 ﻿@model WebApplication1.Models.FFGame
 
 @{
-    ViewBag.Title = "View";
+    ViewBag.Title = "RunLive";
 }
 
+<h2>Run Live</h2>
+
+@{
+    String FileName = "2015101200_gtd.json";
+    ReadJSONDatafromNFL r = new ReadJSONDatafromNFL(FileName);
+    
+    r.QuickDe();
+    
+    
+}
+
+@n._play

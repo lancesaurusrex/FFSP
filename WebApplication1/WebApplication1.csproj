@@ -189,8 +189,8 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="DAL\NFLdatabase.cs" />
     <Compile Include="Models\NFLEPMarkov.cs" />
-    <Compile Include="Models\NFLLiveViewModel.cs" />
     <Compile Include="Models\NFLPlayer.cs" />
+    <Compile Include="Models\PlaysViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadJSONDatafromNFL.cs" />
     <Compile Include="Startup.cs" />

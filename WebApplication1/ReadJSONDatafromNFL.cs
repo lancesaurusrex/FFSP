@@ -33,46 +33,36 @@ public class ReadJSONDatafromNFL {
         string Root = HttpContext.Current.Server.MapPath("~/");
         string FullPath = Root + FileName;
         NFLData = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
-        int totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
+        totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
         
     }
     public string gameID { get; set; }
     public bool endOfGame { get; set; }
     public bool isUpdate { get; set; }
-    public JObject play { get; set; }
+
     static public int count { get; set; }
     public JObject NFLData { get; set; }
     public int totalDrives { get; set; }
     static public string drivesNum { get; set; }
+   public List<PlaysVM> NFLPlays {get;set;}
 
-    public bool QuickDe(string FileName) {
+    public List<JObject> QuickDe() {
         //reset
-        play = null;
+
         isUpdate = false;
+
+        JsonSerializer serializer = new JsonSerializer();
 
         string playNum = Convert.ToString(count);
         while (Convert.ToInt16(drivesNum) < totalDrives) {
-
-            if (play == null) {
-                count += 1;
-                playNum = Convert.ToString(count);
-            }
-            else  
-                return (isUpdate = true);
-           
-            play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][playNum];
+           //numofplays
+            var play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][playNum];
             //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
-            if (play != null) {
-                var endpl = NFLData[gameID]["drives"][drivesNum]["end"]["yrdln"].ToString();
-                var currplayend = play["yrdln"].ToString();
-                if (endpl == currplayend) {
-                    var a = Convert.ToInt32(drivesNum);
-                    drivesNum = Convert.ToString(a+1);
+            PlaysVM convPlay = (PlaysVM)serializer.Deserialize(new JTokenReader(play), typeof(PlaysVM));
 
-                }
-            }
+            NFLPlays.Add(convPlay);               
         }
-        return (endOfGame = true);
+        return (NFLPlays);
     }
 
     public void DeserializeData(string FileName)
@@ -347,9 +337,6 @@ public class ReadJSONDatafromNFL {
 
                 if (currentDrive != null) {
 
-                    //Not sure the best way to do this, but the Plays and Players aren't Deserializing correctly.
-                    //I could write a custom deserializer or jtokenreader? but not sure how or how long that would take.
-                    //Work around is I can parse it "manually", using the results and keys that are different for every game.
 
                     //throw into using, IDisposable?
                     JsonSerializer serializer = new JsonSerializer();
