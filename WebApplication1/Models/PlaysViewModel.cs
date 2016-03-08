@@ -8,7 +8,7 @@ namespace WebApplication1.Models {
 
 
         public class PlaysVM {//Start\Key is a number that I have not figured out what it means.
-            public int DriveID { get; set; }
+            public int PlayNum { get; set; }
 
             [JsonProperty("sp")]
             public int Sp { get; set; }
@@ -43,12 +43,12 @@ namespace WebApplication1.Models {
             public string EPState { get; set; }
             public double MarkovExpPts { get; set; }
 
-            [JsonProperty("players")]
-            public IList<Players> Players { get; set; }    
+            [JsonIgnoreAttribute]
+            public IList<PlayersVM> Players { get; set; }    
         }
 
         public class PlayersVM {//The "Start"/Key of this JSONArray is the playerID, each one is different
-            public int gameID { get; set; }
+            public int PlayNum { get; set; }
 
             //Add PlayerID! from data extraction.
 

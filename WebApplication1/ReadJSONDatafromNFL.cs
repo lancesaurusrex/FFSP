@@ -23,8 +23,8 @@ public class ReadJSONDatafromNFL {
     public ReadJSONDatafromNFL(string FileName) {
         endOfGame = false;
         isUpdate = false;
-        play = null;
-        count = 35;
+        
+        count = 37;
         drivesNum = "1";
 
         int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
@@ -34,7 +34,7 @@ public class ReadJSONDatafromNFL {
         string FullPath = Root + FileName;
         NFLData = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
         totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
-        
+        NFLPlays = new List<PlaysVM>(); 
     }
     public string gameID { get; set; }
     public bool endOfGame { get; set; }
@@ -46,21 +46,53 @@ public class ReadJSONDatafromNFL {
     static public string drivesNum { get; set; }
    public List<PlaysVM> NFLPlays {get;set;}
 
-    public List<JObject> QuickDe() {
+    public List<PlaysVM> QuickDe() {
         //reset
 
         isUpdate = false;
 
         JsonSerializer serializer = new JsonSerializer();
+        int numplaysinDrive = (int)NFLData[gameID]["drives"][drivesNum]["numPlays"];
+        int playsCount = 0;
 
         string playNum = Convert.ToString(count);
-        while (Convert.ToInt16(drivesNum) < totalDrives) {
-           //numofplays
-            var play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][playNum];
-            //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
-            PlaysVM convPlay = (PlaysVM)serializer.Deserialize(new JTokenReader(play), typeof(PlaysVM));
+        while (Convert.ToInt16(drivesNum) < totalDrives){
+                    
+            JObject playsInCurrentDrive = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"];
+                    //taking the key of each individual play and storing into a list
+                    IList<string> playsKeys = playsInCurrentDrive.Properties().Select(p => p.Name).ToList();
 
-            NFLPlays.Add(convPlay);               
+                    //going through each key of the ind. play and taking out the play, players and storing into objects
+                    foreach (string key in playsKeys) {
+                        var play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key];
+                        //numofplays
+
+                        //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
+                        PlaysVM convPlay = (PlaysVM)serializer.Deserialize(new JTokenReader(play), typeof(PlaysVM));
+                        JObject playersInCurrentPlay = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"];
+                        IList<string> playersKeys = playersInCurrentPlay.Properties().Select(p => p.Name).ToList();
+                        IList<PlayersVM> PlayersList = new List<PlayersVM>();
+                        //Going through each key and storing the players into players list
+                        //Don't want to store player if playerkey is 0 and making sure that 
+                        //the offense players are only being stored.  Play team poss is equal to the current drive team poss.
+                        foreach (string playerKey in playersKeys) {
+                            if (playerKey != "0") { //&& possessionteam == to currentpossesionteam
+                                //Putting the current play players into a list
+                                PlayersList = serializer.Deserialize<IList<PlayersVM>>(new JTokenReader(playersInCurrentPlay[playerKey]));
+                            }
+                        }
+                        convPlay.Players = PlayersList;
+
+                        NFLPlays.Add(convPlay);
+
+                        playsCount++;
+
+                        if (playsCount > numplaysinDrive) {
+                            var a = Convert.ToInt16(drivesNum);
+                            ++a;
+                            drivesNum = a.ToString();
+                        }
+                    }
         }
         return (NFLPlays);
     }
