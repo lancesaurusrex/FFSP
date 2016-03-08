@@ -54,9 +54,7 @@
             @Html.DisplayFor(modelItem => item.VisTeam.TeamName)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.FFGameID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.FFGameID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.FFGameID })
+            @Html.ActionLink("Start Live", "RunLive", new { GameID = item.FFGameID })
         </td>
     </tr>
 }

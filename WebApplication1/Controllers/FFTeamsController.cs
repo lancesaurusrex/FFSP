@@ -9,6 +9,10 @@ using System.Web.Mvc;
 using WebApplication1.DAL;
 using WebApplication1.Models;
 using Microsoft.AspNet.Identity;
+//test below
+using System.Collections.Concurrent;
+using Newtonsoft.Json;
+using System.Threading;
 
 //Merge Two Collections without duplicates, elegant and speedy
 //var dict = AllPlayers.ToDictionary(x => x.id);
@@ -99,8 +103,7 @@ namespace WebApplication1.Controllers {
             IEnumerable<FFGame> currentWeekSchedule = null;
 
             if (leagueSchedule != null || leagueSchedule.Count != 0) {
-                
-
+               
                 if (numWeek != null)
                     currentWeekSchedule = leagueSchedule.Where(x => x.Week == numWeek);
                 else
@@ -390,15 +393,10 @@ namespace WebApplication1.Controllers {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague League = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
             //Team View, Edit Team, Team Schedule
+            
             return View(FFTeam);
         }
 
-        public ActionResult StartLive() {
-            NFLLiveViewModel n = new NFLLiveViewModel();
-            n.dostuff();
-
-            return View();
-        }
         // GET: FFTeams/Details/5
         public ActionResult Details(int? id) {
             if (id == null) {
@@ -490,15 +488,60 @@ namespace WebApplication1.Controllers {
             }
             base.Dispose(disposing);
         }
+        public JsonResult GetPlay(NFLLiveViewModel n)
+        {
+            var play = n.GetPlay();
 
-        public void runLive(int gameID) {
+            return Json(play, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult RunLive(int gameID) {
 
             //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
-        }
+            //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
+            FFGame game = db.FFGameDB.Find(gameID);
 
+            return View(game);           
+        }
+        public ActionResult StartLive()
+        {
+            NFLLiveViewModel n = new NFLLiveViewModel();
+            n.dostuff();
+
+            return View();
+        }
+        //Test shit
+        public ActionResult Test()
+        {
+            return View();
+        }
+        static ConcurrentQueue<PingData> pings = new ConcurrentQueue<PingData>();
+
+        public void Ping(int userID)
+        {
+            pings.Enqueue(new PingData { UserID = userID });
+        }
+        //debug firefox FireBug!
+        public void Message()
+        {
+            Response.ContentType = "text/event-stream";
+            do
+            {
+                PingData nextPing;
+                if (pings.TryDequeue(out nextPing))
+                {
+                    Response.Write("data:" + JsonConvert.SerializeObject(nextPing, Formatting.None) + "\n\n");
+                }
+                Response.Flush();
+                Thread.Sleep(1000);
+            } while (true);
+        }
     }
 }
-
+public class PingData
+{
+    public int UserID { get; set; }
+    public DateTime Date { get; set; } = DateTime.Now;
+}
 
 
 //Schedule Algortihtntngkm

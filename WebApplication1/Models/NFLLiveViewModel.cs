@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 
 namespace WebApplication1.Models {
     public class NFLLiveViewModel {
+        public JObject _play { get; set; }
+        public FFTeam HomeTeam { get; set; }
+        public FFTeam AwayTeam { get; set; }
 
         public void dostuff() {
 
@@ -18,12 +21,18 @@ namespace WebApplication1.Models {
                 r.QuickDe(FileName);
                 if (r.isUpdate == true)
                 indPlay = r.play;
+                SetPlay(r.play);
             }
         }
 
-        public void sendPlay(JObject play) {
+        public void SetPlay(JObject play) {
+            _play = play;
+            
+        }
 
-            //dosomethingwith play
+        public JObject GetPlay()
+        {
+            return _play;
         }
     }
 }

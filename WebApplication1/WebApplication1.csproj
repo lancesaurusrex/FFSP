@@ -277,11 +277,12 @@
     <Content Include="Views\FFTeams\CreateTeam.cshtml" />
     <Content Include="Views\FFTeams\AvailablePlayers.cshtml" />
     <Content Include="Views\FFTeams\ViewPlayersOnTeam.cshtml" />
-    <Content Include="Views\FFTeams\ViewPlayere.cshtml" />
+    <Content Include="Views\FFTeams\Test.cshtml" />
     <Content Include="Views\FFTeams\RemovePlayers.cshtml" />
     <Content Include="Views\FFTeams\ViewTeamsInLeague.cshtml" />
     <Content Include="Views\FFTeams\Schedule.cshtml" />
     <Content Include="Views\FFTeams\Scoreboard.cshtml" />
+    <Content Include="Views\FFTeams\RunLive.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
