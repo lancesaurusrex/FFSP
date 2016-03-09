@@ -541,8 +541,7 @@ namespace WebApplication1.Controllers {
 public class PingData
 {
     public int UserID { get; set; }
-    public DateTime Date { get; set; }
-    //missing data
+    public DateTime Date { get; set; } = DateTime.Now;
 }
 
 
