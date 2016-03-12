@@ -540,8 +540,9 @@ namespace WebApplication1.Controllers {
 }
 public class PingData
 {
+    public PingData() {Date = DateTime.Now;}
     public int UserID { get; set; }
-    public DateTime Date { get; set; } = DateTime.Now;
+    public DateTime Date { get; set; }
 }
 
 
