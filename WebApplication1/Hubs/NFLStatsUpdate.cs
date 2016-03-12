@@ -14,8 +14,10 @@ namespace WebApplication1.Hubs
 {
     public class NFLStatsUpdate
     {
+        IHubConnectionContext<dynamic> context = GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>();
         // Singleton instance
-        private readonly static Lazy<NFLStatsUpdate> _instance = new Lazy<NFLStatsUpdate>(() => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
+        private readonly static Lazy<NFLStatsUpdate> _instance = new Lazy<NFLStatsUpdate>(
+            () => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
 
         private readonly ConcurrentDictionary<int, NFLPlayer> _players = new ConcurrentDictionary<int, NFLPlayer>();
 

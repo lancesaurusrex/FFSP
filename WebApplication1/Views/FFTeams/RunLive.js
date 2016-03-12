@@ -1,6 +1,6 @@
 ﻿$(function () {
 
-    var liveNFLGame = $.connection.NFLLiveUpdateHub, // the generated client-side hub proxy
+    var liveNFLGame = $.connection.nFLLiveUpdateHub, // the generated client-side hub proxy
         $playerTable = $('#playerTable'),
         $playerTableBody = $playerTable.find('tbody'),
         rowTemplate = '<tr data-symbol="{Symbol}"><td>{Symbol}</td><td>{Price}</td><td>{DayOpen}</td><td>{Direction} {Change}</td><td>{PercentChange}</td></tr>';

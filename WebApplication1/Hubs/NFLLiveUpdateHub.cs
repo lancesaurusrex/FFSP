@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 //The method can execute synchronously and return IEnumerable<Stock> because it is returning data from memory. 
 //If the method had to get the data by doing something that would involve waiting, 
