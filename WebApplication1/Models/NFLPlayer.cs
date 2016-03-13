@@ -4,8 +4,10 @@ using System.Linq;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WebApplication1.Models;
+
 
 /// <summary>
 /// Summary description for NFLPlayer
@@ -37,11 +39,6 @@ public class NFLPlayer
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
 
-    public virtual List<FFTeam> Teams { get; set; }
-    //public List<NFLGame> ScheduleGames { get; set; }
-
-    //These need to be put in a game object
-
     public PassingGameStats PassingStats { get; set; }
 
     public RushingGameStats RushingStats { get; set; }
@@ -53,18 +50,33 @@ public class NFLPlayer
     public KickingGameStats KickingStats { get; set; }
 }
 
-//public class NFLGame
-//{
-//    //A game has players, players can play in one game per week but can be in multiple games
-//    //A game has 2 teams, all game goes in a week
-//    //A game has stats for the 2teams
-//}
+public class NFLTeam
+{
+    //A team has players, A player can only be on one team
+    //A team has games, plays other teams on a weekly basis
+    [Key]
+    public int TeamID { get; set; }
+    public string City { get; set; }
+    public string Nickname { get; set; }
+    public virtual ICollection<NFLPlayer> TeamPlayers { get; set; }
+    public virtual ICollection<NFLGame> NFLSchedule { get; set; }
+    
+}
 
-//public class NFLTeam
-//{
-//    //A team has players, A player can only be on one team
-//    //A team has games, plays other teams on a weekly basis
-//}
+public class NFLGame {
+    //A game has players, players can play in one game per week but can be in multiple games
+    //A game has 2 teams, all game goes in a week
+    //A game has stats for the 2teams
+    [Key]
+    public int GameID { get; set; }
+    public int Week { get; set; }
+    public int Year { get; set; }
+    public NFLTeam HomeTeam { get; set; }
+    public NFLTeam VisTeam { get; set; }
+    public int HScore { get; set; }
+    public int VScore { get; set; }
+
+}
 
 public class PassingGameStats
 {

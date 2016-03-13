@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using WebApplication1.Models;
 
-namespace WebApplication1.Models {
 
 
         public class PlaysVM {//Start\Key is a number that I have not figured out what it means.
@@ -67,4 +67,4 @@ namespace WebApplication1.Models {
             [JsonProperty("yards")]
             public int Yards { get; set; }
         }
-    }
+    

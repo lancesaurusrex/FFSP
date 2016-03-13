@@ -52,13 +52,24 @@ public class ReadJSONDatafromNFL {
         isUpdate = false;
 
         JsonSerializer serializer = new JsonSerializer();
-        int numplaysinDrive = (int)NFLData[gameID]["drives"][drivesNum]["numPlays"];
+
         int playsCount = 0;
 
         string playNum = Convert.ToString(count);
         while (Convert.ToInt16(drivesNum) < totalDrives){
-                    
+
+            int numplaysinDrive = (int)NFLData[gameID]["drives"][drivesNum]["numplays"];
+
+
+            if (playsCount >= numplaysinDrive) {
+                var a = Convert.ToInt16(drivesNum);
+                ++a;
+                drivesNum = a.ToString();
+            }
+            
+
             JObject playsInCurrentDrive = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"];
+            string posteam = (string)NFLData[gameID]["drives"][drivesNum]["posteam"];
                     //taking the key of each individual play and storing into a list
                     IList<string> playsKeys = playsInCurrentDrive.Properties().Select(p => p.Name).ToList();
 
@@ -75,10 +86,17 @@ public class ReadJSONDatafromNFL {
                         //Going through each key and storing the players into players list
                         //Don't want to store player if playerkey is 0 and making sure that 
                         //the offense players are only being stored.  Play team poss is equal to the current drive team poss.
+                        
                         foreach (string playerKey in playersKeys) {
                             if (playerKey != "0") { //&& possessionteam == to currentpossesionteam
-                                //Putting the current play players into a list
-                                PlayersList = serializer.Deserialize<IList<PlayersVM>>(new JTokenReader(playersInCurrentPlay[playerKey]));
+                                JArray seqKeys = (JArray)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"][playerKey];
+
+                                foreach (var seq in seqKeys) {
+                                    if (posteam == (string)seq["clubcode"]) {
+                                        PlayersVM pa = (PlayersVM)serializer.Deserialize(new JTokenReader(seq), typeof(PlayersVM));
+                                        PlayersList.Add(pa);
+                                    }
+                                }
                             }
                         }
                         convPlay.Players = PlayersList;
@@ -86,12 +104,6 @@ public class ReadJSONDatafromNFL {
                         NFLPlays.Add(convPlay);
 
                         playsCount++;
-
-                        if (playsCount > numplaysinDrive) {
-                            var a = Convert.ToInt16(drivesNum);
-                            ++a;
-                            drivesNum = a.ToString();
-                        }
                     }
         }
         return (NFLPlays);
