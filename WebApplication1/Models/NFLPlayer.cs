@@ -35,10 +35,12 @@ public class NFLPlayer
     public string team { get; set; }
 
     public string pos { get; set; }
+
+    public float currentPts { get; set; }
     //For Availability in TeamController
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
-
+    
     public PassingGameStats PassingStats { get; set; }
 
     public RushingGameStats RushingStats { get; set; }

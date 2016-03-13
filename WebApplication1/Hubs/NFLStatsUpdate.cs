@@ -14,7 +14,6 @@ namespace WebApplication1.Hubs
 {
     public class NFLStatsUpdate
     {
-        IHubConnectionContext<dynamic> context = (dynamic)GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>();
         // Singleton instance
         private readonly static Lazy<NFLStatsUpdate> _instance = new Lazy<NFLStatsUpdate>(
             () => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
@@ -75,7 +74,7 @@ namespace WebApplication1.Hubs
 
                     foreach (var player in _players.Values)
                     {
-                        if (TryUpdateStockPrice(player))
+                        if (TryUpdatePlayerPoint(player))
                         {
                             BroadcastPlayers(player);
                         }
@@ -86,9 +85,10 @@ namespace WebApplication1.Hubs
             }
         }
 
-        private bool TryUpdateStockPrice(NFLPlayer player)
+        private bool TryUpdatePlayerPoint(NFLPlayer player)
         {
             //Do something here?
+            player.currentPts += 1;
 
             return true;
         }
