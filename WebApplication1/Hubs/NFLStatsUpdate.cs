@@ -14,7 +14,7 @@ namespace WebApplication1.Hubs
 {
     public class NFLStatsUpdate
     {
-        IHubConnectionContext<dynamic> context = GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>();
+        IHubConnectionContext<dynamic> context = (dynamic)GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>();
         // Singleton instance
         private readonly static Lazy<NFLStatsUpdate> _instance = new Lazy<NFLStatsUpdate>(
             () => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
@@ -77,7 +77,7 @@ namespace WebApplication1.Hubs
                     {
                         if (TryUpdateStockPrice(player))
                         {
-                            BroadcastStockPrice(player);
+                            BroadcastPlayers(player);
                         }
                     }
 
