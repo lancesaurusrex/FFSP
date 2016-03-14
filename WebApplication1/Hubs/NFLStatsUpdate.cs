@@ -22,10 +22,8 @@ namespace WebApplication1.Hubs
 
         private readonly object _updatePlayersStatsLock = new object();
 
-        //stats can go up or down by a percentage of this factor on each change, might not need this
-        private readonly double _statsPercent = .01;
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(3000);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;
@@ -87,8 +85,7 @@ namespace WebApplication1.Hubs
 
         private bool TryUpdatePlayerPoint(NFLPlayer player)
         {
-            //Do something here?
-            player.currentPts += 1;
+            //if isLive == true && currentpoint != lastpoint
 
             return true;
         }

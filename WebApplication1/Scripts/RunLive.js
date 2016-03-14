@@ -16,10 +16,11 @@
     var liveNFLGame = $.connection.nFLLiveUpdateHub,
         $playerTable = $('#playerTable'),
         $playerTableBody = $playerTable.find('tbody'),
-        rowTemplate = '<tr><td>{Name}</td><td>{Team}</td><td>{Pts}</td></tr>';
+        rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{Pts}</td></tr>';
 
     function formatPlayer(NFLPlayer) {
         return $.extend(NFLPlayer, {
+            Id: NFLPlayer.id,
             Name: NFLPlayer.name,
             Team: NFLPlayer.team,
             Pts: NFLPlayer.currentPts   
@@ -37,11 +38,11 @@
     }
 
     // Add a client-side hub method that the server will call
-    liveNFLGame.client.updatePlayerPoint = function (NFLPlayer) {
+    liveNFLGame.client.updatePlayers = function (NFLPlayer) {
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
-
-        $playerTableBody.find(NFLPlayer)
+        var x = document.getElementById("playerTable");
+        $playerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
     }
 
