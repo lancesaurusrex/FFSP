@@ -128,13 +128,16 @@ namespace WebApplication1.Controllers {
         //Gets All Player ID on All Teams in one league  
         public IQueryable<int> GetAllPlayersIDOnTeamsInLeague(ICollection<int> AllTeamIDInLeague) {
 
-            IQueryable<int> AllPlayersTakenID = null;
-
+            var returnListOfPlayerIDOnTeamsInLeague = new List<int>();
             foreach (int TeamID in AllTeamIDInLeague) {
-                AllPlayersTakenID = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
+                var AllPlayersTakenID = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
+
+                foreach (var playerID in AllPlayersTakenID) {
+                    returnListOfPlayerIDOnTeamsInLeague.Add(playerID);
+                }
             }
 
-            return AllPlayersTakenID;
+            return returnListOfPlayerIDOnTeamsInLeague.AsQueryable();
         }
 
         //Gets all players on all teams in one league into NFLPlayer obj 

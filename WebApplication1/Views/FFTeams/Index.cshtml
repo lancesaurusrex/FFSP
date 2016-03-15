@@ -4,10 +4,10 @@
     ViewBag.Title = @Model.FFLeague.FFLeagueName;
 }
 
-<h2>@Html.DisplayFor(model => model.TeamName)</h2>
+<h2>@Html.DisplayFor(model => model.TeamName) Home Page</h2>
 @Html.ActionLink("Test","Test")
     
-@Model.TeamName
+Team @Model.TeamName in @Model.FFLeague.FFLeagueName League
 
 <table class="table">
     <tr>

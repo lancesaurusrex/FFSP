@@ -86,6 +86,14 @@ namespace WebApplication1.Hubs
         private bool TryUpdatePlayerPoint(NFLPlayer player)
         {
             //if isLive == true && currentpoint != lastpoint
+            if (player.id == 22942 || player.id == 21547) 
+                player.currentPts += 3;
+            
+            else if (player.id == 32144) 
+                player.currentPts += 2;
+            
+            else  
+                return false; 
 
             return true;
         }
