@@ -94,6 +94,7 @@ namespace WebApplication1.Controllers {
          * GetAllTeamIDFromLeague - Return all TeamIDs in one League
          * GetAllPlayersIDOnTeamsInLeague - Return all PlayerID's from all teams in one league
          * GetAllPlayersOnTeamsInLeagues - Return all Players from all teams in one league
+         * GetAllPlayersOnTeam
          --------------------------------------------------------------------------------------------------*/
         //Gets all NFLPlayer from NFLDB
         public IEnumerable<FFGame> FillWeekScoreboard(int TeamID, int? numWeek) {
@@ -161,6 +162,21 @@ namespace WebApplication1.Controllers {
 
             return mergedPlayers;
         }
+
+        public IQueryable<NFLPlayer> GetAllPlayersOnTeam(int TeamID) {
+
+            List<NFLPlayer> PlayersOnTeamCol = new List<NFLPlayer>();
+            //pulling from NFLPlayerTeam DB, which are not NFLPlayer.
+            var FindPlayersOnTeam = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p);
+
+            foreach (var player in FindPlayersOnTeam) {
+                var pl = db.NFLPlayer.Find(player.PlayerID);
+                PlayersOnTeamCol.Add(pl);
+            }
+
+            return PlayersOnTeamCol.AsQueryable();
+        }
+
         //-----------------------------------------------------------------------------------------------------
 
         public ActionResult RemovePlayers(int TeamID) {
@@ -491,18 +507,24 @@ namespace WebApplication1.Controllers {
             }
             base.Dispose(disposing);
         }
-        //public JsonResult GetPlay(FFGame n)
-        //{
-        //    var play = n.GetPlay();
-
-        //    return Json(play, JsonRequestBehavior.AllowGet);
-        //}
 
         public ActionResult RunLive(int gameID) {
 
             //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
             //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
             FFGame game = db.FFGameDB.Find(gameID);
+
+            if (game.HomeTeam.Players.Count == 0 && game.VisTeam.Players.Count == 0)
+            {
+                if (game.HomeTeamID != null || game.VisTeamID != null) {
+                game.HomeTeam.Players = GetAllPlayersOnTeam((int)game.HomeTeamID).ToList();
+                game.VisTeam.Players = GetAllPlayersOnTeam((int)game.VisTeamID).ToList();
+                }
+                else
+                    throw new NullReferenceException("game.Home/VisTeamID is null");
+            }
+            else
+                throw new NullReferenceException("game.Home/VisTeam.Players is null or a team is empty");
 
             return View(game);           
         }
@@ -524,7 +546,7 @@ namespace WebApplication1.Controllers {
         {
             pings.Enqueue(new PingData { UserID = userID });
         }
-        //debug firefox FireBug!
+        
         public void Message()
         {
             Response.ContentType = "text/event-stream";
