@@ -26,7 +26,8 @@
             Pts: NFLPlayer.currentPts   
         });
     }
-        
+
+
     function init() {
         liveNFLGame.server.getAllPlayers().done(function (players) {
             $playerTableBody.empty();

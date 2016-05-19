@@ -513,6 +513,7 @@ namespace WebApplication1.Controllers {
             //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
             //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
             FFGame game = db.FFGameDB.Find(gameID);
+            
 
             if (game.HomeTeam.Players.Count == 0 && game.VisTeam.Players.Count == 0)
             {
@@ -527,6 +528,12 @@ namespace WebApplication1.Controllers {
                 throw new NullReferenceException("game.Home/VisTeam.Players is null or a team is empty");
 
             return View(game);           
+        }
+
+        public JsonResult GetTeamID(FFGame game)
+        {
+            var hID = game.HomeTeamID;
+            return Json(hID, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult StartLive()

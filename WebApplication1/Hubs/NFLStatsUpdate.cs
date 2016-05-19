@@ -29,8 +29,10 @@ namespace WebApplication1.Hubs
         private readonly Timer _timer;
         private volatile bool _updatingPlayerStats = false;
 
+        //https://channel9.msdn.com/Events/Build/2012/3-034
         private NFLStatsUpdate(IHubConnectionContext<dynamic> clients)
         {
+            
             using (var FFContext = new FF())
             {
                 var PlayersList = FFContext.NFLPlayer.ToList();
