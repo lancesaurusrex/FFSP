@@ -101,8 +101,8 @@ namespace WebApplication1.Controllers {
 
             string UserID = User.Identity.GetUserId();
             if (UserID != null) {
-                var ListOfLeagueIDFromUserID = GetLeagueIDsFromUserID(UserID);  //List
-                var TeamIDLeaguesFromUserID = new Dictionary<int,FFLeague>();
+                var ListOfLeagueIDFromUserID = GetLeagueIDsFromUserID(UserID);  //List of LeagueID from UserID
+                var TeamIDLeaguesFromUserID = new Dictionary<int,FFLeague>();   //creates int, FFLeague dict <TeamID, LeagueID
 
                 if (ListOfLeagueIDFromUserID != null) {
 

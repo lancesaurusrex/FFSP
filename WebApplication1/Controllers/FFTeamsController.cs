@@ -503,8 +503,15 @@ namespace WebApplication1.Controllers {
             //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
             //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
             FFGame game = db.FFGameDB.Find(gameID);
+            
 
             return View(game);           
+        }
+
+        public JsonResult GetTeamID(FFGame game)
+        {
+            var hID = game.HomeTeamID;
+            return Json(hID, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult StartLive()
