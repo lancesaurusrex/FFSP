@@ -513,19 +513,26 @@ namespace WebApplication1.Controllers {
             //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
             //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
             FFGame game = db.FFGameDB.Find(gameID);
-            
 
-            if (game.HomeTeam.Players.Count == 0 && game.VisTeam.Players.Count == 0)
-            {
-                if (game.HomeTeamID != null || game.VisTeamID != null) {
-                game.HomeTeam.Players = GetAllPlayersOnTeam((int)game.HomeTeamID).ToList();
-                game.VisTeam.Players = GetAllPlayersOnTeam((int)game.VisTeamID).ToList();
+            if (game.HomeTeam.Players.Count != 0) {
+                if (game.HomeTeamID != null) {
+                    game.HomeTeam.Players = GetAllPlayersOnTeam((int)game.HomeTeamID).ToList();
                 }
                 else
-                    throw new NullReferenceException("game.Home/VisTeamID is null");
+                    throw new NullReferenceException("game.HomeID is null");
             }
             else
-                throw new NullReferenceException("game.Home/VisTeam.Players is null or a team is empty");
+                throw new NullReferenceException("game.HomePlayers team is empty");
+
+            if (game.VisTeam.Players.Count != 0) {
+                if (game.VisTeamID != null) {
+                    game.VisTeam.Players = GetAllPlayersOnTeam((int)game.VisTeamID).ToList();
+                }
+                else
+                    throw new NullReferenceException("game.AwayID is null");
+            }
+            else
+                throw new NullReferenceException("game.AwayPlayers team is empty");
 
             return View(game);           
         }

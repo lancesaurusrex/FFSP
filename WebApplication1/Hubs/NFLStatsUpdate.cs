@@ -19,35 +19,32 @@ namespace WebApplication1.Hubs
             () => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
 
         private readonly ConcurrentDictionary<int, NFLPlayer> _players = new ConcurrentDictionary<int, NFLPlayer>();
+        private readonly ConcurrentDictionary<int, NFLPlayer> _homePlayers = new ConcurrentDictionary<int, NFLPlayer>();
+        private readonly ConcurrentDictionary<int, NFLPlayer> _awayPlayers = new ConcurrentDictionary<int, NFLPlayer>();
 
         private readonly object _updatePlayersStatsLock = new object();
 
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(3000);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(5000);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;
         private volatile bool _updatingPlayerStats = false;
 
-        //https://channel9.msdn.com/Events/Build/2012/3-034
-        private NFLStatsUpdate(IHubConnectionContext<dynamic> clients)
-        {
-            
-            using (var FFContext = new FF())
-            {
-                var PlayersList = FFContext.NFLPlayer.ToList();
+        private NFLStatsUpdate(IHubConnectionContext<dynamic> clients) {
 
-                Clients = clients;
+            Clients = clients;
 
-                _players.Clear();
+            _players.Clear();
 
-                PlayersList.ForEach(player => _players.TryAdd(player.id, player));
+            ReadJSONDatafromNFL r = new ReadJSONDatafromNFL("2015101200_gtd.json");
 
-                _timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
-            }
+            r.QuickDe();
 
+            _timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
         }
 
+  
         public static NFLStatsUpdate Instance
         {
             get
@@ -59,11 +56,29 @@ namespace WebApplication1.Hubs
         private IHubConnectionContext<dynamic> Clients { get; set; }
         
 
-        public IEnumerable<NFLPlayer> GetAllPlayers()
+        public IEnumerable<NFLPlayer> GetAllPlayers(int gid)
         {
             return _players.Values;
         }
 
+        public IEnumerable<NFLPlayer> GetAllHomePlayers(int gid) { 
+            var homeID = GetHomeTeamIDFromGameID(gid);
+            var homePlayersID = GetAllPlayersIDOnTeam(homeID);
+            var homePlayersList = GetAllPlayersFromPlayersID(homePlayersID);
+            homePlayersList.ForEach(player => _homePlayers.TryAdd(player.id, player));
+
+            return _homePlayers.Values;
+        }
+        
+        public IEnumerable<NFLPlayer> GetAllAwayPlayers(int gid) {
+            var awayID = GetAwayTeamIDFromGameID(gid);
+            var awayPlayersID = GetAllPlayersIDOnTeam(awayID);
+            var awayPlayersList = GetAllPlayersFromPlayersID(awayPlayersID);
+            awayPlayersList.ForEach(player => _awayPlayers.TryAdd(player.id, player));
+
+            return _awayPlayers.Values;
+        }
+        
         private void UpdatePlayerStats(object state)
         {
             lock (_updatePlayersStatsLock)
@@ -72,10 +87,16 @@ namespace WebApplication1.Hubs
                 {
                     _updatingPlayerStats = true;
 
-                    foreach (var player in _players.Values)
+                    foreach (var player in _homePlayers.Values)
                     {
                         if (TryUpdatePlayerPoint(player))
                         {
+                            BroadcastPlayers(player);
+                        }
+                    }
+
+                    foreach (var player in _awayPlayers.Values) {
+                        if (TryUpdatePlayerPoint(player)) {
                             BroadcastPlayers(player);
                         }
                     }
@@ -88,10 +109,10 @@ namespace WebApplication1.Hubs
         private bool TryUpdatePlayerPoint(NFLPlayer player)
         {
             //if isLive == true && currentpoint != lastpoint
-            if (player.id == 22942 || player.id == 21547) 
+            if (player.id == 24242 || player.id == 20245) 
                 player.currentPts += 3;
             
-            else if (player.id == 32144) 
+            else if (player.id == 21547) 
                 player.currentPts += 2;
             
             else  
@@ -103,6 +124,61 @@ namespace WebApplication1.Hubs
         private void BroadcastPlayers(NFLPlayer player)
         {
             Clients.All.updatePlayers(player);
+        }
+
+        /* Warning - Database functions ahead.  Proceed with caution.  The DB is a real bitch.
+         */ 
+
+        //could do this is GetAllPlayersonTeam but want to split up due to home/away (2teams) easier to debug
+        public int GetHomeTeamIDFromGameID(int GameID) {
+            
+            FFGame currentGame;
+            using (var FFContext = new FF()) {
+
+                currentGame = FFContext.FFGameDB.Find(GameID);
+            }
+            return (int)currentGame.HomeTeamID;
+        }
+
+        //could do this is GetAllPlayersonTeam but want to split up due to home/away (2teams) easier to debug
+        public int GetAwayTeamIDFromGameID(int GameID) {
+            
+            FFGame currentGame;
+            using (var FFContext = new FF()) {
+
+                currentGame = FFContext.FFGameDB.Find(GameID);
+            }
+            return (int)currentGame.VisTeamID;
+        }
+
+        //Uses TeamController function to getallplayersIDonteam with teamID
+        //In-TeamID Out-ints of NFLPlayersID on teamID
+        public List<int> GetAllPlayersIDOnTeam(int TeamID) {
+            List<int> FindPlayersOnTeam;
+            using (var FFContext = new FF()) {
+
+                //pulling from NFLPlayerTeam DB, which are not NFLPlayer.
+                var temp = (from p in FFContext.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
+                FindPlayersOnTeam = temp.ToList();
+
+            }
+            return FindPlayersOnTeam;
+        }
+
+        //uses PlayersIDS to get List NFLPlayer objects
+        //in-Ienum<int> PlayersID out-List<NFLPlayer>
+        public List<NFLPlayer> GetAllPlayersFromPlayersID(IEnumerable<int> PlayersID) {
+            List<NFLPlayer> PlayersOnTeamCol = new List<NFLPlayer>();
+
+            using (var FFContext = new FF()) {
+
+                foreach (var playerID in PlayersID) {
+                    var pl = FFContext.NFLPlayer.Find(playerID);
+                    PlayersOnTeamCol.Add(pl);
+                }
+            }
+
+            return PlayersOnTeamCol;
         }
 
     }

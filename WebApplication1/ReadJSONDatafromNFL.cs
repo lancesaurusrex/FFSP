@@ -44,7 +44,7 @@ public class ReadJSONDatafromNFL {
     public JObject NFLData { get; set; }
     public int totalDrives { get; set; }
     static public string drivesNum { get; set; }
-   public List<PlaysVM> NFLPlays {get;set;}
+    public List<PlaysVM> NFLPlays {get;set;}
 
     public List<PlaysVM> QuickDe() {
         //reset
@@ -109,6 +109,7 @@ public class ReadJSONDatafromNFL {
         return (NFLPlays);
     }
 
+    //adds game to db, will not work if players are already there (week)
     public void DeserializeData(string FileName)
     {
         //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
@@ -132,11 +133,11 @@ public class ReadJSONDatafromNFL {
         ExpectedPointData = LoadExpectedPointsData(excelFullPath);
 
         var score = (string)NFLData.SelectToken(gameID + ".home.score.1");
-        var homeScore1 = NFLData["2015101200"]["home"]["score"];
-        var homeScoreres = results[gameID]["home"]["score"];
+        //var homeScore1 = NFLData["2015101200"]["home"]["score"];
+        //var homeScoreres = results[gameID]["home"]["score"];
 
-        var firstDrive = results[gameID]["drives"]["1"];
-        var secDrive = results[gameID]["drives"]["2"];
+        //var firstDrive = results[gameID]["drives"]["1"];
+        //var secDrive = results[gameID]["drives"]["2"];
 
         string homeTeam = results[gameID]["home"]["abbr"];
         string awayTeam = results[gameID]["away"]["abbr"];
@@ -264,14 +265,20 @@ public class ReadJSONDatafromNFL {
                         if (dbaddorupdate == null)
                         {
                             PlayerList.Add(NFLFoundPlayer);
+                        }
+                        //checking to see if found in db if not add 
+                        //Fix this sometime not sure of better way
+                        var dbcheck = db.NFLPlayer.Find(NFLFoundPlayer.id);
+
+                        if (dbcheck == null) {
                             db.NFLPlayer.Add(NFLFoundPlayer);
                             db.SaveChanges();
                         }
-                        else
-                        {
+                        else {
                             db.Entry(NFLFoundPlayer).State = EntityState.Modified;
                             db.SaveChanges();
                         }
+
                         //empty keys for next iteration
                     }
                     playerIDStringKeys.Clear();

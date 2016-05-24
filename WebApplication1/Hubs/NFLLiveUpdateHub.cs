@@ -22,9 +22,17 @@ namespace WebApplication1.Hubs
             _statsUpdate = nflStatsUpdate;
         }
 
-        public IEnumerable<NFLPlayer> GetAllPlayers()
+        public IEnumerable<NFLPlayer> GetAllPlayers(int gid)
         {
-            return _statsUpdate.GetAllPlayers();
+            return _statsUpdate.GetAllPlayers(gid);
+        }
+
+        public IEnumerable<NFLPlayer> GetAllHomePlayers(int gid) {
+            return _statsUpdate.GetAllHomePlayers(gid);
+        }
+
+        public IEnumerable<NFLPlayer> GetAllAwayPlayers(int gid) {
+            return _statsUpdate.GetAllAwayPlayers(gid);
         }
     }
 }

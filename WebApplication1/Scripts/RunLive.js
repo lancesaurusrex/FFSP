@@ -1,4 +1,7 @@
 ﻿$(function () {
+    //pass game id from html to js, might not be necessary if games are run through signalr
+    var $vars = $('#RunLive\\.js').data();
+    alert($vars.gid);
 
     // A simple templating method for replacing placeholders enclosed in curly braces.
     if (!String.prototype.supplant) {
@@ -12,10 +15,11 @@
         };
     }
 
-
     var liveNFLGame = $.connection.nFLLiveUpdateHub,
-        $playerTable = $('#playerTable'),
-        $playerTableBody = $playerTable.find('tbody'),
+        $homePlayerTable = $('#homePlayerTable'),
+        $awayPlayerTable = $('#awayPlayerTable'),
+        $homePlayerTableBody = $homePlayerTable.find('tbody'),
+        $awayPlayerTableBody = $awayPlayerTable.find('tbody'),
         rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{Pts}</td></tr>';
 
     function formatPlayer(NFLPlayer) {
@@ -27,27 +31,35 @@
         });
     }
 
-
     function init() {
-        liveNFLGame.server.getAllPlayers().done(function (players) {
-            $playerTableBody.empty();
+        liveNFLGame.server.getAllHomePlayers($vars.gid).done(function (players) {
+            $homePlayerTableBody.empty();
             $.each(players, function () {
                 var NFLPlayer = formatPlayer(this);
-                $playerTableBody.append(rowTemplate.supplant(NFLPlayer));
+                $homePlayerTableBody.append(rowTemplate.supplant(NFLPlayer));
+            });
+        });
+
+        liveNFLGame.server.getAllAwayPlayers($vars.gid).done(function (players) {
+            $awayPlayerTableBody.empty();
+            $.each(players, function () {
+                var NFLPlayer = formatPlayer(this);
+                $awayPlayerTableBody.append(rowTemplate.supplant(NFLPlayer));
             });
         });
     }
 
     // Add a client-side hub method that the server will call
+    //Need to add away update
     liveNFLGame.client.updatePlayers = function (NFLPlayer) {
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
-        var x = document.getElementById("playerTable");
-        $playerTableBody.find('tr[id=' + NFLPlayer.id + ']')
+        var x = document.getElementById("homePlayerTable");
+        $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
     }
 
     // Start the connection
-    $.connection.hub.start().done(init);
-            
+    $.connection.hub.start().done(init); 
+    
 });
