@@ -46,7 +46,12 @@ public class ReadJSONDatafromNFL {
     static public string drivesNum { get; set; }
     public List<PlaysVM> NFLPlays {get;set;}
 
-    public List<PlaysVM> QuickDe() {
+    //makeshift bs for bs sp class
+    public PlaysVM NextPlay(int i) {
+       return NFLPlays[i + 1];
+    }
+
+    public List<PlaysVM> QuickParseAfterLive() {
         //reset
 
         isUpdate = false;
@@ -67,7 +72,6 @@ public class ReadJSONDatafromNFL {
                 drivesNum = a.ToString();
             }
             
-
             JObject playsInCurrentDrive = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"];
             string posteam = (string)NFLData[gameID]["drives"][drivesNum]["posteam"];
                     //taking the key of each individual play and storing into a list
@@ -94,6 +98,14 @@ public class ReadJSONDatafromNFL {
                                 foreach (var seq in seqKeys) {
                                     if (posteam == (string)seq["clubcode"]) {
                                         PlayersVM pa = (PlayersVM)serializer.Deserialize(new JTokenReader(seq), typeof(PlayersVM));
+                                        //statid 10 is rushing
+                                        //convert to yardage and add NFLplayer to list with new yardage totals
+
+                                        string s = RemoveSpecialCharacters(playerKey);   //converts string to int, need int for the key, need string to search JOBject
+                                        int playerIDInt = Convert.ToInt32(s);
+                                        pa.nflID = playerKey;
+                                        pa.id = playerIDInt;
+
                                         PlayersList.Add(pa);
                                     }
                                 }
@@ -242,23 +254,23 @@ public class ReadJSONDatafromNFL {
                         var statsPullJSON = statsJObj[child.Key][playerID];
 
                         //takes pulled stats and adds them to the FoundPlayer
-                        if (child.Key == "passing") {
-                            NFLFoundPlayer.PassingStats = (PassingGameStats)statsPullJSON.ToObject(typeof(PassingGameStats));
-                        }
-                        else if (child.Key == "rushing") {
-                            NFLFoundPlayer.RushingStats = (RushingGameStats)statsPullJSON.ToObject(typeof(RushingGameStats));
-                        }
-                        else if (child.Key == "receiving") {
-                            NFLFoundPlayer.ReceivingStats = (ReceivingGameStats)statsPullJSON.ToObject(typeof(ReceivingGameStats));
-                        }
-                        else if (child.Key == "fumbles") {
-                            NFLFoundPlayer.FumbleStats = (FumbleGameStats)statsPullJSON.ToObject(typeof(FumbleGameStats));
-                        }
-                        else if (child.Key == "kicking") {
-                            NFLFoundPlayer.KickingStats = (KickingGameStats)statsPullJSON.ToObject(typeof(KickingGameStats));
-                        }
-                        else { //throw exception
-                        }
+                        //if (child.Key == "passing") {
+                        //    NFLFoundPlayer.PassingStats = null;//(PassingGameStats)statsPullJSON.ToObject(typeof(PassingGameStats));
+                        //}
+                        //else if (child.Key == "rushing") {
+                        //    NFLFoundPlayer.RushingStats = null;// (RushingGameStats)statsPullJSON.ToObject(typeof(RushingGameStats));
+                        //}
+                        //else if (child.Key == "receiving") {
+                        //    NFLFoundPlayer.ReceivingStats = null;//  (ReceivingGameStats)statsPullJSON.ToObject(typeof(ReceivingGameStats));
+                        //}
+                        //else if (child.Key == "fumbles") {
+                        //    NFLFoundPlayer.FumbleStats = null;// (FumbleGameStats)statsPullJSON.ToObject(typeof(FumbleGameStats));
+                        //}
+                        //else if (child.Key == "kicking") {
+                        //    NFLFoundPlayer.KickingStats = null;// (KickingGameStats)statsPullJSON.ToObject(typeof(KickingGameStats));
+                        //}
+                        //else { //throw exception
+                        //}
 
                         //add in NFLPlayer to Playerlist and DB,  sep function?    
                         var dbaddorupdate = PlayerList.Find(x => x.id == NFLFoundPlayer.id);

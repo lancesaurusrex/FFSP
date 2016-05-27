@@ -40,7 +40,8 @@ public class NFLPlayer
     //For Availability in TeamController
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
-    
+
+    //SET TO 0 FOR STUPID PROJECT
     public PassingGameStats PassingStats { get; set; }
 
     public RushingGameStats RushingStats { get; set; }

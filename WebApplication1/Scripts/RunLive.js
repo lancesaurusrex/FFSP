@@ -1,7 +1,7 @@
 ﻿$(function () {
     //pass game id from html to js, might not be necessary if games are run through signalr
     var $vars = $('#RunLive\\.js').data();
-    alert($vars.gid);
+    //alert($vars.gid);  //displays on screen game id
 
     // A simple templating method for replacing placeholders enclosed in curly braces.
     if (!String.prototype.supplant) {
@@ -31,6 +31,7 @@
         });
     }
 
+    //add in getAllLivePlayers
     function init() {
         liveNFLGame.server.getAllHomePlayers($vars.gid).done(function (players) {
             $homePlayerTableBody.empty();

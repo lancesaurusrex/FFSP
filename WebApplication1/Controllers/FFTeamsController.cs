@@ -543,12 +543,6 @@ namespace WebApplication1.Controllers {
             return Json(hID, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult StartLive()
-        {
-          
-
-            return View();
-        }
         //Test shit
         public ActionResult Test()
         {

@@ -48,10 +48,15 @@ using WebApplication1.Models;
         }
 
         public class PlayersVM {//The "Start"/Key of this JSONArray is the playerID, each one is different
+            //counter/maybe not necessary
             public int PlayNum { get; set; }
 
             //Add PlayerID! from data extraction.
+            public string nflID { get; set; }
 
+            public int id { get; set; }
+
+            //not necessary
             [JsonProperty("sequence")]
             public int Sequence { get; set; }
 
