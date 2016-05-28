@@ -36,7 +36,7 @@ public class NFLPlayer
 
     public string pos { get; set; }
     
-    public float currentPts { get; set; }
+    public decimal currentPts { get; set; }
     //For Availability in TeamController
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
