@@ -14,6 +14,7 @@ using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using System.Threading;
 
+
 //Merge Two Collections without duplicates, elegant and speedy
 //var dict = AllPlayers.ToDictionary(x => x.id);
 //foreach (var player in AllPlayersTaken) {
@@ -412,7 +413,7 @@ namespace WebApplication1.Controllers {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague League = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
             //Team View, Edit Team, Team Schedule
-            
+
             return View(FFTeam);
         }
 

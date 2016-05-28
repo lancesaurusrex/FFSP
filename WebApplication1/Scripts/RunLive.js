@@ -20,14 +20,20 @@
         $awayPlayerTable = $('#awayPlayerTable'),
         $homePlayerTableBody = $homePlayerTable.find('tbody'),
         $awayPlayerTableBody = $awayPlayerTable.find('tbody'),
-        rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{Pts}</td></tr>';
+        rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{TotalPts}</td><td>{PYds}</td><td>{PTds}</td><td>{RuYds}</td><td>{RuTds}</td><td>{ReYds}</td><td>{ReTds}</td></tr>';
 
     function formatPlayer(NFLPlayer) {
         return $.extend(NFLPlayer, {
             Id: NFLPlayer.id,
             Name: NFLPlayer.name,
             Team: NFLPlayer.team,
-            Pts: NFLPlayer.currentPts   
+            TotalPts: NFLPlayer.currentPts,
+            PYds: NFLPlayer.PassingStats.PassYds,
+            PTds: NFLPlayer.PassingStats.PassTds,
+            RuYds: NFLPlayer.RushingStats.RushYds,
+            RuTds: NFLPlayer.RushingStats.RushTds,
+            ReYds: NFLPlayer.ReceivingStats.RecYds,
+            ReTds: NFLPlayer.ReceivingStats.RecTds
         });
     }
 

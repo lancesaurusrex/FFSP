@@ -35,7 +35,7 @@ public class NFLPlayer
     public string team { get; set; }
 
     public string pos { get; set; }
-
+    
     public float currentPts { get; set; }
     //For Availability in TeamController
     public bool isAvailable { get; set; }
@@ -154,6 +154,9 @@ public class ReceivingGameStats
 
     [JsonProperty("twoptm")]
     public int? RecTwoptm { get; set; }
+
+    [JsonIgnoreAttribute]
+    public int? RecTrg { get; set; }
 }
 
 public class FumbleGameStats
