@@ -20,24 +20,25 @@
         $awayPlayerTable = $('#awayPlayerTable'),
         $homePlayerTableBody = $homePlayerTable.find('tbody'),
         $awayPlayerTableBody = $awayPlayerTable.find('tbody'),
-        rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{TotalPts}</td><td>{PYds}</td><td>{PTds}</td><td>{RuYds}</td><td>{RuTds}</td><td>{ReYds}</td><td>{ReTds}</td></tr>';
+        rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{TotalPts}</td><td>{PYds}</td><td>{PTds}</td><td>{PInts}</td><td>{RuYds}</td><td>{RuTds}</td><td>{ReYds}</td><td>{ReTds}</td></tr>';
 
     function formatPlayer(NFLPlayer) {
-        return $.extend(NFLPlayer, {
+        return $.extend(this, {
             Id: NFLPlayer.id,
             Name: NFLPlayer.name,
             Team: NFLPlayer.team,
             TotalPts: NFLPlayer.currentPts,
-            PYds: NFLPlayer.PassingStats.PassYds,
-            PTds: NFLPlayer.PassingStats.PassTds,
-            RuYds: RushingStats.RushYds,
-            RuTds: NFLPlayer.RushingStats.RushTds,
-            ReYds: NFLPlayer.ReceivingStats.RecYds,
-            ReTds: NFLPlayer.ReceivingStats.RecTds
+            PYds: NFLPlayer.PassingStats.yds,
+            PTds: NFLPlayer.PassingStats.tds,
+            PInts: NFLPlayer.PassingStats.ints,
+            RuYds: NFLPlayer.RushingStats.yds,
+            RuTds: NFLPlayer.RushingStats.tds,
+            ReYds: NFLPlayer.ReceivingStats.yds,
+            ReTds: NFLPlayer.ReceivingStats.tds
         });
     }
 
-
+    //add in getAllLivePlayers
     function init() {
         liveNFLGame.server.getAllHomePlayers($vars.gid).done(function (players) {
             $homePlayerTableBody.empty();
@@ -58,18 +59,19 @@
 
     // Add a client-side hub method that the server will call
     //Need to add away update
-
     liveNFLGame.client.updatePlayers = function (NFLPlayer) {
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
         var x = document.getElementById("homePlayerTable");
         $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
+        $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
+            .replaceWith($row);
     }
 
-    liveNFLGame.client.stopClient = function () {
-        $.connection.hub.stop();
-    };
+    liveNFLGame.client.updatePlay = function (play) {
+        $("#plays").html(play);
+    }
 
     // Start the connection
     $.connection.hub.start().done(init); 

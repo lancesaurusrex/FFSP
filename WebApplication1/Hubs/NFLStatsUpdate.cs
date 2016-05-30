@@ -26,13 +26,13 @@ namespace WebApplication1.Hubs
         private readonly object _updatePlayersStatsLock = new object();
 
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;
         private volatile bool _updatingPlayerStats = false;
 
-        public int playCount = 0;  
+        public int playCount = 0;  //nextplay + 1. starts at 0 so -1 +1 = 0
         ReadJSONDatafromNFL r;
         public List<NFLPlayer> livePlayerList = new List<NFLPlayer>();
         public List<int> liveUpdateList = new List<int>();
@@ -130,7 +130,7 @@ namespace WebApplication1.Hubs
             return _awayPlayers.Values;
         }
 
-        public void ProcessPlay(PlaysVM currPlay) {
+        public bool ProcessPlay(PlaysVM currPlay) {
             NFLPlayer n = new NFLPlayer();
 
             foreach (PlayersVM p in currPlay.Players) {
@@ -143,23 +143,22 @@ namespace WebApplication1.Hubs
                     _players[p.id] = copy;
                     liveUpdateList.Add(copy.id);
                 }
-                
             }
-            
+            return true;
         }
 
         private void UpdatePlayerStats(object state)
         {
-            PlaysVM f = new PlaysVM();
-            lock (_updatePlayersStatsLock) {
-                if (playCount < r.NFLPlays.Count()) {
-                    f = r.CurrPlay(playCount);  //go to next play
-                    ProcessPlay(f);
-                    //go through list of sent players and update accordingly
-                    _updatingPlayerStats = true;
-                }
-                if (_updatingPlayerStats)
+            lock (_updatePlayersStatsLock)
+            {
+                if (!_updatingPlayerStats)
                 {
+                    var f = r.NextPlay(playCount);  //go to next play
+                    _updatingPlayerStats = ProcessPlay(f);
+                    BrodcastPlay(f.Desc);
+                    //go through list of sent players and update accordingly
+                    //_updatingPlayerStats = true;
+
                     if (liveUpdateList.Count != 0)
                     {
                         foreach (var playerid in liveUpdateList)
@@ -194,13 +193,8 @@ namespace WebApplication1.Hubs
                     //    }
                     //}
 
-                    
+                    _updatingPlayerStats = false;
                     liveUpdateList.Clear(); //clear for next run
-                    if (f.Qtr == 4 && f.Time == "00:00") {
-                        _updatingPlayerStats = false;   //stop signalr
-                        StopBrodcast();
-                    }
-                    else
                     ++playCount;
                 }
             }
@@ -240,11 +234,10 @@ namespace WebApplication1.Hubs
             Clients.All.updatePlayers(player);
         }
 
-        public void StopBrodcast() {
-            Clients.All.stopClient();
-         
+        private void BrodcastPlay(string play)
+        {
+            Clients.All.updatePlay(play);
         }
-
 
         /* Warning - Database functions ahead.  Proceed with caution.  The DB is a real bitch.
          */ 
@@ -318,8 +311,8 @@ namespace WebApplication1.Hubs
                     //rush yds
                     fromList.RushingStats.RushAtt += 1;
                     fromList.RushingStats.RushYds += fromPlay.Yards;
-                    fromList.currentPts += fromPlay.Yards;
-                    //fromList.currentPts += Convert.ToSingle((fromPlay.Yards / 10.0));
+
+                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //RushLng Don't add in right now
 
                     break;
@@ -327,8 +320,8 @@ namespace WebApplication1.Hubs
                     //rushTDyds
                     fromList.RushingStats.RushAtt += 1;
                     fromList.RushingStats.RushYds += fromPlay.Yards;
-                        fromList.currentPts += fromPlay.Yards;
-                    //fromList.currentPts += Convert.ToSingle((fromPlay.Yards / 10.0));
+
+                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //RushLngTD Don't add in right now
                     if (note == "TD") {
                         fromList.RushingStats.RushTds += 1;
@@ -344,13 +337,18 @@ namespace WebApplication1.Hubs
                 case 15:
                     //PassYrds
                     fromList.PassingStats.PassYds += fromPlay.Yards;
+                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     break;
                 case 16:
                     //PassYrdsTD
                     fromList.PassingStats.PassYds += fromPlay.Yards;
+                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
 
                     if (note == "TD")
+                    {
                         fromList.PassingStats.PassTds += 1;
+                        fromList.currentPts += 6;
+                    }
                     else
                         throw new Exception("Has PassTDYards but note is not TD <- check play");
                     break;
@@ -359,21 +357,23 @@ namespace WebApplication1.Hubs
                     if (note == "INT")
                     {
                         fromList.PassingStats.PassInts += 1;
+                        fromList.currentPts += -2;
                     }
-                    //else
-                        //throw new Exception("statID says int, but note doesn't <- check play");
+                    //add int Exception it triggers on chargersvssteelers
 
                     break;
                 case 20:
                     //QBSack
                     fromList.PassingStats.PassAtt += 1;
-                    //Yards will be 0 or negative 7+-2 = 5
-                    fromList.PassingStats.PassYds += fromPlay.Yards;
+                    //sack yardage goes in to team total but qb indv stats do not change
+
                     break;
                 case 21:
                     //RecYds
                     fromList.ReceivingStats.Rec += 1;
                     fromList.ReceivingStats.RecYds += fromPlay.Yards;
+
+                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //add in RecLng Later
                     break;
                 case 22:
@@ -381,6 +381,8 @@ namespace WebApplication1.Hubs
                     fromList.ReceivingStats.Rec += 1;
                     fromList.ReceivingStats.RecYds += fromPlay.Yards;
                     fromList.ReceivingStats.RecTds += 1;
+
+                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //add in RecLngTD later
                     break;
                 case 69:
@@ -400,6 +402,8 @@ namespace WebApplication1.Hubs
                         fromList.KickingStats.Fga += 1;
                         fromList.KickingStats.Fgm += 1;
                         fromList.KickingStats.Fgyds += fromPlay.Yards;
+
+                        fromList.currentPts += Convert.ToDecimal(Math.Floor(fromPlay.Yards / 10.00));
                     }
                     else
                         throw new Exception("statID says FG, but note doesn't <- check play");
@@ -416,6 +420,8 @@ namespace WebApplication1.Hubs
                         fromList.KickingStats.Xpa += 1;
                         fromList.KickingStats.Xpmade += 1;
                         fromList.KickingStats.Xptot += 1;
+
+                        fromList.currentPts += 1;
                     }
                     else
                         throw new Exception("statID says XP, but note doesn't <- check play");
@@ -440,6 +446,9 @@ namespace WebApplication1.Hubs
                     //write out to file with plays that don't get flagged later after adding in fumbles, ko's, penalty, etc.
                     break;
             }
+
+
+
             return fromList; //appease debugger
         }
     }
