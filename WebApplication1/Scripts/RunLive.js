@@ -30,14 +30,14 @@
             TotalPts: NFLPlayer.currentPts,
             PYds: NFLPlayer.PassingStats.PassYds,
             PTds: NFLPlayer.PassingStats.PassTds,
-            RuYds: NFLPlayer.RushingStats.RushYds,
+            RuYds: RushingStats.RushYds,
             RuTds: NFLPlayer.RushingStats.RushTds,
             ReYds: NFLPlayer.ReceivingStats.RecYds,
             ReTds: NFLPlayer.ReceivingStats.RecTds
         });
     }
 
-    //add in getAllLivePlayers
+
     function init() {
         liveNFLGame.server.getAllHomePlayers($vars.gid).done(function (players) {
             $homePlayerTableBody.empty();
@@ -58,6 +58,7 @@
 
     // Add a client-side hub method that the server will call
     //Need to add away update
+
     liveNFLGame.client.updatePlayers = function (NFLPlayer) {
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
@@ -65,6 +66,10 @@
         $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
     }
+
+    liveNFLGame.client.stopClient = function () {
+        $.connection.hub.stop();
+    };
 
     // Start the connection
     $.connection.hub.start().done(init); 

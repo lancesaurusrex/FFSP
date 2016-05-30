@@ -47,8 +47,8 @@ public class ReadJSONDatafromNFL {
     public List<PlaysVM> NFLPlays {get;set;}
 
     //makeshift bs for bs sp class
-    public PlaysVM NextPlay(int i) {
-       return NFLPlays[i + 1];
+    public PlaysVM CurrPlay(int i) {
+       return NFLPlays[i];
     }
 
     public List<PlaysVM> QuickParseAfterLive() {

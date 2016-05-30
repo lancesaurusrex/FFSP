@@ -26,13 +26,13 @@ namespace WebApplication1.Hubs
         private readonly object _updatePlayersStatsLock = new object();
 
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;
         private volatile bool _updatingPlayerStats = false;
 
-        public int playCount = 0;  //nextplay + 1. starts at 0 so -1 +1 = 0
+        public int playCount = 0;  
         ReadJSONDatafromNFL r;
         public List<NFLPlayer> livePlayerList = new List<NFLPlayer>();
         public List<int> liveUpdateList = new List<int>();
@@ -130,7 +130,7 @@ namespace WebApplication1.Hubs
             return _awayPlayers.Values;
         }
 
-        public bool ProcessPlay(PlaysVM currPlay) {
+        public void ProcessPlay(PlaysVM currPlay) {
             NFLPlayer n = new NFLPlayer();
 
             foreach (PlayersVM p in currPlay.Players) {
@@ -143,21 +143,23 @@ namespace WebApplication1.Hubs
                     _players[p.id] = copy;
                     liveUpdateList.Add(copy.id);
                 }
+                
             }
-            return true;
+            
         }
 
         private void UpdatePlayerStats(object state)
         {
-            lock (_updatePlayersStatsLock)
-            {
-                if (!_updatingPlayerStats)
-                {
-                    var f = r.NextPlay(playCount);  //go to next play
-                    _updatingPlayerStats = ProcessPlay(f);
+            PlaysVM f = new PlaysVM();
+            lock (_updatePlayersStatsLock) {
+                if (playCount < r.NFLPlays.Count()) {
+                    f = r.CurrPlay(playCount);  //go to next play
+                    ProcessPlay(f);
                     //go through list of sent players and update accordingly
-                    //_updatingPlayerStats = true;
-
+                    _updatingPlayerStats = true;
+                }
+                if (_updatingPlayerStats)
+                {
                     if (liveUpdateList.Count != 0)
                     {
                         foreach (var playerid in liveUpdateList)
@@ -192,8 +194,13 @@ namespace WebApplication1.Hubs
                     //    }
                     //}
 
-                    _updatingPlayerStats = false;
+                    
                     liveUpdateList.Clear(); //clear for next run
+                    if (f.Qtr == 4 && f.Time == "00:00") {
+                        _updatingPlayerStats = false;   //stop signalr
+                        StopBrodcast();
+                    }
+                    else
                     ++playCount;
                 }
             }
@@ -232,6 +239,12 @@ namespace WebApplication1.Hubs
         {
             Clients.All.updatePlayers(player);
         }
+
+        public void StopBrodcast() {
+            Clients.All.stopClient();
+         
+        }
+
 
         /* Warning - Database functions ahead.  Proceed with caution.  The DB is a real bitch.
          */ 
@@ -347,8 +360,8 @@ namespace WebApplication1.Hubs
                     {
                         fromList.PassingStats.PassInts += 1;
                     }
-                    else
-                        throw new Exception("statID says int, but note doesn't <- check play");
+                    //else
+                        //throw new Exception("statID says int, but note doesn't <- check play");
 
                     break;
                 case 20:
