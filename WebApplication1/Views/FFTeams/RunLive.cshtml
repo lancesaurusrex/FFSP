@@ -53,28 +53,29 @@
     </h2>
 
     <ul id="plays" class="round"></ul>
-
-    <div id="awayPlayerTable" style="float: left; width:50%">
+    <ol id="plays2" class="round"></ol>
+    <br />
+    <div id="awayPlayerTable" style="float: right; width:50%">
         <table border="1">
             <caption>@Model.VisTeam.TeamName</caption>
             <thead>
-                <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass Yrds</th><th>Pass TDs</th><th>Rush Yrds</th><th>Rush TDs</th><th>Rec Yds</th><th>Rec TDs</th></tr>
+                <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass<br />Yds</th><th>Pass<br />TDs</th><th>INT</th><th>Rush<br />Yds</th><th>Rush<br />TDs</th><th>Rec<br />Yds</th><th>Rec<br />TDs</th></tr>
             </thead>
             <tbody>
-                <tr class="loading"><td colspan="5">loading...</td></tr>
+                <tr class="loading"><td>loading...</td></tr>
             </tbody>
         </table>
     </div>
-    <div id="homePlayerTable" style="float: left; width:50%">
+    <div id="homePlayerTable" style="float: right; width:50%">
         <table border="1">
             <caption>@Model.HomeTeam.TeamName</caption>
             <thead>
-                <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass Yrds</th><th>Pass TDs</th><th>Rush Yrds</th><th>Rush TDs</th><th>Rec Yds</th><th>Rec TDs</th></tr>
+                <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass<br />Yds</th><th>Pass<br />TDs</th><th>INT</th><th>Rush<br />Yds</th><th>Rush<br />TDs</th><th>Rec<br />Yds</th><th>Rec<br />TDs</th></tr>
             </thead>
             <tbody>
-                <tr class="loading"><td colspan="5">loading...</td></tr>
-            </tbody>
-        </table>
+                <tr class="loading"><td>loading...</td></tr>
+    </tbody>
+    </table>
     </div>
 </body>
 </html>

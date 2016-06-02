@@ -26,16 +26,21 @@ namespace WebApplication1.Hubs
         private readonly object _updatePlayersStatsLock = new object();
 
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;
         private volatile bool _updatingPlayerStats = false;
 
         public int playCount = 0;  //nextplay + 1. starts at 0 so -1 +1 = 0
+        public int pc2 = 0;
         ReadJSONDatafromNFL r;
+        ReadJSONDatafromNFL r2;
         public List<NFLPlayer> livePlayerList = new List<NFLPlayer>();
         public List<int> liveUpdateList = new List<int>();
+        public bool gameOver = false;
+        public int gameID = new int();
+        public int CurrentWeek = 1;
 
         private NFLStatsUpdate(IHubConnectionContext<dynamic> clients) {
 
@@ -47,6 +52,7 @@ namespace WebApplication1.Hubs
             }
 
             foreach (NFLPlayer n in livePlayerList) {
+                n.currentPts = 0;
                 Type m1 = n.PassingStats.GetType();
                 Type m2 = n.RushingStats.GetType();
                 Type m3 = n.ReceivingStats.GetType();
@@ -86,11 +92,13 @@ namespace WebApplication1.Hubs
             //livePlayerList.ForEach(player => _players.TryAdd(player.id, player));
 
 
-            r = new ReadJSONDatafromNFL("2015101200_gtd.json");
+            r = new ReadJSONDatafromNFL("2015101200_gtd.json","2015101200");
+            r2 = new ReadJSONDatafromNFL("2015101108_gtd.json", "2015101108");
             /*****
              * NOTE- For stupid demo I have to null/comment out stats in ReadJSON
              *****/
             r.QuickParseAfterLive();
+            r2.QuickParseAfterLive();
 
             _timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
         }
@@ -112,7 +120,8 @@ namespace WebApplication1.Hubs
             return _players.Values;
         }
 
-        public IEnumerable<NFLPlayer> GetAllHomePlayers(int gid) { 
+        public IEnumerable<NFLPlayer> GetAllHomePlayers(int gid) {
+            gameID = gid;
             var homeID = GetHomeTeamIDFromGameID(gid);
             var homePlayersID = GetAllPlayersIDOnTeam(homeID);
             var homePlayersList = GetAllPlayersFromPlayersID(homePlayersID);
@@ -151,11 +160,19 @@ namespace WebApplication1.Hubs
         {
             lock (_updatePlayersStatsLock)
             {
-                if (!_updatingPlayerStats)
-                {
-                    var f = r.NextPlay(playCount);  //go to next play
+                   
+                var f = r.CurrPlay(playCount);  //go to next play
+                var f2 = r2.CurrPlay(pc2);  //go to next play
+                if (!gameOver) {
                     _updatingPlayerStats = ProcessPlay(f);
+                    _updatingPlayerStats = ProcessPlay(f2);
+                }
+
+
+                if (_updatingPlayerStats)
+                {
                     BrodcastPlay(f.Desc);
+                    BrodcastPlay2(f2.Desc);
                     //go through list of sent players and update accordingly
                     //_updatingPlayerStats = true;
 
@@ -163,7 +180,6 @@ namespace WebApplication1.Hubs
                     {
                         foreach (var playerid in liveUpdateList)
                         {
-                            //only have to do players in game though may go through home and awayplayers?
                             //find id in _players
                             NFLPlayer updatedP;
 
@@ -173,31 +189,118 @@ namespace WebApplication1.Hubs
                                    BroadcastPlayers(updatedP);                            
                                 else if (TryUpdateAwayPlayerPoint(updatedP))
                                     BroadcastPlayers(updatedP);
-                                
-                                                          
+                                                       
                             }
                             else
                                 throw new Exception("Something went wrong in updateplayerstats _players.TryGetValue!");
                         }
                     }
-                 
-
-                    //foreach (var player in _homePlayers.Values)
-                    //{
-
-                    //}
-
-                    //foreach (var player in _awayPlayers.Values) {
-                    //    if (TryUpdatePlayerPoint(player)) {
-                    //        BroadcastPlayers(player);
-                    //    }
-                    //}
 
                     _updatingPlayerStats = false;
                     liveUpdateList.Clear(); //clear for next run
                     ++playCount;
+                    ++pc2;
+                }
+                if ((f.Qtr == 4 && f.Time == "00:00") && (f2.Qtr == 4 && f2.Time == "00:00")) {
+                    _updatingPlayerStats = false;   //stop signalr//StopBrodcast();
+                    BrodcastPlay("Game Over!");
+                    BrodcastPlay2("Game Over!");
+                    gameOver = true;
+                    tempsavetodb();
+                    EndWeek();
                 }
             }
+        }
+
+        private void tempsavetodb() {
+            using (var db = new FF()) {
+
+                var game = db.FFGameDB.Find(gameID);
+                db.Entry(game).State = System.Data.Entity.EntityState.Unchanged;
+                decimal total = new decimal();
+                foreach (var h in _homePlayers) 
+                    total += h.Value.currentPts;
+                    
+                game.HScore = total;
+                total = 0;
+                foreach (var a in _awayPlayers) 
+                    total += a.Value.currentPts;
+                    
+                game.VScore = total;
+
+                foreach (var n in _players) {
+
+                    var a = db.NFLPlayer.Find(n.Key);
+                    db.Entry(a).State = System.Data.Entity.EntityState.Unchanged;
+                    
+                    a.week = 1;
+                    a.year = 2016;
+                    a.currentPts = n.Value.currentPts;
+                    a.PassingStats = n.Value.PassingStats;
+                    a.RushingStats = n.Value.RushingStats;
+                    a.ReceivingStats = n.Value.ReceivingStats;
+                    a.KickingStats = n.Value.KickingStats;
+                    a.FumbleStats = n.Value.FumbleStats;
+                }
+                db.SaveChanges();
+            }
+        }
+
+        public void EndWeek() {
+            using (var db = new FF()) {
+                var game = db.FFGameDB.Find(gameID);
+                FFLeague League = db.FFLeagueDB.Find(game.FFLeagueID);
+                //RunLive updates score in ffgamedb
+
+                var allGamesInCurrWeek = db.FFGameDB.Where(x => x.Week == CurrentWeek).ToList();
+
+                foreach (FFGame g in allGamesInCurrWeek) {
+                    int homeID;
+                    int awayID;
+                    FFTeam HomeTeam;
+                    FFTeam VisTeam;
+                    //pull teams if null
+                    if (g.HomeTeam != null) {
+                        homeID = (int)g.HomeTeamID;
+                        HomeTeam = db.FFTeamDB.Find(g.HomeTeamID);
+                    }
+                    else
+                        throw new Exception("FFGame Hometeam null");
+
+                    if (g.VisTeam != null) {
+                        awayID = (int)g.VisTeamID;
+                        VisTeam = db.FFTeamDB.Find(g.VisTeamID);
+                    }
+                    else
+                        throw new Exception("FFGame Visteam null");
+
+                    db.Entry(HomeTeam).State = System.Data.Entity.EntityState.Unchanged;
+                    db.Entry(VisTeam).State = System.Data.Entity.EntityState.Unchanged;
+
+                    //win/loss
+                    if (g.HScore > g.VScore) {
+                        //HomeTeam Won
+                        g.HomeTeam.Win += 1;
+                        g.VisTeam.Lose += 1;
+                    }
+                    else if (g.VScore > g.HScore) {
+                        //VisTeam Won
+                        g.HomeTeam.Lose += 1;
+                        g.VisTeam.Win += 1;
+                    }
+                    else {
+                        //Tie
+                        g.HomeTeam.Tie += 1;
+                        g.VisTeam.Tie += 1;
+                    }
+
+                    g.HomeTeam.FPTotal += (decimal)g.HScore;
+                    g.VisTeam.FPTotal += (decimal)g.VScore;
+
+                    db.SaveChanges();
+                }
+            }
+            //CurrentWeek += 1;  //Advance Week
         }
 
         private bool TryUpdateHomePlayerPoint(NFLPlayer player)
@@ -218,10 +321,8 @@ namespace WebApplication1.Hubs
         {
             NFLPlayer awayPlayer;
 
-            if (_awayPlayers.TryGetValue(player.id, out awayPlayer))
-            {
+            if (_awayPlayers.TryGetValue(player.id, out awayPlayer)) {
                 _awayPlayers[player.id] = player;
-
                 return true;
             }
 
@@ -238,7 +339,9 @@ namespace WebApplication1.Hubs
         {
             Clients.All.updatePlay(play);
         }
-
+        private void BrodcastPlay2(string play) {
+            Clients.All.updatePlay2(play);
+        }
         /* Warning - Database functions ahead.  Proceed with caution.  The DB is a real bitch.
          */ 
 
@@ -383,6 +486,7 @@ namespace WebApplication1.Hubs
                     fromList.ReceivingStats.RecTds += 1;
 
                     fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromList.currentPts += 6;
                     //add in RecLngTD later
                     break;
                 case 69:

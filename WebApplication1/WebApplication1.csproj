@@ -208,6 +208,7 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="2015101200_gtd.json" />
     <Content Include="MARKOVDATA.xlsx" />
+    <Content Include="2015101108_gtd.json" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.1.js" />
     <Content Include="Scripts\jquery-2.2.1.min.js" />

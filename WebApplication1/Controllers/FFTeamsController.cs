@@ -25,7 +25,7 @@ using System.Threading;
 namespace WebApplication1.Controllers {
     public class FFTeamsController : Controller {
         private FF db = new FF();
-        const int CURRENTWEEK = 1;
+        int CurrentWeek = 1;
 
         //Displays All AvailablePlayers and can add selected ones to the team
         public ActionResult AvailablePlayers(int TeamID) {
@@ -81,7 +81,7 @@ namespace WebApplication1.Controllers {
         public ActionResult Scoreboard(int TeamID) {
 
             //FillWeekScoreboard(int TeamID, int? numWeek)    
-            var currentWeek = FillWeekScoreboard(TeamID, null);
+            var currentWeek = FillWeekScoreboard(TeamID, CurrentWeek);
             //signalr asp.net tutorial
             if (currentWeek == null)
                 throw new NullReferenceException("currentWeek is null, which means games arent in the db for that week");
@@ -452,6 +452,50 @@ namespace WebApplication1.Controllers {
             return View(fFTeam);
         }
 
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        public ActionResult RunLive(int gameID) {
+
+            //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
+            //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
+            FFGame game = db.FFGameDB.Find(gameID);
+
+            if (game.HomeTeam.Players.Count != 0) {
+                if (game.HomeTeamID != null) {
+                    game.HomeTeam.Players = GetAllPlayersOnTeam((int)game.HomeTeamID).ToList();
+                }
+                else
+                    throw new NullReferenceException("game.HomeID is null");
+            }
+            else
+                throw new NullReferenceException("game.HomePlayers team is empty");
+
+            if (game.VisTeam.Players.Count != 0) {
+                if (game.VisTeamID != null) {
+                    game.VisTeam.Players = GetAllPlayersOnTeam((int)game.VisTeamID).ToList();
+                }
+                else
+                    throw new NullReferenceException("game.AwayID is null");
+            }
+            else
+                throw new NullReferenceException("game.AwayPlayers team is empty");
+
+            return View(game);           
+        }
+
+        public JsonResult GetTeamID(FFGame game)
+        {
+            var hID = game.HomeTeamID;
+            return Json(hID, JsonRequestBehavior.AllowGet);
+        }
+
+
+        //Default junk
         // GET: FFTeams/Edit/5
         public ActionResult Edit(int? id) {
             if (id == null) {
@@ -501,49 +545,6 @@ namespace WebApplication1.Controllers {
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-
-        protected override void Dispose(bool disposing) {
-            if (disposing) {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        public ActionResult RunLive(int gameID) {
-
-            //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
-            //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
-            FFGame game = db.FFGameDB.Find(gameID);
-
-            if (game.HomeTeam.Players.Count != 0) {
-                if (game.HomeTeamID != null) {
-                    game.HomeTeam.Players = GetAllPlayersOnTeam((int)game.HomeTeamID).ToList();
-                }
-                else
-                    throw new NullReferenceException("game.HomeID is null");
-            }
-            else
-                throw new NullReferenceException("game.HomePlayers team is empty");
-
-            if (game.VisTeam.Players.Count != 0) {
-                if (game.VisTeamID != null) {
-                    game.VisTeam.Players = GetAllPlayersOnTeam((int)game.VisTeamID).ToList();
-                }
-                else
-                    throw new NullReferenceException("game.AwayID is null");
-            }
-            else
-                throw new NullReferenceException("game.AwayPlayers team is empty");
-
-            return View(game);           
-        }
-
-        public JsonResult GetTeamID(FFGame game)
-        {
-            var hID = game.HomeTeamID;
-            return Json(hID, JsonRequestBehavior.AllowGet);
-        }
-
         //Test shit
         public ActionResult Test()
         {

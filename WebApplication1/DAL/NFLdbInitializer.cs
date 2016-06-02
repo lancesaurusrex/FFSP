@@ -12,12 +12,12 @@ namespace WebApplication1.DAL {
     public class NFLdbInitializer : System.Data.Entity.DropCreateDatabaseIfModelChanges<NFLdatabase> {
         protected override void Seed(NFLdatabase NFLcontext) {
 
-            String FileName = "2015101200_gtd.json";
+            //String FileName = "2015101200_gtd.json";
 
-            ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
-            j.DeserializeData(FileName);    
+            //ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
+           // j.DeserializeData(FileName);    
             //will just need players for this project
-            NFLcontext.SaveChanges();
+            //NFLcontext.SaveChanges();
         }
     }
 
@@ -31,9 +31,12 @@ namespace WebApplication1.DAL {
         protected override void Seed(FF FFcontext) {
 
             String FileName = "2015101200_gtd.json";
-
+            string gameID = "2015101200";
+            string fileName2= "2015101108_gtd.json";
+            string gameID2 = "2015101108";
             ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
-            j.DeserializeData(FileName);
+            j.DeserializeData(FileName, gameID);
+            j.DeserializeData(fileName2, gameID2);
             //will just need players for this project
             FFcontext.SaveChanges();
         }

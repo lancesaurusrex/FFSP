@@ -12,8 +12,12 @@ using WebApplication1.Models;
 /// <summary>
 /// Summary description for NFLPlayer
 /// </summary>
-public class NFLPlayer
-{
+public class NFLPlayer {
+    /*
+     * Slight design flaw, should fix after stupid project bs
+     * Should have a playerstats class with stats in with playerid and year,week,currpts,etc.
+    */
+    
     public NFLPlayer()
     {
         isAvailable = true;
@@ -35,7 +39,11 @@ public class NFLPlayer
     public string team { get; set; }
 
     public string pos { get; set; }
-    
+
+    public int? week { get; set; }
+
+    public int? year { get; set; }
+
     public decimal currentPts { get; set; }
     //For Availability in TeamController
     public bool isAvailable { get; set; }

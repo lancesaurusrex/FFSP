@@ -20,16 +20,16 @@ using System.Data.Entity;
 
 public class ReadJSONDatafromNFL {
     public ReadJSONDatafromNFL() { }
-    public ReadJSONDatafromNFL(string FileName) {
+    public ReadJSONDatafromNFL(string FileName, string gameIDS) {
         endOfGame = false;
         isUpdate = false;
         
         count = 37;
         drivesNum = "1";
 
-        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
-        gameID = ID.ToString();      //Needs to be in string for JSON calls.
-
+        //int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
+        //gameID = ID.ToString();      //Needs to be in string for JSON calls.
+        gameID = gameIDS;
         string Root = HttpContext.Current.Server.MapPath("~/");
         string FullPath = Root + FileName;
         NFLData = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
@@ -48,23 +48,27 @@ public class ReadJSONDatafromNFL {
 
     //makeshift bs for bs sp class
     public PlaysVM CurrPlay(int i) {
-       return NFLPlays[i];
+        if (i < (NFLPlays.Count() - 1))
+            return NFLPlays[i];
+        else 
+            return NFLPlays[NFLPlays.Count() - 1];
+        
+
     }
 
     public List<PlaysVM> QuickParseAfterLive() {
         //reset
 
         isUpdate = false;
-
+        drivesNum = "1";//reset for next game
         JsonSerializer serializer = new JsonSerializer();
 
         int playsCount = 0;
 
-        string playNum = Convert.ToString(count);
+        //string playNum = Convert.ToString(count);
         while (Convert.ToInt16(drivesNum) < totalDrives){
 
             int numplaysinDrive = (int)NFLData[gameID]["drives"][drivesNum]["numplays"];
-
 
             if (playsCount >= numplaysinDrive) {
                 var a = Convert.ToInt16(drivesNum);
@@ -118,19 +122,19 @@ public class ReadJSONDatafromNFL {
                         playsCount++;
                     }
         }
-        return (NFLPlays);
+        return NFLPlays;
     }
 
     //adds game to db, will not work if players are already there (week)
-    public void DeserializeData(string FileName)
+    public void DeserializeData(string FileName, string gameID)
     {
         //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
         //dynamic game = NFLData;
         //dynamic newGame = new JObject();
         //string FileName = "2015101200_gtd.json";
 
-        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
-        string gameID = ID.ToString();      //Needs to be in string for JSON calls.
+        //int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
+        //string gameID = FileName;//ID.ToString();      //Needs to be in string for JSON calls.
 
         string Root = HttpContext.Current.Server.MapPath("~/");
         string FullPath = Root + FileName;
@@ -282,15 +286,12 @@ public class ReadJSONDatafromNFL {
                         //Fix this sometime not sure of better way
                         var dbcheck = db.NFLPlayer.Find(NFLFoundPlayer.id);
 
-                        if (dbcheck == null) {
+                        if (dbcheck == null) 
                             db.NFLPlayer.Add(NFLFoundPlayer);
-                            db.SaveChanges();
-                        }
-                        else {
+                        else 
                             db.Entry(NFLFoundPlayer).State = EntityState.Modified;
-                            db.SaveChanges();
-                        }
-
+                            
+                        db.SaveChanges();
                         //empty keys for next iteration
                     }
                     playerIDStringKeys.Clear();

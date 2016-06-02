@@ -62,7 +62,7 @@
     liveNFLGame.client.updatePlayers = function (NFLPlayer) {
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
-        var x = document.getElementById("homePlayerTable");
+
         $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
         $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
@@ -71,6 +71,10 @@
 
     liveNFLGame.client.updatePlay = function (play) {
         $("#plays").html(play);
+    }
+    liveNFLGame.client.updatePlay2 = function (play2) {
+        $("#plays2").html(play2);
+        var a = $homePlayerTableBody.find(currentPts);
     }
 
     // Start the connection
