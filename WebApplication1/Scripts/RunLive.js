@@ -63,10 +63,23 @@
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
 
+        $("tr:not(:empty)").css("background-color", "black");
         $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
         $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
+        $rh = $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']');
+        $rh.css('background-color', 'red');
+        $ra = $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']');
+        $ra.css('background-color', 'blue');
+       // document.getElementById("homePlayerTable").style.backgroundColor = '#FF0000';
+        //document.getElementById("awayPlayerTable").style.backgroundColor = '#FFA500';
+       // document.getElementById('id').style.backgroundColor = "Red";
+        //document.getElementById('Id').style.backgroundColor = "Red";
+        //var a = document.getElementById("homePlayerTable");
+        //var b =a.getElementsByTagName(Id);
+
+        
     }
 
     liveNFLGame.client.updatePlay = function (play) {
@@ -74,7 +87,6 @@
     }
     liveNFLGame.client.updatePlay2 = function (play2) {
         $("#plays2").html(play2);
-        var a = $homePlayerTableBody.find(currentPts);
     }
 
     // Start the connection

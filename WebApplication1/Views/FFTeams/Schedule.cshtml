@@ -54,7 +54,8 @@
             @Html.DisplayFor(modelItem => item.VisTeam.TeamName)
         </td>
         <td>
-            @Html.ActionLink("Start Live", "RunLive", new { GameID = item.FFGameID }, new { onclick = "functionname();" })
+            <!--Html.ActionLink("Start Live", "RunLive", new { GameID = item.FFGameID }, new { onclick = "functionname();" })-->
+            <input type="button" class="btn btn-default" value="Live Stats" onclick="location.href='@Url.Action("RunLive", new { GameID = item.FFGameID })'" />
         </td>
     </tr>
 }

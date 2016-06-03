@@ -1,4 +1,4 @@
-﻿@model Dictionary<int,WebApplication1.Models.FFLeague>
+﻿@model Dictionary<WebApplication1.Models.FFTeam,WebApplication1.Models.FFLeague>
 
 @{
     ViewBag.Title = "Index";
@@ -14,6 +14,9 @@
 @foreach (var item in Model) {
     <table class="table">
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => item.Key.TeamName)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => item.Value.FFLeagueName)
             </th>
@@ -50,6 +53,9 @@
 
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.Key.TeamName)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Value.FFLeagueName)
             </td>
             <td>
@@ -80,10 +86,7 @@
                 @Html.DisplayFor(modelItem => item.Value.DEFStart)
             </td>
             <td>
-                @Html.ActionLink("Team Main Page", "Index", "FFTeams", new { TeamID = item.Key }, null) |
-                @Html.ActionLink("Edit", "Edit", new { id = item.Value.FFLeagueID }) |
-                @Html.ActionLink("Details", "Details", new { id = item.Value.FFLeagueID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.Value.FFLeagueID })
+                <input type="button" class="btn btn-default" value="Go" onclick="location.href='@Url.Action("Index", "FFTeams", new { TeamID = item.Key.FFTeamID })'" />
             </td>
         </tr>
     </table>

@@ -17,12 +17,16 @@ namespace WebApplication1 {
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
+                      "~/Content/grayscale/js/bootstrap.js",
+                      "~/Content/grayscale/js/grayscale.js",
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/grayscale/css/grey.bootstrap.css",
+                      "~/Content/grayscale/css/grayscale.css"));
+            bundles.Add(new StyleBundle("~/Content/fonts").Include(
+          "~/Content/grayscalefonts/glyphicons-halflings-regular.eot",
+          "~/Content/grayscale/css/glyphicons-halflings-regular.ttf"));
         }
     }
 }
