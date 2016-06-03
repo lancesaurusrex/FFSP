@@ -26,7 +26,7 @@ namespace WebApplication1.Hubs
         private readonly object _updatePlayersStatsLock = new object();
 
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;

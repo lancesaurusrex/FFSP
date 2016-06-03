@@ -58,35 +58,48 @@
     }
 
     // Add a client-side hub method that the server will call
-    //Need to add away update
+    //Need to add away update   
     liveNFLGame.client.updatePlayers = function (NFLPlayer) {
         var displayPlayer = formatPlayer(NFLPlayer),
             $row = $(rowTemplate.supplant(displayPlayer));
 
-        $("tr:not(:empty)").css("background-color", "black");
+        //$("tr:not(:empty)").css("background-color", "black");
         $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
         $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
             .replaceWith($row);
-        $rh = $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']');
-        $rh.css('background-color', 'red');
-        $ra = $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']');
-        $ra.css('background-color', 'blue');
+        //$rh = $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']');
+        //$rh.css('background-color', 'red');
+        //$ra = $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']');
+        //$ra.css('background-color', 'blue');
        // document.getElementById("homePlayerTable").style.backgroundColor = '#FF0000';
         //document.getElementById("awayPlayerTable").style.backgroundColor = '#FFA500';
        // document.getElementById('id').style.backgroundColor = "Red";
         //document.getElementById('Id').style.backgroundColor = "Red";
         //var a = document.getElementById("homePlayerTable");
         //var b =a.getElementsByTagName(Id);
+        var a = $awayPlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
+            .css({ backgroundColor: 'red' })
+            .show()
+        setTimeout(function () {
+            a.css({ backgroundColor: '' });
+        }, 2000);
 
-        
+        var b = $homePlayerTableBody.find('tr[id=' + NFLPlayer.id + ']')
+            .css({ backgroundColor: 'blue' })
+            .show()
+        setTimeout(function () {
+            b.css({ backgroundColor: '' });
+        }, 2000);
     }
 
     liveNFLGame.client.updatePlay = function (play) {
         $("#plays").html(play);
+       // $("tr:not(:empty)").css("background-color", "black");
     }
     liveNFLGame.client.updatePlay2 = function (play2) {
         $("#plays2").html(play2);
+        //$("tr:not(:empty)").css("background-color", "black");
     }
 
     // Start the connection

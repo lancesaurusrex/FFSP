@@ -103,20 +103,20 @@ namespace WebApplication1.Controllers {
             string UserID = User.Identity.GetUserId();
             if (UserID != null) {
                 var ListOfLeagueIDFromUserID = GetLeagueIDsFromUserID(UserID);  //List of LeagueID from UserID in <teamid, leagueid format
-                var TeamIDLeaguesFromUserID = new Dictionary<FFTeam,FFLeague>();   //creates int, FFLeague dict <TeamID, LeagueID
+                var TeamIDLeaguesFromUserID = new Dictionary<FFTeam, FFLeague>(); //creates int, FFLeague dict <TeamID, LeagueID
 
                 if (ListOfLeagueIDFromUserID != null) {
 
-                    foreach (KeyValuePair<int,int> TeamAndLeagueIDs in ListOfLeagueIDFromUserID) {
+                    foreach (KeyValuePair<int, int> TeamAndLeagueIDs in ListOfLeagueIDFromUserID) {
                         var team = db.FFTeamDB.Find(TeamAndLeagueIDs.Key);
                         TeamIDLeaguesFromUserID.Add(team, GetLeagueFromLeagueID(TeamAndLeagueIDs.Value));
                     }
                     return View(TeamIDLeaguesFromUserID);
                 }
-                else { throw new Exception("Join a league"); }
+                else { return View(new Dictionary<FFTeam, FFLeague>()); }
             }
             else
-                return View(Index());    //won't work redirect to CreateLeagues
+                return View(new Dictionary<FFTeam, FFLeague>());    //won't work redirect to CreateLeagues
         }
 
         // GET: FFLeague/Details/5
