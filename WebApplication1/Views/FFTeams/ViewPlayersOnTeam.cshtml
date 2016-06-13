@@ -1,28 +1,70 @@
 ﻿@model IEnumerable<NFLPlayer>
+@section Scripts
+    {
+    <script src="http://rubaxa.github.io/Sortable/Sortable.js">
+
+    </script>
+    
+    <script type="text/javascript">
+    // List with handle
+    Sortable.create(listWithHandle, {
+        handle: '.glyphicon-move',
+        animation: 150
+    });
+    Sortable.create(listWithHandle2, {
+        handle: ".my-handle",
+        animation: 150
+    });
+    </script>
+    }
 
 @{
     ViewBag.Title = "View Players On Team";
 }
 
 <h2>View Players on Your Team</h2>
+<div id="listWithHandle" class="list-group">
+    <div class="list-group-item" draggable="true">
+        <span class="badge">14</span>
+        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+    Drag me by the handle
+</div>
+    <div class="list-group-item" draggable="true">
+        <span class="badge">2</span>
+        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+        You can also select text
+    </div>
+    <div class="list-group-item" draggable="true">
+        <span class="badge">1</span>
+        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+        Best of both worlds!
+    </div>
+</div>
 
-<table class="table">
 
-    @{bool altRow = false;}   
+
+    @*@{bool altRow = false;}*@
+<div id="listWithHandle2" class="list-group">
     @foreach (var item in Model) {
 
-        <tr>
-            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
-                @Html.DisplayFor(modelItem => item.name)
-            </td>
-            <td style="background-color:@(altRow ? "#FFFF00" : "#0099FF"); height:40px;width:100px;">
-                @Html.DisplayFor(modelItem => item.team)
-            </td>
-            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
-                @Html.DisplayFor(modelItem => item.pos)
-            </td>
-            @{altRow = !altRow;}
-        </tr>
-    }
+        <div class="list-group-item" draggable="true">
+            <span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.id)</span>
+            @Html.DisplayFor(modelItem => item.name)
+            @Html.DisplayFor(modelItem => item.team)
+            @Html.DisplayFor(modelItem => item.pos)
+            @*<tr style="color: #000;">
+                    <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td style="background-color:@(altRow ? "#FFFF00" : "#0099FF"); height:40px;width:100px;">
+                        @Html.DisplayFor(modelItem => item.team)
+                    </td>
+                    <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
+                        @Html.DisplayFor(modelItem => item.pos)
+                    </td>
+                    @{altRow = !altRow;}
+                </tr>*@
+        </div>
 
-</table>
+    }
+</div>

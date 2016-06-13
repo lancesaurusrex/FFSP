@@ -251,3 +251,10 @@ public class TeamStats
     [JsonProperty("top")]
     public string Top { get; set; }
 }
+
+public class GSettings {
+    [Key]
+    public int id { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int CurrentWeek { get;set;}
+}

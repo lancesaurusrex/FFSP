@@ -198,11 +198,9 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\bootstrap.css" />
-    <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\grayscale\css\grayscale.css" />
-    <Content Include="Content\grayscale\css\grey.bootstrap.css" />
-    <Content Include="Content\grayscale\css\grey.bootstrap.min.css" />
+    <Content Include="Content\grayscale.css" />
+    <Content Include="Content\grey.bootstrap.css" />
+    <Content Include="Content\grey.bootstrap.min.css" />
     <Content Include="Content\grayscale\font-awesome\css\font-awesome.css" />
     <Content Include="Content\grayscale\font-awesome\css\font-awesome.min.css" />
     <Content Include="Content\grayscale\font-awesome\fonts\fontawesome-webfont.svg" />
@@ -219,7 +217,6 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
-    <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="2015101200_gtd.json" />
@@ -267,6 +264,7 @@
     <Content Include="Content\grayscale\sass\grayscale.scss" />
     <Content Include="Content\grayscale\sass\_mixins.scss" />
     <Content Include="Content\grayscale\sass\_variables.scss" />
+    <Content Include="Content\grayscale\fonts\TecmoSet1.TTF" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.1.js" />
     <Content Include="Scripts\jquery-2.2.1.min.js" />
@@ -350,6 +348,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\grayscale\css\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

@@ -25,7 +25,7 @@ using System.Threading;
 namespace WebApplication1.Controllers {
     public class FFTeamsController : Controller {
         private FF db = new FF();
-        int CurrentWeek = 1;
+        int CurrentWeek;
 
         //Displays All AvailablePlayers and can add selected ones to the team
         public ActionResult AvailablePlayers(int TeamID) {
@@ -79,6 +79,14 @@ namespace WebApplication1.Controllers {
 
 
         public ActionResult Scoreboard(int TeamID) {
+            if (CurrentWeek > 13)
+                CurrentWeek = 13;
+            else {
+                using (var dbsetting = new FF()) {
+                    var g = dbsetting.Settings.Find(1);
+                    CurrentWeek = g.CurrentWeek;
+                }
+            }
 
             //FillWeekScoreboard(int TeamID, int? numWeek)    
             var currentWeek = FillWeekScoreboard(TeamID, CurrentWeek);
@@ -422,11 +430,11 @@ namespace WebApplication1.Controllers {
             if (id == null) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            FFTeam fFTeam = db.FFTeamDB.Find(id);
-            if (fFTeam == null) {
+            FFGame Game = db.FFGameDB.Find(id);
+            if (Game == null) {
                 return HttpNotFound();
             }
-            return View(fFTeam);
+            return View(Game);
         }
 
         // GET: FFTeams/Create

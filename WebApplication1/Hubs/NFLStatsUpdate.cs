@@ -40,7 +40,7 @@ namespace WebApplication1.Hubs
         public List<int> liveUpdateList = new List<int>();
         public bool gameOver = false;
         public int gameID = new int();
-        public int CurrentWeek = 1;
+        public int CurrentWeekServ = 1;
 
         private NFLStatsUpdate(IHubConnectionContext<dynamic> clients) {
 
@@ -207,6 +207,7 @@ namespace WebApplication1.Hubs
                     BrodcastPlay2("Game Over!");
                     gameOver = true;
                     tempsavetodb();
+                    if (CurrentWeekServ < 14)
                     EndWeek();
                 }
             }
@@ -252,7 +253,7 @@ namespace WebApplication1.Hubs
                 FFLeague League = db.FFLeagueDB.Find(game.FFLeagueID);
                 //RunLive updates score in ffgamedb
 
-                var allGamesInCurrWeek = db.FFGameDB.Where(x => x.Week == CurrentWeek).ToList();
+                var allGamesInCurrWeek = db.FFGameDB.Where(x => x.Week == CurrentWeekServ).ToList();
 
                 foreach (FFGame g in allGamesInCurrWeek) {
                     int homeID;
@@ -263,6 +264,9 @@ namespace WebApplication1.Hubs
                     if (g.HomeTeam != null) {
                         homeID = (int)g.HomeTeamID;
                         HomeTeam = db.FFTeamDB.Find(g.HomeTeamID);
+                        if (g.HScore == null) {
+                            g.HScore = 0;
+                        }
                     }
                     else
                         throw new Exception("FFGame Hometeam null");
@@ -270,9 +274,20 @@ namespace WebApplication1.Hubs
                     if (g.VisTeam != null) {
                         awayID = (int)g.VisTeamID;
                         VisTeam = db.FFTeamDB.Find(g.VisTeamID);
+                            if (g.VScore == null) {
+                            g.VScore = 0;
+                        }
                     }
                     else
                         throw new Exception("FFGame Visteam null");
+
+                    foreach (NFLPlayer p in g.HomeTeam.Players) {
+                        g.HScore += p.currentPts;
+                    }
+
+                    foreach (NFLPlayer p in g.VisTeam.Players) {
+                        g.VScore += p.currentPts;
+                    }
 
                     db.Entry(HomeTeam).State = System.Data.Entity.EntityState.Unchanged;
                     db.Entry(VisTeam).State = System.Data.Entity.EntityState.Unchanged;
@@ -296,11 +311,18 @@ namespace WebApplication1.Hubs
 
                     g.HomeTeam.FPTotal += (decimal)g.HScore;
                     g.VisTeam.FPTotal += (decimal)g.VScore;
+                    //delete temp proj, add currentWeek to db and update
+
 
                     db.SaveChanges();
                 }
+                var sett = db.Settings.Find(1);
+                db.Entry(sett).State = System.Data.Entity.EntityState.Unchanged;
+                sett.CurrentWeek++;
+                CurrentWeekServ = sett.CurrentWeek;
+
+                db.SaveChanges();
             }
-            //CurrentWeek += 1;  //Advance Week
         }
 
         private bool TryUpdateHomePlayerPoint(NFLPlayer player)

@@ -38,6 +38,13 @@ namespace WebApplication1.DAL {
             j.DeserializeData(FileName, gameID);
             j.DeserializeData(fileName2, gameID2);
             //will just need players for this project
+
+            //temp proj
+            GSettings g = new GSettings();
+            
+            g.CurrentWeek = 1;
+            FFcontext.Settings.Add(g);
+
             FFcontext.SaveChanges();
         }
     }

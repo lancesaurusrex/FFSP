@@ -95,11 +95,10 @@
 
     liveNFLGame.client.updatePlay = function (play) {
         $("#plays").html(play);
-       // $("tr:not(:empty)").css("background-color", "black");
     }
+
     liveNFLGame.client.updatePlay2 = function (play2) {
         $("#plays2").html(play2);
-        //$("tr:not(:empty)").css("background-color", "black");
     }
 
     // Start the connection

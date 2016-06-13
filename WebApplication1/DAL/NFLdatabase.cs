@@ -32,8 +32,8 @@ namespace WebApplication1.DAL {
         public DbSet<FFGame> FFGameDB { get; set; }
         public DbSet<FFLeague> FFLeagueDB { get; set; }
         public DbSet<TeamNFLPlayer> FFTeamNFLPlayer { get; set; }
-
         public DbSet<NFLPlayer> NFLPlayer { get; set; }
+        public DbSet<GSettings> Settings { get; set; }
         //public DbSet<FFPlayer> FFPlayerDB { get; set; }
     }
 }
