@@ -16,6 +16,12 @@ public class NFLPlayer {
     /*
      * Slight design flaw, should fix after stupid project bs
      * Should have a playerstats class with stats in with playerid and year,week,currpts,etc.
+     * 
+     * Player has id and info
+     * Stats is seperate id
+     * PlayerYearWeekDB - PYWID -> NFLPlayerID Year Week Stats
+     * 
+     * Added new class StatsYearWeek, will phase out NFLPlayer stats into StatsYearWeek
     */
     
     public NFLPlayer()
@@ -87,6 +93,29 @@ public class NFLGame {
     public int HScore { get; set; }
     public int VScore { get; set; }
 
+}
+
+public class StatsYearWeek {
+
+    public StatsYearWeek() {         
+        PassingStats = new PassingGameStats();
+        RushingStats = new RushingGameStats();
+        ReceivingStats = new ReceivingGameStats();
+        FumbleStats = new FumbleGameStats();
+        KickingStats = new KickingGameStats();
+    }
+
+    [Key]
+    public int id { get; set; }
+    public int PlayerID { get; set; }
+    public int Year { get; set; }
+    public int Week { get; set; }
+
+    public PassingGameStats PassingStats { get; set; }
+    public RushingGameStats RushingStats { get; set; }
+    public ReceivingGameStats ReceivingStats { get; set; }
+    public FumbleGameStats FumbleStats { get; set; }
+    public KickingGameStats KickingStats { get; set; }
 }
 
 public class PassingGameStats

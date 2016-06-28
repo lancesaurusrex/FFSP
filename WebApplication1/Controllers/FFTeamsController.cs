@@ -252,11 +252,38 @@ namespace WebApplication1.Controllers {
         public ActionResult ViewPlayersOnTeam(int TeamID) {
 
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            //top of somewhere as a compare and seperate func
+            var playersOnTeam = FFTeam.Players;
 
-            if (FFTeam.Players != null)
-                return View(FFTeam.Players);
+            if (FFTeam.Players != null) {
+
+                var starters = db.FFTeamNFLPlayer.Where(x => x.TeamID == TeamID).ToList();
+
+                var pullStarters = from firstItem in playersOnTeam
+                                   join secondItem in starters
+                                   on firstItem.id equals secondItem.PlayerID
+                                   select new { firstItem, secondItem.isActive };
+                var passDict = pullStarters.ToDictionary(x => x.firstItem, x => x.isActive);
+
+                return View(passDict);
+            }
             else
                 throw new NoNullAllowedException("No Players on Team");
+        }
+        //CREATE A NEW VIEWMODELCLASS THIS DICT SHIT IS A NIGHTMARE
+        [HttpPost]
+        public ActionResult ViewPlayersOnTeam(Dictionary<NFLPlayer,bool> teamNFLPlayerStarter) {
+
+            try {
+                if (ModelState.IsValid) {
+                    foreach (var a in teamNFLPlayerStarter) { }
+                    return RedirectToAction("Index");
+                }
+            }
+            catch {
+                return View("Index");
+            }
+            return View("Index");
         }
         /*
         Schedule Time Ladies and Gents!

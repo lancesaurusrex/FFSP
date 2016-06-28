@@ -1,4 +1,4 @@
-﻿@model IEnumerable<NFLPlayer>
+﻿@model Dictionary<NFLPlayer,bool>
 @section Scripts
     {
     <script src="http://rubaxa.github.io/Sortable/Sortable.js">
@@ -68,7 +68,8 @@
     var container = document.getElementById("advanced");
     var sort = Sortable.create(container, {
         animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
-        draggable: ".list-item"
+        draggable: ".list-item",
+        handle: ".my-handle" // Restricts sort start click/touch to the specified element
 
     });
 
@@ -81,10 +82,12 @@
         -moz-user-select: none;
     }
 
+    #starters {
+        height: .5px;
+    }
     #empList {
         height: .5px;
     }
-
     #boxA {
         background-color: #6633FF;
         width: 75px;
@@ -148,43 +151,53 @@
     }
 </div>*@
 
-
+@using (Html.BeginForm("ViewPlayersOnTeam", "FFTeams")) {
 <a name="m"></a>
 <div class="container">
     <div id="advanced" style="margin-left: 30px">
         <div><div data-force="5" class="layer title title_xl">Multi</div></div>
 
-            <div class="layer title">Group A</div>
+            <div class="layer title">Bench</div>
         
             @*ondragstart="handleDragStart(event)" draggable="true"*@
             @foreach (var item in Model) {
-
-                <div class="list-item" id="@item.id">
-                    @*<span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.id)</span>*@
-                    @Html.DisplayFor(modelItem => item.name)
-                    @Html.DisplayFor(modelItem => item.team)
-                    @Html.DisplayFor(modelItem => item.pos)
-                </div>
+                if (item.Value == false) { 
+                <div class="list-item" id="@item.Key.id">
+                    <span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.Key.id)</span>
+                    @Html.DisplayFor(modelItem => item.Key.name)
+                    @Html.DisplayFor(modelItem => item.Key.team)
+                    @Html.DisplayFor(modelItem => item.Key.pos)
+                    
+                </div>}
             }
 
-        @*http://rubaxa.github.io/Sortable/*@
+        @*http://rubaxa.github.io/Sortable/ http://apress.jensimmons.com/v5/pro-html5-programming/ch9.html*@
         
-            <div class="layer title">Group B</div>
-            <div class="list-item">
-                <span>Add</span>
-                n
+            <div class="layer title">Starters</div>
+            <div id="starters" class="list-item">
+                @foreach (var item in Model) {
+                    if (item.Value == true) { 
+                        <div class="list-item" id="@item.Key.id">
+                            <span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.Key.id)</span>
+                            @Html.DisplayFor(modelItem => item.Key.name)
+                            @Html.DisplayFor(modelItem => item.Key.team)
+                            @Html.DisplayFor(modelItem => item.Key.pos)
+                        </div>}
+                }
             </div>
 
         <div class="layer title">Group D</div>
         <div id="empList" class="list-item"></div>
 
             <div class="layer title">Group C</div>
-        <div id="boxB" class="list-item" ondragenter="return true;" ondragover="return false;"></div>
+        <div id="boxB" class="list-item"></div>
 
 
     </div>
 
 </div>
+<input type="submit" class="btn btn-default" value="GO" />
+}
 @*seperate code*@
 @*@foreach (var item in Model) {
 <div id="@item.id" ondragstart="handleDragStart(event);" ondragend="handleDragEnd(event)" draggable="true">
