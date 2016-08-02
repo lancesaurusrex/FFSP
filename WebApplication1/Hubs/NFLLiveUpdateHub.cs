@@ -22,16 +22,16 @@ namespace WebApplication1.Hubs
             _statsUpdate = nflStatsUpdate;
         }
 
-        public IEnumerable<NFLPlayer> GetAllLivePlayers(int gid)
+        public IEnumerable<StatsYearWeek> GetAllLivePlayers(int gid)
         {
             return _statsUpdate.GetAllLivePlayers(gid);
         }
 
-        public IEnumerable<NFLPlayer> GetAllHomePlayers(int gid) {
+        public IEnumerable<StatsYearWeek> GetAllHomePlayers(int gid) {
             return _statsUpdate.GetAllHomePlayers(gid);
         }
 
-        public IEnumerable<NFLPlayer> GetAllAwayPlayers(int gid) {
+        public IEnumerable<StatsYearWeek> GetAllAwayPlayers(int gid) {
             return _statsUpdate.GetAllAwayPlayers(gid);
         }
         public override System.Threading.Tasks.Task OnDisconnected(bool stopCalled) {

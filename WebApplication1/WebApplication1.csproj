@@ -181,6 +181,11 @@
     <Compile Include="Hubs\NFLLiveUpdateHub.cs" />
     <Compile Include="Hubs\NFLStatsUpdate.cs" />
     <Compile Include="App_Start\Startup.SignalR.cs" />
+    <Compile Include="Migrations\201607222320426_InitialCreate.cs" />
+    <Compile Include="Migrations\201607222320426_InitialCreate.Designer.cs">
+      <DependentUpon>201607222320426_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Drives.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -214,6 +219,7 @@
     <Content Include="Content\grayscale\js\grayscale.js" />
     <Content Include="Content\grayscale\js\jquery.easing.min.js" />
     <Content Include="Content\grayscale\js\jquery.js" />
+    <Content Include="Content\Images\PIT.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -265,6 +271,7 @@
     <Content Include="Content\grayscale\sass\_mixins.scss" />
     <Content Include="Content\grayscale\sass\_variables.scss" />
     <Content Include="Content\grayscale\fonts\TecmoSet1.TTF" />
+    <Content Include="fonts\TecmoSet1.TTF" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.1.js" />
     <Content Include="Scripts\jquery-2.2.1.min.js" />
@@ -356,6 +363,11 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201607222320426_InitialCreate.resx">
+      <DependentUpon>201607222320426_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

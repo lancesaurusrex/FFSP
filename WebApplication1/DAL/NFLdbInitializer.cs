@@ -28,24 +28,24 @@ namespace WebApplication1.DAL {
     }
 
     public class FFdbInitializer : System.Data.Entity.DropCreateDatabaseIfModelChanges<FF> {
-        protected override void Seed(FF FFcontext) {
+        //protected override void Seed(FF FFcontext) {
 
-            String FileName = "2015101200_gtd.json";
-            string gameID = "2015101200";
-            string fileName2= "2015101108_gtd.json";
-            string gameID2 = "2015101108";
-            ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
-            j.DeserializeData(FileName, gameID);
-            j.DeserializeData(fileName2, gameID2);
-            //will just need players for this project
+        //    String FileName = "2015101200_gtd.json";
+        //    string gameID = "2015101200";
+        //    string fileName2= "2015101108_gtd.json";
+        //    string gameID2 = "2015101108";
+        //    ReadJSONDatafromNFL j = new ReadJSONDatafromNFL();
+        //    j.DeserializeData(FileName, gameID);
+        //    j.DeserializeData(fileName2, gameID2);
+        //    //will just need players for this project
 
-            //temp proj
-            GSettings g = new GSettings();
+        //    //temp proj
+        //    GSettings g = new GSettings();
             
-            g.CurrentWeek = 1;
-            FFcontext.Settings.Add(g);
+        //    g.CurrentWeek = 1;
+        //    FFcontext.Settings.Add(g);
 
-            FFcontext.SaveChanges();
-        }
+        //    FFcontext.SaveChanges();
+        //}
     }
 }

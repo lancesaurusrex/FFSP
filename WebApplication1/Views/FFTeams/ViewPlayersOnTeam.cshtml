@@ -74,31 +74,83 @@
     });
 
     </script>
+   
 <style type="text/css">
-    #boxA, #boxB {
-        float: left;
-        padding: 10px;
-        margin: 10px;
-        -moz-user-select: none;
-    }
+    /* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
 
-    #starters {
-        height: .5px;
-    }
-    #empList {
-        height: .5px;
-    }
-    #boxA {
-        background-color: #6633FF;
-        width: 75px;
-        height: 75px;
-    }
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    font-family: 'GF TECMO Set 1';
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+    /*div{font-family:'GF TECMO Set 1'}*/
+        #boxA, #boxB {
+            float: left;
+            padding: 10px;
+            margin: 10px;
+            -moz-user-select: none;
+        }
 
-    #boxB {
-        background-color: #FF6699;
-        width: 150px;
-        height: 150px;
-    }
+        #starters {
+            height: .5px;
+        }
+        #empList {
+            height: 1px;
+        }
+        #boxA {
+            background-color: #6633FF;
+            width: 75px;
+            height: 75px;
+        }
+
+        #boxB {
+            background-color: #FF6699;
+            width: 150px;
+            height: 150px;
+        }
 </style>
     }
 
@@ -150,6 +202,18 @@
 
     }
 </div>*@
+<p><span data-alt-style="font-family: 'GF TECMO Set 1';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p><span data-alt-style="font-family: 'TecmoSet';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p><span data-alt-style="font-family: 'TecmoSet1';">GO TEAM MOtherfuckeR for lIFe</span></p>
+
+<p><span data-alt-style="font-family: 'Press Start 2P';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p><span data-alt-style="font-family: 'press start 2p';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">BLAH</p>
+<p>NO STYLE</p>
+
+<p style="font-family:TecmoSet1;">GO TEAM MOtherfuckeR for lIFe</p>
+<p style="font-family:TecmoSet;">GO TEAM MOtherfuckeR for lIFe</p>
+<p style="font-family:GF TECMO Set 1;">GO TEAM MOtherfuckeR for lIFe</p>
 
 @using (Html.BeginForm("ViewPlayersOnTeam", "FFTeams")) {
 <a name="m"></a>
@@ -163,7 +227,7 @@
             @foreach (var item in Model) {
                 if (item.Value == false) { 
                 <div class="list-item" id="@item.Key.id">
-                    <span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.Key.id)</span>
+                    <span class="my-handle" aria-hidden="true"><img src="~/Content/Images/PIT.png" /></span>
                     @Html.DisplayFor(modelItem => item.Key.name)
                     @Html.DisplayFor(modelItem => item.Key.team)
                     @Html.DisplayFor(modelItem => item.Key.pos)
@@ -172,7 +236,7 @@
             }
 
         @*http://rubaxa.github.io/Sortable/ http://apress.jensimmons.com/v5/pro-html5-programming/ch9.html*@
-        
+        <br />
             <div class="layer title">Starters</div>
             <div id="starters" class="list-item">
                 @foreach (var item in Model) {
@@ -185,13 +249,13 @@
                         </div>}
                 }
             </div>
-
+        <br />
         <div class="layer title">Group D</div>
         <div id="empList" class="list-item"></div>
-
+        <br />
             <div class="layer title">Group C</div>
         <div id="boxB" class="list-item"></div>
-
+        
 
     </div>
 

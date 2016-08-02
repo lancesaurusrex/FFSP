@@ -21,10 +21,10 @@
 <head>
     <title>Live Scoring for </title>
     <style>
-        body {
+        /*body {
             font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
             font-size: 16px;
-        }
+        }*/
 
         #playerTable table {
             border-collapse: collapse;
@@ -55,11 +55,16 @@
     <div id="awayPlayerTable" style="float: right; width:50%">
         <table border="1">
             <caption>@Model.VisTeam.TeamName</caption>
-            <thead>
+            <thead> 
                 <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass<br />Yds</th><th>Pass<br />TDs</th><th>INT</th><th>Rush<br />Yds</th><th>Rush<br />TDs</th><th>Rec<br />Yds</th><th>Rec<br />TDs</th></tr>
             </thead>
             <tbody>
-                <tr class="loading"><td>loading...</td></tr>
+                @foreach(var p in Model.VisTeam.Players) {
+                <tr id="@p.id">
+                <td>@p.name</td>
+                <td>@p.team</td>
+                </tr>
+                }
             </tbody>
         </table>
     </div>

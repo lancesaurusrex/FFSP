@@ -19,9 +19,9 @@ namespace WebApplication1.Hubs
         private readonly static Lazy<NFLStatsUpdate> _instance = new Lazy<NFLStatsUpdate>(
             () => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
 
-        private readonly ConcurrentDictionary<int, NFLPlayer> _players = new ConcurrentDictionary<int, NFLPlayer>();
-        private readonly ConcurrentDictionary<int, NFLPlayer> _homePlayers = new ConcurrentDictionary<int, NFLPlayer>();
-        private readonly ConcurrentDictionary<int, NFLPlayer> _awayPlayers = new ConcurrentDictionary<int, NFLPlayer>();
+        private readonly ConcurrentDictionary<int, StatsYearWeek> _playersStats = new ConcurrentDictionary<int, StatsYearWeek>();   //main pool of players, this gets updated first and feeds home/awayPlayers
+        private readonly ConcurrentDictionary<int, StatsYearWeek> _homePlayers = new ConcurrentDictionary<int, StatsYearWeek>();    
+        private readonly ConcurrentDictionary<int, StatsYearWeek> _awayPlayers = new ConcurrentDictionary<int, StatsYearWeek>();
 
         private readonly object _updatePlayersStatsLock = new object();
 
@@ -36,8 +36,9 @@ namespace WebApplication1.Hubs
         public int pc2 = 0;
         ReadJSONDatafromNFL r;
         ReadJSONDatafromNFL r2;
-        public List<NFLPlayer> livePlayerList = new List<NFLPlayer>();
-        public List<int> liveUpdateList = new List<int>();
+        public List<NFLPlayer> livePlayerList = new List<NFLPlayer>();      //temp list for init
+        public List<StatsYearWeek> liveStatsList = new List<StatsYearWeek>();
+        public List<int> liveUpdateList = new List<int>();  //list of players from the current play
         public bool gameOver = false;
         public int gameID = new int();
         public int CurrentWeekServ = 1;
@@ -46,51 +47,65 @@ namespace WebApplication1.Hubs
 
             Clients = clients;
 
-            _players.Clear();
+            _playersStats.Clear();
+
+            //better way to do this (pulling current pool of players for the week), not sure how atm
             using (var db = new FF()) {
                 livePlayerList = db.NFLPlayer.ToList();
             }
 
             foreach (NFLPlayer n in livePlayerList) {
-                n.currentPts = 0;
-                Type m1 = n.PassingStats.GetType();
-                Type m2 = n.RushingStats.GetType();
-                Type m3 = n.ReceivingStats.GetType();
-                Type m4 = n.KickingStats.GetType();
-                Type m5 = n.FumbleStats.GetType();
-                PropertyInfo[] myProps1 = m1.GetProperties();
-                PropertyInfo[] myProps2 = m2.GetProperties();
-                PropertyInfo[] myProps3 = m3.GetProperties();
-                PropertyInfo[] myProps4 = m4.GetProperties();
-                PropertyInfo[] myProps5 = m5.GetProperties();
-                foreach (PropertyInfo p in myProps1)
-                {
-                    p.SetValue(n.PassingStats, 0);
-                }
-                foreach (PropertyInfo p in myProps2)
-                {
-                    p.SetValue(n.RushingStats, 0);
-                }
-                foreach (PropertyInfo p in myProps3)
-                {
-                    p.SetValue(n.ReceivingStats, 0);
-                }
-                foreach (PropertyInfo p in myProps4)
-                {
-                    p.SetValue(n.KickingStats, 0);
-                }
-                foreach (PropertyInfo p in myProps5)
-                {
-                    p.SetValue(n.FumbleStats, 0);
-                }
-                _players.TryAdd(n.id, n);
+                //Creating a new StatsYearWeek to track Stats with and connect with NFLPlayer
+                StatsYearWeek s = new StatsYearWeek();
+                //Remember im doing this live not for stupid class demo, so ill need to make statid off of player
+                s.PlayerID = n.id;
+                s.Year = 0;     //passed in from where?
+                s.Week = 0;     //passed in from where?
+                s.currentPts = 0;
+                string statID = "20161" + s.PlayerID;   //YearWeekPlayerID is StatID
+                s.id = Convert.ToInt32(statID);
+
+                liveStatsList.Add(s);   //list  
+                _playersStats.TryAdd(s.id, s);  //dict
+
+                //this will be old nflplayer stat code which is not scaleable and will be removed
+                //Type m1 = n.PassingStats.GetType();
+                //Type m2 = n.RushingStats.GetType();
+                //Type m3 = n.ReceivingStats.GetType();
+                //Type m4 = n.KickingStats.GetType();
+                //Type m5 = n.FumbleStats.GetType();
+                //PropertyInfo[] myProps1 = m1.GetProperties();
+                //PropertyInfo[] myProps2 = m2.GetProperties();
+                //PropertyInfo[] myProps3 = m3.GetProperties();
+                //PropertyInfo[] myProps4 = m4.GetProperties();
+                //PropertyInfo[] myProps5 = m5.GetProperties();
+                //foreach (PropertyInfo p in myProps1)
+                //{
+                //    p.SetValue(n.PassingStats, 0);
+                //}
+                //foreach (PropertyInfo p in myProps2)
+                //{
+                //    p.SetValue(n.RushingStats, 0);
+                //}
+                //foreach (PropertyInfo p in myProps3)
+                //{
+                //    p.SetValue(n.ReceivingStats, 0);
+                //}
+                //foreach (PropertyInfo p in myProps4)
+                //{
+                //    p.SetValue(n.KickingStats, 0);
+                //}
+                //foreach (PropertyInfo p in myProps5)
+                //{
+                //    p.SetValue(n.FumbleStats, 0);
+                //}
+                //_players.TryAdd(n.id, n);
             }
 
             livePlayerList.Clear();     //empty list
 
             //make a list of players that got updated and send to updatePlayer?
             //livePlayerList.ForEach(player => _players.TryAdd(player.id, player));
-
 
             r = new ReadJSONDatafromNFL("2015101200_gtd.json","2015101200");
             r2 = new ReadJSONDatafromNFL("2015101108_gtd.json", "2015101108");
@@ -115,41 +130,45 @@ namespace WebApplication1.Hubs
         private IHubConnectionContext<dynamic> Clients { get; set; }
         
 
-        public IEnumerable<NFLPlayer> GetAllLivePlayers(int gid)
+        public IEnumerable<StatsYearWeek> GetAllLivePlayers(int gid)
         {
-            return _players.Values;
+            return _playersStats.Values;
         }
 
-        public IEnumerable<NFLPlayer> GetAllHomePlayers(int gid) {
+        public IEnumerable<StatsYearWeek> GetAllHomePlayers(int gid) {
             gameID = gid;
             var homeID = GetHomeTeamIDFromGameID(gid);
             var homePlayersID = GetAllPlayersIDOnTeam(homeID);
-            var homePlayersList = GetAllPlayersFromPlayersID(homePlayersID);
+            var homePlayersList = GetAllStatsFromPlayersID(homePlayersID);
             homePlayersList.ForEach(player => _homePlayers.TryAdd(player.id, player));
 
             return _homePlayers.Values;
         }
-        
-        public IEnumerable<NFLPlayer> GetAllAwayPlayers(int gid) {
+        //https://blog.oneunicorn.com/2012/05/03/the-key-to-addorupdate/
+        //Move over players to stats should keep list of home/away players
+        //should also create new stats on the basis of the home/away players and store into equ statslist
+        //store stats in db on create and update after game ends
+
+        public IEnumerable<StatsYearWeek> GetAllAwayPlayers(int gid) {
             var awayID = GetAwayTeamIDFromGameID(gid);
             var awayPlayersID = GetAllPlayersIDOnTeam(awayID);
-            var awayPlayersList = GetAllPlayersFromPlayersID(awayPlayersID);
+            var awayPlayersList = GetAllStatsFromPlayersID(awayPlayersID);
             awayPlayersList.ForEach(player => _awayPlayers.TryAdd(player.id, player));
 
             return _awayPlayers.Values;
         }
 
         public bool ProcessPlay(PlaysVM currPlay) {
-            NFLPlayer n = new NFLPlayer();
+            StatsYearWeek s = new StatsYearWeek();
 
             foreach (PlayersVM p in currPlay.Players) {
 
-                if (_players.TryGetValue(p.id, out n)) {
+                if (_playersStats.TryGetValue(p.id, out s)) {
                     //do update on player in allLive dict
-                    NFLPlayer copy = new NFLPlayer();
-                    copy = UpdateStat(p, n, currPlay.Note);
+                    StatsYearWeek copy = new StatsYearWeek();
+                    copy = UpdateStat(p, s, currPlay.Note);
                     //update dict value
-                    _players[p.id] = copy;
+                    _playersStats[p.id] = copy;
                     liveUpdateList.Add(copy.id);
                 }
             }
@@ -178,18 +197,16 @@ namespace WebApplication1.Hubs
 
                     if (liveUpdateList.Count != 0)
                     {
-                        foreach (var playerid in liveUpdateList)
+                        foreach (var playerid in liveUpdateList) //find id in _playersStats
                         {
-                            //find id in _players
-                            NFLPlayer updatedP;
+                            StatsYearWeek updatedP;
 
-                            if (_players.TryGetValue(playerid, out updatedP))
-                            {
+                            if (_playersStats.TryGetValue(playerid, out updatedP)) {
+
                                 if (TryUpdateHomePlayerPoint(updatedP))
                                    BroadcastPlayers(updatedP);                            
-                                else if (TryUpdateAwayPlayerPoint(updatedP))
-                                    BroadcastPlayers(updatedP);
-                                                       
+                                else if (TryUpdateAwayPlayerPoint(updatedP))    //should be else?
+                                   BroadcastPlayers(updatedP);                               
                             }
                             else
                                 throw new Exception("Something went wrong in updateplayerstats _players.TryGetValue!");
@@ -229,19 +246,9 @@ namespace WebApplication1.Hubs
                     
                 game.VScore = total;
 
-                foreach (var n in _players) {
-
-                    var a = db.NFLPlayer.Find(n.Key);
-                    db.Entry(a).State = System.Data.Entity.EntityState.Unchanged;
+                foreach (var n in _playersStats) {
                     
-                    a.week = 1;
-                    a.year = 2016;
-                    a.currentPts = n.Value.currentPts;
-                    a.PassingStats = n.Value.PassingStats;
-                    a.RushingStats = n.Value.RushingStats;
-                    a.ReceivingStats = n.Value.ReceivingStats;
-                    a.KickingStats = n.Value.KickingStats;
-                    a.FumbleStats = n.Value.FumbleStats;
+                    db.NFLPlayerStats.Add(n.Value);
                 }
                 db.SaveChanges();
             }
@@ -281,6 +288,7 @@ namespace WebApplication1.Hubs
                     else
                         throw new Exception("FFGame Visteam null");
 
+                    //these shouldn't work
                     foreach (NFLPlayer p in g.HomeTeam.Players) {
                         g.HScore += p.currentPts;
                     }
@@ -325,34 +333,35 @@ namespace WebApplication1.Hubs
             }
         }
 
-        private bool TryUpdateHomePlayerPoint(NFLPlayer player)
+        private bool TryUpdateHomePlayerPoint(StatsYearWeek statPlayer)
         {
-            NFLPlayer homePlayer;
- 
-            if (_homePlayers.TryGetValue(player.id, out homePlayer)) {
-                _homePlayers[player.id] = player;
-                
-                return true;
+            bool found = false;
+            StatsYearWeek homePlayer;
+
+            if (_homePlayers.TryGetValue(statPlayer.id, out homePlayer)) {
+                _homePlayers[statPlayer.id] = statPlayer;
+                found = true;
             }
 
-             return false;
+             return found;
           
         }
 
-        private bool TryUpdateAwayPlayerPoint(NFLPlayer player)
+        private bool TryUpdateAwayPlayerPoint(StatsYearWeek statPlayer)
         {
-            NFLPlayer awayPlayer;
+            bool found = false;
+            StatsYearWeek awayPlayer;
 
-            if (_awayPlayers.TryGetValue(player.id, out awayPlayer)) {
-                _awayPlayers[player.id] = player;
-                return true;
+            if (_awayPlayers.TryGetValue(statPlayer.id, out awayPlayer)) {
+                _awayPlayers[statPlayer.id] = statPlayer;
+                found = true;
             }
 
-            return false;
+            return found;
 
         }
 
-        private void BroadcastPlayers(NFLPlayer player)
+        private void BroadcastPlayers(StatsYearWeek player)
         {
             Clients.All.updatePlayers(player);
         }
@@ -365,7 +374,7 @@ namespace WebApplication1.Hubs
             Clients.All.updatePlay2(play);
         }
         /* Warning - Database functions ahead.  Proceed with caution.  The DB is a real bitch.
-         */ 
+         ------------------------------------------------------------------------------*/ 
 
         //could do this is GetAllPlayersonTeam but want to split up due to home/away (2teams) easier to debug
         public int GetHomeTeamIDFromGameID(int GameID) {
@@ -390,7 +399,7 @@ namespace WebApplication1.Hubs
         }
 
         //Uses TeamController function to getallplayersIDonteam with teamID
-        //In-TeamID Out-ints of NFLPlayersID on teamID
+        //In-TeamID using FFTEAMNFLPLAYER Out-ints of NFLPlayersID on teamID
         public List<int> GetAllPlayersIDOnTeam(int TeamID) {
             List<int> FindPlayersOnTeam;
             using (var FFContext = new FF()) {
@@ -398,21 +407,23 @@ namespace WebApplication1.Hubs
                 //pulling from NFLPlayerTeam DB, which are not NFLPlayer.
                 var temp = (from p in FFContext.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
                 FindPlayersOnTeam = temp.ToList();
-
             }
             return FindPlayersOnTeam;
         }
 
         //uses PlayersIDS to get List NFLPlayer objects
         //in-Ienum<int> PlayersID out-List<NFLPlayer>
-        public List<NFLPlayer> GetAllPlayersFromPlayersID(IEnumerable<int> PlayersID) {
-            List<NFLPlayer> PlayersOnTeamCol = new List<NFLPlayer>();
+        public List<StatsYearWeek> GetAllStatsFromPlayersID(IEnumerable<int> PlayersID) {
+            List<StatsYearWeek> PlayersOnTeamCol = new List<StatsYearWeek>();
 
             using (var FFContext = new FF()) {
 
                 foreach (var playerID in PlayersID) {
-                    var pl = FFContext.NFLPlayer.Find(playerID);
-                    PlayersOnTeamCol.Add(pl);
+                    StatsYearWeek st = new StatsYearWeek();
+                    if (_playersStats.TryGetValue(playerID, out st))  //from stats dict created in init
+                        PlayersOnTeamCol.Add(st);
+                    else
+                        throw new Exception("PlayeronTeam in DB, not found pulling from statsdict created in init");
                 }
             }
 
@@ -423,7 +434,7 @@ namespace WebApplication1.Hubs
          * Helper functions for NFLPlayerData 
          */
 
-        public NFLPlayer UpdateStat(PlayersVM fromPlay, NFLPlayer fromList, string note)
+        public StatsYearWeek UpdateStat(PlayersVM fromPlay, StatsYearWeek fromList, string note)
         {
             //Take fromPlayer statID and find stat
             //Add in fumbles later, confusing, 

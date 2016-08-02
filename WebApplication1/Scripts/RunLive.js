@@ -38,7 +38,11 @@
         });
     }
 
-    //add in getAllLivePlayers
+    //find table row by id in html
+    //var table = document.getElementById("tableId");
+    //var rowIndex = document.getElementById("b").rowIndex;
+    //table.deleteRow(rowIndex);
+
     function init() {
         liveNFLGame.server.getAllHomePlayers($vars.gid).done(function (players) {
             $homePlayerTableBody.empty();

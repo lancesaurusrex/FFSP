@@ -18,36 +18,14 @@
                 @Html.DisplayNameFor(model => item.Key.TeamName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => item.Key.FFTeamID)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => item.Value.FFLeagueName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => item.Value.NumberOfTeams)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.NumberOfDivision)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.PlayoffWeekStart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.QBStart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.RBStart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.WRTESame)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.WRStart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.TEStart)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => item.Value.DEFStart)
-            </th>
-            <th></th>
         </tr>
 
 
@@ -56,34 +34,13 @@
                 @Html.DisplayFor(modelItem => item.Key.TeamName)
             </td>
             <td>
+                @Html.DisplayFor(model => item.Key.FFTeamID)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Value.FFLeagueName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Value.NumberOfTeams)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.NumberOfDivision)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.PlayoffWeekStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.QBStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.RBStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.WRTESame)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.WRStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.TEStart)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Value.DEFStart)
             </td>
             <td>
                 <input type="button" class="btn btn-default" value="Go" onclick="location.href='@Url.Action("Index", "FFTeams", new { TeamID = item.Key.FFTeamID })'" />
