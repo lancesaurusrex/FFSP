@@ -26,7 +26,7 @@ namespace WebApplication1.Hubs
         private readonly object _updatePlayersStatsLock = new object();
 
         //1000 ms = 1 sec
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(200);
         private readonly Random _updateOrNotRandom = new Random();
 
         private readonly Timer _timer;
@@ -42,6 +42,7 @@ namespace WebApplication1.Hubs
         public bool gameOver = false;
         public int gameID = new int();
         public int CurrentWeekServ = 1;
+        public const int CURRENTYEAR = 2016;
 
         private NFLStatsUpdate(IHubConnectionContext<dynamic> clients) {
 
@@ -57,48 +58,19 @@ namespace WebApplication1.Hubs
             foreach (NFLPlayer n in livePlayerList) {
                 //Creating a new StatsYearWeek to track Stats with and connect with NFLPlayer
                 StatsYearWeek s = new StatsYearWeek();
+                SetSYWToZero(s);
                 //Remember im doing this live not for stupid class demo, so ill need to make statid off of player
                 s.PlayerID = n.id;
-                s.Year = 0;     //passed in from where?
-                s.Week = 0;     //passed in from where?
+                s.Year = CURRENTYEAR;     //passed in from where?
+                s.Week = CurrentWeekServ;     //passed in from where?
                 s.currentPts = 0;
-                string statID = "20161" + s.PlayerID;   //YearWeekPlayerID is StatID
+                string statID = (s.Year.ToString() + s.Week.ToString() + s.PlayerID).ToString();   //YearWeekPlayerID is StatID
                 s.id = Convert.ToInt32(statID);
 
                 liveStatsList.Add(s);   //list  
                 _playersStats.TryAdd(s.id, s);  //dict
 
-                //this will be old nflplayer stat code which is not scaleable and will be removed
-                //Type m1 = n.PassingStats.GetType();
-                //Type m2 = n.RushingStats.GetType();
-                //Type m3 = n.ReceivingStats.GetType();
-                //Type m4 = n.KickingStats.GetType();
-                //Type m5 = n.FumbleStats.GetType();
-                //PropertyInfo[] myProps1 = m1.GetProperties();
-                //PropertyInfo[] myProps2 = m2.GetProperties();
-                //PropertyInfo[] myProps3 = m3.GetProperties();
-                //PropertyInfo[] myProps4 = m4.GetProperties();
-                //PropertyInfo[] myProps5 = m5.GetProperties();
-                //foreach (PropertyInfo p in myProps1)
-                //{
-                //    p.SetValue(n.PassingStats, 0);
-                //}
-                //foreach (PropertyInfo p in myProps2)
-                //{
-                //    p.SetValue(n.RushingStats, 0);
-                //}
-                //foreach (PropertyInfo p in myProps3)
-                //{
-                //    p.SetValue(n.ReceivingStats, 0);
-                //}
-                //foreach (PropertyInfo p in myProps4)
-                //{
-                //    p.SetValue(n.KickingStats, 0);
-                //}
-                //foreach (PropertyInfo p in myProps5)
-                //{
-                //    p.SetValue(n.FumbleStats, 0);
-                //}
+
                 //_players.TryAdd(n.id, n);
             }
 
@@ -117,7 +89,40 @@ namespace WebApplication1.Hubs
 
             _timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
         }
+        public void SetSYWToZero(StatsYearWeek Stats) {
 
+            //this will be old nflplayer stat code which is not scaleable and will be removed
+            Type m1 = Stats.PassingStats.GetType();
+            Type m2 = Stats.RushingStats.GetType();
+            Type m3 = Stats.ReceivingStats.GetType();
+            Type m4 = Stats.KickingStats.GetType();
+            Type m5 = Stats.FumbleStats.GetType();
+            PropertyInfo[] myProps1 = m1.GetProperties();
+            PropertyInfo[] myProps2 = m2.GetProperties();
+            PropertyInfo[] myProps3 = m3.GetProperties();
+            PropertyInfo[] myProps4 = m4.GetProperties();
+            PropertyInfo[] myProps5 = m5.GetProperties();
+            foreach (PropertyInfo p in myProps1)
+            {
+                p.SetValue(Stats.PassingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps2)
+            {
+                p.SetValue(Stats.RushingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps3)
+            {
+                p.SetValue(Stats.ReceivingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps4)
+            {
+                p.SetValue(Stats.KickingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps5)
+            {
+                p.SetValue(Stats.FumbleStats, 0);
+            }
+        }
   
         public static NFLStatsUpdate Instance
         {
@@ -162,7 +167,7 @@ namespace WebApplication1.Hubs
             StatsYearWeek s = new StatsYearWeek();
 
             foreach (PlayersVM p in currPlay.Players) {
-
+                //ID PROBLEM JUST LIKE GETALLSTATSFROMPLAYERID, functionize and insert into here
                 if (_playersStats.TryGetValue(p.id, out s)) {
                     //do update on player in allLive dict
                     StatsYearWeek copy = new StatsYearWeek();
@@ -412,7 +417,7 @@ namespace WebApplication1.Hubs
         }
 
         //uses PlayersIDS to get List NFLPlayer objects
-        //in-Ienum<int> PlayersID out-List<NFLPlayer>
+        //in-Ienum<int> PlayersID out-List<StatsYearWeek>
         public List<StatsYearWeek> GetAllStatsFromPlayersID(IEnumerable<int> PlayersID) {
             List<StatsYearWeek> PlayersOnTeamCol = new List<StatsYearWeek>();
 
@@ -420,7 +425,14 @@ namespace WebApplication1.Hubs
 
                 foreach (var playerID in PlayersID) {
                     StatsYearWeek st = new StatsYearWeek();
-                    if (_playersStats.TryGetValue(playerID, out st))  //from stats dict created in init
+                    //changed to StatsYearWeek, key changed, need to update to new key
+                    //old key- PlayerID, new key- Year+week+playerid
+
+                    /******************functionize*/
+                    string convertID = CURRENTYEAR.ToString() + CurrentWeekServ.ToString() + playerID.ToString();
+                    int SYWID = Convert.ToInt32(convertID);
+                    
+                    if (_playersStats.TryGetValue(SYWID, out st))  //from stats dict created in init
                         PlayersOnTeamCol.Add(st);
                     else
                         throw new Exception("PlayeronTeam in DB, not found pulling from statsdict created in init");

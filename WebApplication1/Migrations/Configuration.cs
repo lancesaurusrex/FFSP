@@ -34,30 +34,40 @@ using WebApplication1.Models;
             FFLeague ffl1 = new FFLeague();
             ffl1.FFLeagueID = 2;
             ffl1.FFLeagueName = "Lardo";
+            
             FFContext.FFLeagueDB.Add(ffl1);
             FFContext.SaveChanges();
             //League Testing, addorupdate with same id as created
-            FFContext.FFLeagueDB.AddOrUpdate(p => p.FFLeagueName, new FFLeague{FFLeagueName = "Lardo3"});
+            FFContext.FFLeagueDB.AddOrUpdate(p => p.FFLeagueName, new FFLeague{FFLeagueName = "Lardo3", NumberOfTeams = 8, PlayoffWeekStart = 14});
             FFContext.SaveChanges();
             //screwy code ahead that works
             //seeding FFteams with while loop
-            //TURNED OFF AUTO PRIMKEY IN FantasyFootball
-            FFLeague leag = FFContext.FFLeagueDB.Where(a => a.FFLeagueName == "Lardo3").FirstOrDefault();
-            int j = 0;
-            while (j != 8) {
-                FFContext.FFTeamDB.AddOrUpdate(
-                    p => p.TeamName, new FFTeam
-                    {
-                        TeamName = "Team" + j++,
-                        FFLeagueID = leag.FFLeagueID,
-                        UserID = "737a0a07-a158-40de-b6c2-131e36e22038"
-                    }
 
-                    );
-                FFContext.SaveChanges();
+            FFLeague leag = FFContext.FFLeagueDB.Where(a => a.FFLeagueName == "Lardo3").FirstOrDefault();   //finds league by name
+
+            if (leag != null) {
+                int j = 0;
+                while (j != 8) {
+                    FFContext.FFTeamDB.AddOrUpdate( //adds or updates dbentry by teamName
+                        p => p.TeamName, new FFTeam
+                        {
+                            TeamName = "Team" + j++,
+                            FFLeagueID = leag.FFLeagueID,   //found league id
+                            UserID = "737a0a07-a158-40de-b6c2-131e36e22038"
+                        }
+                        );
+                    FFContext.SaveChanges();
+                }
+
+                
+            //Add Teams to League List
+            var TeamsInLeague = (from t in FFContext.FFTeamDB where t.FFLeagueID == leag.FFLeagueID select t).ToList();
+            foreach (FFTeam t in TeamsInLeague)
+                leag.Teams.Add(t);
             }
+            else
+                throw new NullReferenceException("League doesnt exist on Context call LeagueName == Lardo3");
 
-            
 
             FFContext.FFLeagueDB.AddOrUpdate(
                 p => p.FFLeagueID, new FFLeague { FFLeagueID = 1 }
