@@ -40,6 +40,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.0.0\lib\net45\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
       <Private>True</Private>
@@ -184,6 +188,14 @@
     <Compile Include="Migrations\201607222320426_InitialCreate.cs" />
     <Compile Include="Migrations\201607222320426_InitialCreate.Designer.cs">
       <DependentUpon>201607222320426_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608121823438_NFLTeams.cs" />
+    <Compile Include="Migrations\201608121823438_NFLTeams.Designer.cs">
+      <DependentUpon>201608121823438_NFLTeams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608130103590_ScheduleDB.cs" />
+    <Compile Include="Migrations\201608130103590_ScheduleDB.Designer.cs">
+      <DependentUpon>201608130103590_ScheduleDB.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Drives.cs" />
@@ -352,6 +364,9 @@
     <Content Include="Views\FFTeams\Schedule.cshtml" />
     <Content Include="Views\FFTeams\Scoreboard.cshtml" />
     <Content Include="Views\FFTeams\RunLive.cshtml" />
+    <Content Include="SeedCSV\2016NFLSchedule.csv" />
+    <Content Include="SeedCSV\NFLNicknames.csv" />
+    <Content Include="SeedCSV\NFLTeams.csv" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -367,6 +382,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201607222320426_InitialCreate.resx">
       <DependentUpon>201607222320426_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608121823438_NFLTeams.resx">
+      <DependentUpon>201608121823438_NFLTeams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608130103590_ScheduleDB.resx">
+      <DependentUpon>201608130103590_ScheduleDB.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

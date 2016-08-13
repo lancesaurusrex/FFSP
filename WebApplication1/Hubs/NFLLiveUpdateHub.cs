@@ -34,6 +34,24 @@ namespace WebApplication1.Hubs
         public IEnumerable<StatsYearWeek> GetAllAwayPlayers(int gid) {
             return _statsUpdate.GetAllAwayPlayers(gid);
         }
+
+        /********************************
+         * ON AND OFF FOR "LIVE" ACTION
+         * 
+         *********************************/
+
+        public string GetMarketState() {
+            return _statsUpdate.StatsState.ToString();
+        }
+
+        public void OpenMarket() {
+            _statsUpdate.OpenMarket();
+        }
+
+        public void CloseMarket() {
+            _statsUpdate.CloseMarket();
+        }
+
         public override System.Threading.Tasks.Task OnDisconnected(bool stopCalled) {
            
             if (stopCalled) {

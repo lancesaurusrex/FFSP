@@ -15,7 +15,6 @@ namespace WebApplication1.DAL {
     }
 
     public class NFLgame : DbContext {
-
         public NFLgame() : base("GameContext") {}
 
         //public DbSet<Drives> Drives { get; set; }
@@ -37,6 +36,7 @@ namespace WebApplication1.DAL {
         public DbSet<NFLPlayer> NFLPlayer { get; set; }
         public DbSet<GSettings> Settings { get; set; }
         public DbSet<StatsYearWeek> NFLPlayerStats { get; set; }
-        //public DbSet<FFPlayer> FFPlayerDB { get; set; }
+        public DbSet<NFLGame> NFLGame { get; set; }
+        public DbSet<NFLTeam> NFLTeam { get; set; }
     }
 }

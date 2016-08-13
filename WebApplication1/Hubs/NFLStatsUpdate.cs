@@ -13,6 +13,11 @@ using System.Reflection;//delete me if after project presentation
 
 namespace WebApplication1.Hubs
 {
+    public enum StatsState {
+        Closed,
+        Open
+    }
+
     public class NFLStatsUpdate
     {
         // Singleton instance
@@ -27,9 +32,8 @@ namespace WebApplication1.Hubs
 
         //1000 ms = 1 sec
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(200);
-        private readonly Random _updateOrNotRandom = new Random();
 
-        private readonly Timer _timer;
+        //private readonly Timer _timer;
         private volatile bool _updatingPlayerStats = false;
 
         public int playCount = 0;  //nextplay + 1. starts at 0 so -1 +1 = 0
@@ -40,9 +44,18 @@ namespace WebApplication1.Hubs
         public List<StatsYearWeek> liveStatsList = new List<StatsYearWeek>();
         public List<int> liveUpdateList = new List<int>();  //list of players from the current play
         public bool gameOver = false;
-        public int gameID = new int();
-        public int CurrentWeekServ = 1;
-        public const int CURRENTYEAR = 2016;
+        public int gameID = new int();  //will pass in and use all over 
+        public int currentWeekServ = 1;
+        public const int currentYear = 2016;
+
+        //StatsState - will stop
+        private volatile StatsState _statsState;
+        private readonly object _statsStateLock = new object();
+
+        public StatsState StatsState {
+            get { return _statsState; }
+            private set { _statsState = value; }
+        }
 
         private NFLStatsUpdate(IHubConnectionContext<dynamic> clients) {
 
@@ -50,7 +63,7 @@ namespace WebApplication1.Hubs
 
             _playersStats.Clear();
 
-            //better way to do this (pulling current pool of players for the week), not sure how atm
+            //better way to do this (pulling current pool of players for the week), not sure how atm, pull by nflgame?
             using (var db = new FF()) {
                 livePlayerList = db.NFLPlayer.ToList();
             }
@@ -61,21 +74,18 @@ namespace WebApplication1.Hubs
                 SetSYWToZero(s);
                 //Remember im doing this live not for stupid class demo, so ill need to make statid off of player
                 s.PlayerID = n.id;
-                s.Year = CURRENTYEAR;     //passed in from where?
-                s.Week = CurrentWeekServ;     //passed in from where?
+                s.Year = currentYear;     //passed in from where?
+                s.Week = currentWeekServ;     //passed in from where?
                 s.currentPts = 0;
                 string statID = (s.Year.ToString() + s.Week.ToString() + s.PlayerID).ToString();   //YearWeekPlayerID is StatID
                 s.id = Convert.ToInt32(statID);
 
                 liveStatsList.Add(s);   //list  
                 _playersStats.TryAdd(s.id, s);  //dict
-
-
-                //_players.TryAdd(n.id, n);
             }
 
             livePlayerList.Clear();     //empty list
-
+                
             //make a list of players that got updated and send to updatePlayer?
             //livePlayerList.ForEach(player => _players.TryAdd(player.id, player));
 
@@ -86,12 +96,13 @@ namespace WebApplication1.Hubs
              *****/
             r.QuickParseAfterLive();
             r2.QuickParseAfterLive();
-
-            _timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
+            //if timer needed
+            //_timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
         }
+
         public void SetSYWToZero(StatsYearWeek Stats) {
 
-            //this will be old nflplayer stat code which is not scaleable and will be removed
+            //set all class members to 0, default null
             Type m1 = Stats.PassingStats.GetType();
             Type m2 = Stats.RushingStats.GetType();
             Type m3 = Stats.ReceivingStats.GetType();
@@ -165,26 +176,28 @@ namespace WebApplication1.Hubs
 
         public bool ProcessPlay(PlaysVM currPlay) {
             StatsYearWeek s = new StatsYearWeek();
+            bool playStatus = true;
 
             foreach (PlayersVM p in currPlay.Players) {
-                //ID PROBLEM JUST LIKE GETALLSTATSFROMPLAYERID, functionize and insert into here
-                if (_playersStats.TryGetValue(p.id, out s)) {
+                int SYWID = ConvertPlayerIDToSYWID(p.id);   //id conversion
+
+                if (_playersStats.TryGetValue(SYWID, out s)) {
                     //do update on player in allLive dict
-                    StatsYearWeek copy = new StatsYearWeek();
-                    copy = UpdateStat(p, s, currPlay.Note);
+                    StatsYearWeek copy = UpdateStat(p, s, currPlay.Note);
                     //update dict value
-                    _playersStats[p.id] = copy;
+                    _playersStats[SYWID] = copy;
                     liveUpdateList.Add(copy.id);
                 }
+                else { }
+                    //punter, defensive player, will have to figure out that later, but still need to display play
             }
-            return true;
+            return playStatus;
         }
 
         private void UpdatePlayerStats(object state)
         {
             lock (_updatePlayersStatsLock)
             {
-                   
                 var f = r.CurrPlay(playCount);  //go to next play
                 var f2 = r2.CurrPlay(pc2);  //go to next play
                 if (!gameOver) {
@@ -214,7 +227,7 @@ namespace WebApplication1.Hubs
                                    BroadcastPlayers(updatedP);                               
                             }
                             else
-                                throw new Exception("Something went wrong in updateplayerstats _players.TryGetValue!");
+                                throw new Exception("Something went wrong in updateplayerstats _playersStats.TryGetValue!");
                         }
                     }
 
@@ -229,7 +242,7 @@ namespace WebApplication1.Hubs
                     BrodcastPlay2("Game Over!");
                     gameOver = true;
                     tempsavetodb();
-                    if (CurrentWeekServ < 14)
+                    if (currentWeekServ < 14)
                     EndWeek();
                 }
             }
@@ -251,10 +264,9 @@ namespace WebApplication1.Hubs
                     
                 game.VScore = total;
 
-                foreach (var n in _playersStats) {
-                    
+                foreach (var n in _playersStats)                
                     db.NFLPlayerStats.Add(n.Value);
-                }
+
                 db.SaveChanges();
             }
         }
@@ -265,7 +277,7 @@ namespace WebApplication1.Hubs
                 FFLeague League = db.FFLeagueDB.Find(game.FFLeagueID);
                 //RunLive updates score in ffgamedb
 
-                var allGamesInCurrWeek = db.FFGameDB.Where(x => x.Week == CurrentWeekServ).ToList();
+                var allGamesInCurrWeek = db.FFGameDB.Where(x => x.Week == currentWeekServ).ToList();
 
                 foreach (FFGame g in allGamesInCurrWeek) {
                     int homeID;
@@ -332,9 +344,11 @@ namespace WebApplication1.Hubs
                 var sett = db.Settings.Find(1);
                 db.Entry(sett).State = System.Data.Entity.EntityState.Unchanged;
                 sett.CurrentWeek++;
-                CurrentWeekServ = sett.CurrentWeek;
+                currentWeekServ = sett.CurrentWeek;
 
                 db.SaveChanges();
+                //Check this dont think need it
+                //Clients.All.OnDisconnected(true);
             }
         }
 
@@ -428,10 +442,8 @@ namespace WebApplication1.Hubs
                     //changed to StatsYearWeek, key changed, need to update to new key
                     //old key- PlayerID, new key- Year+week+playerid
 
-                    /******************functionize*/
-                    string convertID = CURRENTYEAR.ToString() + CurrentWeekServ.ToString() + playerID.ToString();
-                    int SYWID = Convert.ToInt32(convertID);
-                    
+                    int SYWID = ConvertPlayerIDToSYWID(playerID);   //ID conversion
+
                     if (_playersStats.TryGetValue(SYWID, out st))  //from stats dict created in init
                         PlayersOnTeamCol.Add(st);
                     else
@@ -441,12 +453,46 @@ namespace WebApplication1.Hubs
 
             return PlayersOnTeamCol;
         }
+        /*
+         * State functions
+         */
+
+        public void OpenMarket() {
+            lock (_statsStateLock) {
+                if (StatsState != StatsState.Open) {
+                    //_timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
+                    //MarketState = MarketState.Open;
+                    //BroadcastMarketStateChange(MarketState.Open);
+                }
+            }
+        }
+
+
+        public void CloseMarket() {
+            lock (_statsStateLock) {
+                if (StatsState == StatsState.Open) {
+                    //if (_timer != null) {
+                    //    _timer.Dispose();
+                    //}
+                    //MarketState = MarketState.Closed;
+                    //BroadcastMarketStateChange(MarketState.Closed);
+                }
+            }
+        }
 
         /*
          * Helper functions for NFLPlayerData 
          */
 
-        public StatsYearWeek UpdateStat(PlayersVM fromPlay, StatsYearWeek fromList, string note)
+        //Takes playerID and converts it to SYWID => currentYear,currentWeekServ,playerID in int form
+        public int ConvertPlayerIDToSYWID(int playerID) {
+            string convertID = currentYear.ToString() + currentWeekServ.ToString() + playerID.ToString();
+            int SYWID = Convert.ToInt32(convertID);
+
+            return SYWID;
+        }
+
+        public StatsYearWeek UpdateStat(PlayersVM fromPlay, StatsYearWeek fromSYWList, string note)
         {
             //Take fromPlayer statID and find stat
             //Add in fumbles later, confusing, 
@@ -457,45 +503,45 @@ namespace WebApplication1.Hubs
             {
                 case 10:
                     //rush yds
-                    fromList.RushingStats.RushAtt += 1;
-                    fromList.RushingStats.RushYds += fromPlay.Yards;
+                    fromSYWList.RushingStats.RushAtt += 1;
+                    fromSYWList.RushingStats.RushYds += fromPlay.Yards;
 
-                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //RushLng Don't add in right now
 
                     break;
                 case 11:
                     //rushTDyds
-                    fromList.RushingStats.RushAtt += 1;
-                    fromList.RushingStats.RushYds += fromPlay.Yards;
+                    fromSYWList.RushingStats.RushAtt += 1;
+                    fromSYWList.RushingStats.RushYds += fromPlay.Yards;
 
-                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //RushLngTD Don't add in right now
                     if (note == "TD") {
-                        fromList.RushingStats.RushTds += 1;
-                        fromList.currentPts += 6;
+                        fromSYWList.RushingStats.RushTds += 1;
+                        fromSYWList.currentPts += 6;
                     }
                     else
                         throw new Exception("Has RushingTDYards but note is not TD <- check play");
                     break;
                 case 14:
                     //passInc
-                    fromList.PassingStats.PassAtt += 1;
+                    fromSYWList.PassingStats.PassAtt += 1;
                     break;
                 case 15:
                     //PassYrds
-                    fromList.PassingStats.PassYds += fromPlay.Yards;
-                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromSYWList.PassingStats.PassYds += fromPlay.Yards;
+                    fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     break;
                 case 16:
                     //PassYrdsTD
-                    fromList.PassingStats.PassYds += fromPlay.Yards;
-                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromSYWList.PassingStats.PassYds += fromPlay.Yards;
+                    fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
 
                     if (note == "TD")
                     {
-                        fromList.PassingStats.PassTds += 1;
-                        fromList.currentPts += 6;
+                        fromSYWList.PassingStats.PassTds += 1;
+                        fromSYWList.currentPts += 6;
                     }
                     else
                         throw new Exception("Has PassTDYards but note is not TD <- check play");
@@ -504,42 +550,42 @@ namespace WebApplication1.Hubs
                     //PassINT
                     if (note == "INT")
                     {
-                        fromList.PassingStats.PassInts += 1;
-                        fromList.currentPts += -2;
+                        fromSYWList.PassingStats.PassInts += 1;
+                        fromSYWList.currentPts += -2;
                     }
                     //add int Exception it triggers on chargersvssteelers
 
                     break;
                 case 20:
                     //QBSack
-                    fromList.PassingStats.PassAtt += 1;
+                    fromSYWList.PassingStats.PassAtt += 1;
                     //sack yardage goes in to team total but qb indv stats do not change
 
                     break;
                 case 21:
                     //RecYds
-                    fromList.ReceivingStats.Rec += 1;
-                    fromList.ReceivingStats.RecYds += fromPlay.Yards;
+                    fromSYWList.ReceivingStats.Rec += 1;
+                    fromSYWList.ReceivingStats.RecYds += fromPlay.Yards;
 
-                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
                     //add in RecLng Later
                     break;
                 case 22:
                     //RecYrdsTD
-                    fromList.ReceivingStats.Rec += 1;
-                    fromList.ReceivingStats.RecYds += fromPlay.Yards;
-                    fromList.ReceivingStats.RecTds += 1;
+                    fromSYWList.ReceivingStats.Rec += 1;
+                    fromSYWList.ReceivingStats.RecYds += fromPlay.Yards;
+                    fromSYWList.ReceivingStats.RecTds += 1;
 
-                    fromList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
-                    fromList.currentPts += 6;
+                    fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
+                    fromSYWList.currentPts += 6;
                     //add in RecLngTD later
                     break;
                 case 69:
                     //FGMiss
                     if (note == "FGM")
                     {
-                        fromList.KickingStats.Fga += 1;
-                        fromList.KickingStats.Fgyds += fromPlay.Yards;
+                        fromSYWList.KickingStats.Fga += 1;
+                        fromSYWList.KickingStats.Fgyds += fromPlay.Yards;
                     }
                     else
                         throw new Exception("statID says FGM, but note doesn't <- check play");
@@ -548,11 +594,11 @@ namespace WebApplication1.Hubs
                     //FG
                     if (note == "FG")
                     {
-                        fromList.KickingStats.Fga += 1;
-                        fromList.KickingStats.Fgm += 1;
-                        fromList.KickingStats.Fgyds += fromPlay.Yards;
+                        fromSYWList.KickingStats.Fga += 1;
+                        fromSYWList.KickingStats.Fgm += 1;
+                        fromSYWList.KickingStats.Fgyds += fromPlay.Yards;
 
-                        fromList.currentPts += Convert.ToDecimal(Math.Floor(fromPlay.Yards / 10.00));
+                        fromSYWList.currentPts += Convert.ToDecimal(Math.Floor(fromPlay.Yards / 10.00));
                     }
                     else
                         throw new Exception("statID says FG, but note doesn't <- check play");
@@ -566,39 +612,37 @@ namespace WebApplication1.Hubs
                     //XP
                     if (note == "XP")
                     {
-                        fromList.KickingStats.Xpa += 1;
-                        fromList.KickingStats.Xpmade += 1;
-                        fromList.KickingStats.Xptot += 1;
+                        fromSYWList.KickingStats.Xpa += 1;
+                        fromSYWList.KickingStats.Xpmade += 1;
+                        fromSYWList.KickingStats.Xptot += 1;
 
-                        fromList.currentPts += 1;
+                        fromSYWList.currentPts += 1;
                     }
                     else
                         throw new Exception("statID says XP, but note doesn't <- check play");
                     break;
                 case 111:
                     //yrds thrown cmp
-                    fromList.PassingStats.PassAtt += 1;
-                    fromList.PassingStats.PassCmp += 1;
+                    fromSYWList.PassingStats.PassAtt += 1;
+                    fromSYWList.PassingStats.PassCmp += 1;
                     break;
                 case 112:
                     //yrds thrown inc
-                    fromList.PassingStats.PassAtt += 1;
+                    fromSYWList.PassingStats.PassAtt += 1;
                     break;
                 case 113:
                     //YAC (For AdvStats)
                     break;
                 case 115:
                     //PassTarget
-                    fromList.ReceivingStats.RecTrg += 1;
+                    fromSYWList.ReceivingStats.RecTrg += 1;
                     break;
                 default:
                     //write out to file with plays that don't get flagged later after adding in fumbles, ko's, penalty, etc.
                     break;
             }
 
-
-
-            return fromList; //appease debugger
+            return fromSYWList; 
         }
     }
 }

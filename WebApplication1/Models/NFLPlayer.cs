@@ -69,9 +69,12 @@ public class NFLPlayer {
 
 public class NFLTeam
 {
+    public NFLTeam() { }
+    public NFLTeam(string nn) { City = null; Nickname = nn; TeamPlayers = null; NFLSchedule = null; }
     //A team has players, A player can only be on one team
     //A team has games, plays other teams on a weekly basis
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int TeamID { get; set; }
     public string City { get; set; }
     public string Nickname { get; set; }
@@ -86,13 +89,14 @@ public class NFLGame {
     //A game has stats for the 2teams
     [Key]
     public int GameID { get; set; }
-    public int Week { get; set; }
+    public DateTime DateEST { get; set; }
+    public string Day { get; set; }
+    public string Week { get; set; }
     public int Year { get; set; }
-    public NFLTeam HomeTeam { get; set; }
-    public NFLTeam VisTeam { get; set; }
-    public int HScore { get; set; }
-    public int VScore { get; set; }
-
+    public int HomeTeamID { get; set; }
+    public int VisTeamID { get; set; }
+    public decimal HScore { get; set; }
+    public decimal VScore { get; set; }
 }
 
 public class StatsYearWeek {
