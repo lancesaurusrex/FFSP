@@ -1,0 +1,61 @@
+﻿@model IEnumerable<WebApplication1.Models.FFGame>
+
+@{
+    ViewBag.Title = "Scoreboard";
+}
+
+<h2>Scoreboard</h2>
+@Html.DisplayFor(model => model.First().Week)
+
+@Html.DisplayFor(model => model.First().Year)
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.HomeTeam.TeamName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.VisTeam.TeamName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Week)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Year)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.HScore)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.VScore)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.HomeTeam.TeamName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.VisTeam.TeamName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Week)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Year)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.HScore)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.VScore)
+        </td>
+        <td>
+            @Html.ActionLink("Details", "Details", new { id=item.FFGameID }) 
+        </td>
+    </tr>
+}
+
+</table>

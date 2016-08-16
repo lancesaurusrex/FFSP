@@ -54,11 +54,10 @@
             @Html.DisplayFor(modelItem => item.VisTeam.TeamName)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.FFGameID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.FFGameID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.FFGameID })
+            <!--Html.ActionLink("Start Live", "RunLive", new { GameID = item.FFGameID }, new { onclick = "functionname();" })-->
+            <input type="button" class="btn btn-default" value="Live Stats" onclick="location.href='@Url.Action("RunLive", new { GameID = item.FFGameID })'" />
         </td>
     </tr>
 }
-
+  
 </table>

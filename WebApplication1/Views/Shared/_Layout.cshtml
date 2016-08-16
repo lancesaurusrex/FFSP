@@ -3,10 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title</title>
+    <link href="~/fonts/TecmoSet1.TTF" rel="stylesheet" type="text/css">
+    <link href="~/Content/grayscale/fonts/TecmoSet1.TTF" rel="stylesheet" type="text/css">
     @Styles.Render("~/Content/css")
+    <style> 
+        body {
+            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+        }
+    </style>
     @Scripts.Render("~/bundles/modernizr")
 
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P:100,200,300,400,500,600,700,100italic,200italic,300italic,400italic,500italic,600italic,700italic" rel="stylesheet" type="text/css" />
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -17,13 +25,10 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("FFApp", "Index", "FFLeague", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
                     <li>@Html.ActionLink("NFLPlayers", "Index", "NFLPlayers")</li>
                     <li>@Html.ActionLink("Leagues", "Index", "FFLeague")</li>
                 </ul>
@@ -33,10 +38,6 @@
     </div>
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
     </div>
 
     @Scripts.Render("~/bundles/jquery")

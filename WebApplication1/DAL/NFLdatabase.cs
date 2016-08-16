@@ -15,7 +15,6 @@ namespace WebApplication1.DAL {
     }
 
     public class NFLgame : DbContext {
-
         public NFLgame() : base("GameContext") {}
 
         //public DbSet<Drives> Drives { get; set; }
@@ -26,14 +25,18 @@ namespace WebApplication1.DAL {
     }
 
     public class FF : DbContext {
-        public FF() : base("FFContext") { }
+        public FF() : base("FFContext") {
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<FF, WebApplication1.Migrations.Configuration>("FFContext"));
+        }
 
         public DbSet<FFTeam> FFTeamDB { get; set; }
         public DbSet<FFGame> FFGameDB { get; set; }
         public DbSet<FFLeague> FFLeagueDB { get; set; }
         public DbSet<TeamNFLPlayer> FFTeamNFLPlayer { get; set; }
-
         public DbSet<NFLPlayer> NFLPlayer { get; set; }
-        //public DbSet<FFPlayer> FFPlayerDB { get; set; }
+        public DbSet<GSettings> Settings { get; set; }
+        public DbSet<StatsYearWeek> NFLPlayerStats { get; set; }
+        public DbSet<NFLGame> NFLGame { get; set; }
+        public DbSet<NFLTeam> NFLTeam { get; set; }
     }
 }

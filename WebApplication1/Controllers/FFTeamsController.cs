@@ -9,6 +9,11 @@ using System.Web.Mvc;
 using WebApplication1.DAL;
 using WebApplication1.Models;
 using Microsoft.AspNet.Identity;
+//test below
+using System.Collections.Concurrent;
+using Newtonsoft.Json;
+using System.Threading;
+
 
 //Merge Two Collections without duplicates, elegant and speedy
 //var dict = AllPlayers.ToDictionary(x => x.id);
@@ -20,7 +25,7 @@ using Microsoft.AspNet.Identity;
 namespace WebApplication1.Controllers {
     public class FFTeamsController : Controller {
         private FF db = new FF();
-        const int CURRENTWEEK = 1;
+        int CurrentWeek;
 
         //Displays All AvailablePlayers and can add selected ones to the team
         public ActionResult AvailablePlayers(int TeamID) {
@@ -72,44 +77,54 @@ namespace WebApplication1.Controllers {
             return RedirectToAction("Index", new { TeamID = FFTeam.FFTeamID });
         }
 
-        public IEnumerable<FFGame> FillWeekScoreboard(int TeamID, int? numWeek) {
-            FFTeam team = db.FFTeamDB.Find(TeamID);
-
-            var leagueSchedule = team.FFLeague.Schedule;
-
-            if (leagueSchedule != null || leagueSchedule.Count != 0) {
-
-            }
-            else { }
-                //Pull schedule from db
-
-            IEnumerable<FFGame> currentWeekSchedule = null;
-
-            if (numWeek == null)
-                currentWeekSchedule = leagueSchedule.Where(x => x.Week == CURRENTWEEK);
-            else
-                currentWeekSchedule = leagueSchedule.Where(x => x.Week == numWeek);
-
-            return currentWeekSchedule;
-
-        }
 
         public ActionResult Scoreboard(int TeamID) {
+            if (CurrentWeek > 13)
+                CurrentWeek = 13;
+            else {
+                using (var dbsetting = new FF()) {
+                    var g = dbsetting.Settings.Find(1);
+                    CurrentWeek = g.CurrentWeek;
+                }
+            }
 
             //FillWeekScoreboard(int TeamID, int? numWeek)    
-            var currentWeek = FillWeekScoreboard(TeamID, null);
+            var currentWeek = FillWeekScoreboard(TeamID, CurrentWeek);
             //signalr asp.net tutorial
+            if (currentWeek == null)
+                throw new NullReferenceException("currentWeek is null, which means games arent in the db for that week");
 
-            return View();  //compiler stop bitching
+            return View(currentWeek);  //compiler stop bitching
         }
 
         /* Database Pulls
+         * FillWeekScoreboard
          * GetAllFFPlayers - Return all NFL Players from the NFL.com pull site
          * GetAllTeamIDFromLeague - Return all TeamIDs in one League
          * GetAllPlayersIDOnTeamsInLeague - Return all PlayerID's from all teams in one league
          * GetAllPlayersOnTeamsInLeagues - Return all Players from all teams in one league
+         * GetAllPlayersOnTeam
          --------------------------------------------------------------------------------------------------*/
         //Gets all NFLPlayer from NFLDB
+        public IEnumerable<FFGame> FillWeekScoreboard(int TeamID, int? numWeek) {
+            FFTeam team = db.FFTeamDB.Find(TeamID);
+            //Team is null check
+            var leagueSchedule = team.FFLeague.Schedule;
+            IEnumerable<FFGame> currentWeekSchedule = null;
+
+            if (leagueSchedule != null || leagueSchedule.Count != 0) {
+               
+                if (numWeek != null)
+                    currentWeekSchedule = leagueSchedule.Where(x => x.Week == numWeek);
+                else
+                    currentWeekSchedule = leagueSchedule.ToList();
+            }
+            else { }
+            //Pull schedule from db
+
+            return currentWeekSchedule;
+        }
+
         public IQueryable<NFLPlayer> GetAllFFPlayers() {
             return db.NFLPlayer;
         }
@@ -123,13 +138,16 @@ namespace WebApplication1.Controllers {
         //Gets All Player ID on All Teams in one league  
         public IQueryable<int> GetAllPlayersIDOnTeamsInLeague(ICollection<int> AllTeamIDInLeague) {
 
-            IQueryable<int> AllPlayersTakenID = null;
-
+            var returnListOfPlayerIDOnTeamsInLeague = new List<int>();
             foreach (int TeamID in AllTeamIDInLeague) {
-                AllPlayersTakenID = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
+                var AllPlayersTakenID = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p.PlayerID);
+
+                foreach (var playerID in AllPlayersTakenID) {
+                    returnListOfPlayerIDOnTeamsInLeague.Add(playerID);
+                }
             }
 
-            return AllPlayersTakenID;
+            return returnListOfPlayerIDOnTeamsInLeague.AsQueryable();
         }
 
         //Gets all players on all teams in one league into NFLPlayer obj 
@@ -153,6 +171,21 @@ namespace WebApplication1.Controllers {
 
             return mergedPlayers;
         }
+
+        public IQueryable<NFLPlayer> GetAllPlayersOnTeam(int TeamID) {
+
+            List<NFLPlayer> PlayersOnTeamCol = new List<NFLPlayer>();
+            //pulling from NFLPlayerTeam DB, which are not NFLPlayer.
+            var FindPlayersOnTeam = (from p in db.FFTeamNFLPlayer where p.TeamID == TeamID select p);
+
+            foreach (var player in FindPlayersOnTeam) {
+                var pl = db.NFLPlayer.Find(player.PlayerID);
+                PlayersOnTeamCol.Add(pl);
+            }
+
+            return PlayersOnTeamCol.AsQueryable();
+        }
+
         //-----------------------------------------------------------------------------------------------------
 
         public ActionResult RemovePlayers(int TeamID) {
@@ -219,11 +252,38 @@ namespace WebApplication1.Controllers {
         public ActionResult ViewPlayersOnTeam(int TeamID) {
 
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
+            //top of somewhere as a compare and seperate func
+            var playersOnTeam = FFTeam.Players;
 
-            if (FFTeam.Players != null)
-                return View(FFTeam.Players);
+            if (FFTeam.Players != null) {
+
+                var starters = db.FFTeamNFLPlayer.Where(x => x.TeamID == TeamID).ToList();
+
+                var pullStarters = from firstItem in playersOnTeam
+                                   join secondItem in starters
+                                   on firstItem.id equals secondItem.PlayerID
+                                   select new { firstItem, secondItem.isActive };
+                var passDict = pullStarters.ToDictionary(x => x.firstItem, x => x.isActive);
+
+                return View(passDict);
+            }
             else
                 throw new NoNullAllowedException("No Players on Team");
+        }
+        //CREATE A NEW VIEWMODELCLASS THIS DICT SHIT IS A NIGHTMARE
+        [HttpPost]
+        public ActionResult ViewPlayersOnTeam(Dictionary<NFLPlayer,bool> teamNFLPlayerStarter) {
+
+            try {
+                if (ModelState.IsValid) {
+                    foreach (var a in teamNFLPlayerStarter) { }
+                    return RedirectToAction("Index");
+                }
+            }
+            catch {
+                return View("Index");
+            }
+            return View("Index");
         }
         /*
         Schedule Time Ladies and Gents!
@@ -388,25 +448,20 @@ namespace WebApplication1.Controllers {
             FFTeam FFTeam = db.FFTeamDB.Find(TeamID);
             FFLeague League = db.FFLeagueDB.Find(FFTeam.FFLeagueID);
             //Team View, Edit Team, Team Schedule
+
             return View(FFTeam);
         }
 
-        public ActionResult StartLive() {
-            NFLLiveViewModel n = new NFLLiveViewModel();
-            n.dostuff();
-
-            return View();
-        }
         // GET: FFTeams/Details/5
         public ActionResult Details(int? id) {
             if (id == null) {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            FFTeam fFTeam = db.FFTeamDB.Find(id);
-            if (fFTeam == null) {
+            FFGame Game = db.FFGameDB.Find(id);
+            if (Game == null) {
                 return HttpNotFound();
             }
-            return View(fFTeam);
+            return View(Game);
         }
 
         // GET: FFTeams/Create
@@ -432,6 +487,50 @@ namespace WebApplication1.Controllers {
             return View(fFTeam);
         }
 
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        public ActionResult RunLive(int gameID) {
+
+            //http://stackoverflow.com/questions/23975053/mvc-5-auto-refreshing-partial-view
+            //codehttp://stackoverflow.com/questions/35631938/server-sent-events-eventsource-with-standard-asp-net-mvc-causing-error/35678190#35678190
+            FFGame game = db.FFGameDB.Find(gameID);
+
+            if (game.HomeTeam.Players.Count != 0) {
+                if (game.HomeTeamID != null) {
+                    game.HomeTeam.Players = GetAllPlayersOnTeam((int)game.HomeTeamID).ToList();
+                }
+                else
+                    throw new NullReferenceException("game.HomeID is null");
+            }
+            else
+                throw new NullReferenceException("game.HomePlayers team is empty");
+
+            if (game.VisTeam.Players.Count != 0) {
+                if (game.VisTeamID != null) {
+                    game.VisTeam.Players = GetAllPlayersOnTeam((int)game.VisTeamID).ToList();
+                }
+                else
+                    throw new NullReferenceException("game.AwayID is null");
+            }
+            else
+                throw new NullReferenceException("game.AwayPlayers team is empty");
+
+            return View(game);           
+        }
+
+        public JsonResult GetTeamID(FFGame game)
+        {
+            var hID = game.HomeTeamID;
+            return Json(hID, JsonRequestBehavior.AllowGet);
+        }
+
+
+        //Default junk
         // GET: FFTeams/Edit/5
         public ActionResult Edit(int? id) {
             if (id == null) {
@@ -481,22 +580,40 @@ namespace WebApplication1.Controllers {
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-
-        protected override void Dispose(bool disposing) {
-            if (disposing) {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+        //Test shit
+        public ActionResult Test()
+        {
+            return View();
         }
+        static ConcurrentQueue<PingData> pings = new ConcurrentQueue<PingData>();
 
-        public void runLive(int gameID) {
-
-            
+        public void Ping(int userID)
+        {
+            pings.Enqueue(new PingData { UserID = userID });
         }
-
+        
+        public void Message()
+        {
+            Response.ContentType = "text/event-stream";
+            do
+            {
+                PingData nextPing;
+                if (pings.TryDequeue(out nextPing))
+                {
+                    Response.Write("data:" + JsonConvert.SerializeObject(nextPing, Formatting.None) + "\n\n");
+                }
+                Response.Flush();
+                Thread.Sleep(1000);
+            } while (true);
+        }
     }
 }
-
+public class PingData
+{
+    public PingData() {Date = DateTime.Now;}
+    public int UserID { get; set; }
+    public DateTime Date { get; set; }
+}
 
 
 //Schedule Algortihtntngkm

@@ -1,66 +1,37 @@
-﻿@model WebApplication1.Models.FFTeam
+﻿@model WebApplication1.Models.FFGame
 
 @{
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>@Model.Week @Model.Year</h2>
 
-<div>
-    <h4>FFTeam</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FFLeague.FFLeagueName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FFLeague.FFLeagueName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.TeamName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.TeamName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Win)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Win)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Lose)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Lose)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Tie)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Tie)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.FPTotal)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FPTotal)
-        </dd>
-
-    </dl>
+<div id="awayPlayerTable" style="float: right; width:50%">
+    <table border="1">
+        <caption>@Model.VisTeam.TeamName</caption>
+        <thead>
+            <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass<br />Yds</th><th>Pass<br />TDs</th><th>INT</th><th>Rush<br />Yds</th><th>Rush<br />TDs</th><th>Rec<br />Yds</th><th>Rec<br />TDs</th></tr>
+        </thead>
+        <tbody>
+                @foreach (var item in Model.VisTeam.Players) { 
+            <tr><td>@item.name</td><td>@item.team</td><td>@item.currentPts</td><td>@item.PassingStats.PassYds</td><td>@item.PassingStats.PassTds</td><td>@item.PassingStats.PassInts</td><td>@item.RushingStats.RushYds</td><td>@item.RushingStats.RushTds</td><td>@item.ReceivingStats.RecYds</td><td>@item.ReceivingStats.RecTds</td></tr>
+                }
+        </tbody>
+    </table>
+</div>
+<div id="homePlayerTable" style="float: right; width:50%">
+    <table border="1">
+        <caption>@Model.HomeTeam.TeamName</caption>
+        <thead>
+            <tr><th>Name</th><th>Team</th><th>Pts</th><th>Pass<br />Yds</th><th>Pass<br />TDs</th><th>INT</th><th>Rush<br />Yds</th><th>Rush<br />TDs</th><th>Rec<br />Yds</th><th>Rec<br />TDs</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.HomeTeam.Players) {
+                <tr><td>@item.name</td><td>@item.team</td><td>@item.currentPts</td><td>@item.PassingStats.PassYds</td><td>@item.PassingStats.PassTds</td><td>@item.PassingStats.PassInts</td><td>@item.RushingStats.RushYds</td><td>@item.RushingStats.RushTds</td><td>@item.ReceivingStats.RecYds</td><td>@item.ReceivingStats.RecTds</td></tr>
+            }
+        </tbody>
+    </table>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.FFTeamID }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Back to List", "Scoreboard")
 </p>

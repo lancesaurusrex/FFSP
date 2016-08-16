@@ -1,28 +1,274 @@
-﻿@model IEnumerable<NFLPlayer>
+﻿@model Dictionary<NFLPlayer,bool>
+@section Scripts
+    {
+    <script src="http://rubaxa.github.io/Sortable/Sortable.js">
+
+    </script>
+    
+    <script type="text/javascript">
+    // List with handle
+    //Sortable.create(listWithHandle, {
+    //    handle: '.glyphicon-move',
+    //    animation: 150
+    //});
+    //Sortable.create(listWithHandle2, {
+    //    handle: ".my-handle",
+    //    animation: 150
+    //});
+
+    //function handleDragStart(e) {
+    //    e.dataTransfer.setData('text', e.target.id);
+    //    e.dataTransfer.effectAllowed = 'move';
+    //    e.target.style.border = "3px dotted green";
+    //}
+
+    //function handleDragOver(e) {
+    //    e.preventDefault(); // Necessary. Allows us to drop.
+    //    e.dataTransfer.dropEffect = 'move';
+    //    e.target.style.border = "3px dotted red";
+
+    //    return false;
+    //}
+
+    //function handleDragEnter(e) {
+    //    // this / e.target is the current hover target.
+    //    this.classList.add('over');
+    //}
+
+    //function handleDragLeave(e) {
+    //    this.classList.remove('over');  // this / e.target is previous target element.
+    //}
+
+    //function handleDrop(e) {
+    //    // this / e.target is current target element.
+    //    e.preventDefault();
+    //    // Don't do anything if dropping the same column we're dragging.
+    //    var data = e.dataTransfer.getData("text");
+    //    e.target.appendChild(document.getElementById(data));
+    //    e.target.style.border = "1px dotted blue";
+    //    return false;
+    //}
+
+    //function handleDragEnd(e) {
+    //    // this/e.target is the source node.
+
+    //    e.target.style.border = "2px solid orange";
+    //    e.dataTransfer.effectAllowed = 'none';
+    //}
+
+    //var cols = document.querySelectorAll('#listWithHandle2 .list-group-item');
+    //[].forEach.call(cols, function (col) {
+    //    col.addEventListener('dragstart', handleDragStart, false);
+    //    col.addEventListener('dragenter', handleDragEnter, false);
+    //    col.addEventListener('dragover', handleDragOver, false);
+    //    col.addEventListener('dragleave', handleDragLeave, false);
+    //    col.addEventListener('drop', handleDrop, false);
+    //    col.addEventListener('dragend', handleDragEnd, false);
+        //});
+    var container = document.getElementById("advanced");
+    var sort = Sortable.create(container, {
+        animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+        draggable: ".list-item",
+        handle: ".my-handle" // Restricts sort start click/touch to the specified element
+
+    });
+
+    </script>
+   
+<style type="text/css">
+    /* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    font-family: 'GF TECMO Set 1';
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+    /*div{font-family:'GF TECMO Set 1'}*/
+        #boxA, #boxB {
+            float: left;
+            padding: 10px;
+            margin: 10px;
+            -moz-user-select: none;
+        }
+
+        #starters {
+            height: .5px;
+        }
+        #empList {
+            height: 1px;
+        }
+        #boxA {
+            background-color: #6633FF;
+            width: 75px;
+            height: 75px;
+        }
+
+        #boxB {
+            background-color: #FF6699;
+            width: 150px;
+            height: 150px;
+        }
+</style>
+    }
 
 @{
     ViewBag.Title = "View Players On Team";
 }
 
-<h2>View Players on Your Team</h2>
+@*<h2>View Players on Your Team</h2>
+<div id="listWithHandle" class="list-group">
+    <div class="list-group-item" draggable="true">
+        <span class="badge">14</span>
+        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+    Drag me by the handle
+</div>
+    <div class="list-group-item" draggable="true">
+        <span class="badge">2</span>
+        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+        You can also select text
+    </div>
+    <div class="list-group-item" draggable="true">
+        <span class="badge">1</span>
+        <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+        Best of both worlds!
+    </div>
+</div>*@
 
-<table class="table">
-
-    @{bool altRow = false;}   
+    @*@{bool altRow = false;}*@
+@*<div id="listWithHandle2" class="list-group">
     @foreach (var item in Model) {
 
-        <tr>
-            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
-                @Html.DisplayFor(modelItem => item.name)
-            </td>
-            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
-                @Html.DisplayFor(modelItem => item.team)
-            </td>
-            <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
-                @Html.DisplayFor(modelItem => item.pos)
-            </td>
-            @{altRow = !altRow;}
-        </tr>
-    }
+        <div class="list-group-item" ondragstart="handleDragStart(event)"  draggable="true">
+            <span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.id)</span>
+            @Html.DisplayFor(modelItem => item.name)
+            @Html.DisplayFor(modelItem => item.team)
+            @Html.DisplayFor(modelItem => item.pos)*@
+            @*<tr style="color: #000;">
+                    <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td style="background-color:@(altRow ? "#FFFF00" : "#0099FF"); height:40px;width:100px;">
+                        @Html.DisplayFor(modelItem => item.team)
+                    </td>
+                    <td style="background-color:@(altRow ? "#0099FF" : "#FFFF00"); height:40px;width:100px;">
+                        @Html.DisplayFor(modelItem => item.pos)
+                    </td>
+                    @{altRow = !altRow;}
+                </tr>*@ 
+        @*</div>
 
-</table>
+    }
+</div>*@
+<p><span data-alt-style="font-family: 'GF TECMO Set 1';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p><span data-alt-style="font-family: 'TecmoSet';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p><span data-alt-style="font-family: 'TecmoSet1';">GO TEAM MOtherfuckeR for lIFe</span></p>
+
+<p><span data-alt-style="font-family: 'Press Start 2P';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p><span data-alt-style="font-family: 'press start 2p';">GO TEAM MOtherfuckeR for lIFe</span></p>
+<p style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">BLAH</p>
+<p>NO STYLE</p>
+
+<p style="font-family:TecmoSet1;">GO TEAM MOtherfuckeR for lIFe</p>
+<p style="font-family:TecmoSet;">GO TEAM MOtherfuckeR for lIFe</p>
+<p style="font-family:GF TECMO Set 1;">GO TEAM MOtherfuckeR for lIFe</p>
+
+@using (Html.BeginForm("ViewPlayersOnTeam", "FFTeams")) {
+<a name="m"></a>
+<div class="container">
+    <div id="advanced" style="margin-left: 30px">
+        <div><div data-force="5" class="layer title title_xl">Multi</div></div>
+
+            <div class="layer title">Bench</div>
+        
+            @*ondragstart="handleDragStart(event)" draggable="true"*@
+            @foreach (var item in Model) {
+                if (item.Value == false) { 
+                <div class="list-item" id="@item.Key.id">
+                    <span class="my-handle" aria-hidden="true"><img src="~/Content/Images/PIT.png" /></span>
+                    @Html.DisplayFor(modelItem => item.Key.name)
+                    @Html.DisplayFor(modelItem => item.Key.team)
+                    @Html.DisplayFor(modelItem => item.Key.pos)
+                    
+                </div>}
+            }
+
+        @*http://rubaxa.github.io/Sortable/ http://apress.jensimmons.com/v5/pro-html5-programming/ch9.html*@
+        <br />
+            <div class="layer title">Starters</div>
+            <div id="starters" class="list-item">
+                @foreach (var item in Model) {
+                    if (item.Value == true) { 
+                        <div class="list-item" id="@item.Key.id">
+                            <span class="my-handle" aria-hidden="true">@Html.DisplayFor(modelItem => item.Key.id)</span>
+                            @Html.DisplayFor(modelItem => item.Key.name)
+                            @Html.DisplayFor(modelItem => item.Key.team)
+                            @Html.DisplayFor(modelItem => item.Key.pos)
+                        </div>}
+                }
+            </div>
+        <br />
+        <div class="layer title">Group D</div>
+        <div id="empList" class="list-item"></div>
+        <br />
+            <div class="layer title">Group C</div>
+        <div id="boxB" class="list-item"></div>
+        
+
+    </div>
+
+</div>
+<input type="submit" class="btn btn-default" value="GO" />
+}
+@*seperate code*@
+@*@foreach (var item in Model) {
+<div id="@item.id" ondragstart="handleDragStart(event);" ondragend="handleDragEnd(event)" draggable="true">
+@Html.DisplayFor(modelItem => item.name)
+@Html.DisplayFor(modelItem => item.team)
+@Html.DisplayFor(modelItem => item.pos)</div>
+}
+
+    <div id="target" ondrop="handleDrop(event);" ondragover="handleDragOver(event);" style="border:1px solid white;">QB Drop Zone</div>
+<div id="target2" ondrop="handleDrop(event);" ondragover="handleDragOver(event);" style="border:1px solid white;">QB Drop Zone</div>*@

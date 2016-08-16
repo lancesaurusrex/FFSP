@@ -40,16 +40,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.0.0\lib\net45\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.1.2\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.1.2\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.2.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -178,7 +182,22 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\NFLPlayersController.cs" />
     <Compile Include="DAL\NFLdbInitializer.cs" />
-    <Compile Include="Hubs\NFLHub.cs" />
+    <Compile Include="Hubs\NFLLiveUpdateHub.cs" />
+    <Compile Include="Hubs\NFLStatsUpdate.cs" />
+    <Compile Include="App_Start\Startup.SignalR.cs" />
+    <Compile Include="Migrations\201607222320426_InitialCreate.cs" />
+    <Compile Include="Migrations\201607222320426_InitialCreate.Designer.cs">
+      <DependentUpon>201607222320426_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608121823438_NFLTeams.cs" />
+    <Compile Include="Migrations\201608121823438_NFLTeams.Designer.cs">
+      <DependentUpon>201608121823438_NFLTeams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608130103590_ScheduleDB.cs" />
+    <Compile Include="Migrations\201608130103590_ScheduleDB.Designer.cs">
+      <DependentUpon>201608130103590_ScheduleDB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Drives.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -189,29 +208,91 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="DAL\NFLdatabase.cs" />
     <Compile Include="Models\NFLEPMarkov.cs" />
-    <Compile Include="Models\NFLLiveViewModel.cs" />
     <Compile Include="Models\NFLPlayer.cs" />
+    <Compile Include="Models\PlaysViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadJSONDatafromNFL.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\bootstrap.css" />
-    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\grayscale.css" />
+    <Content Include="Content\grey.bootstrap.css" />
+    <Content Include="Content\grey.bootstrap.min.css" />
+    <Content Include="Content\grayscale\font-awesome\css\font-awesome.css" />
+    <Content Include="Content\grayscale\font-awesome\css\font-awesome.min.css" />
+    <Content Include="Content\grayscale\font-awesome\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\grayscale\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\grayscale\img\downloads-bg.jpg" />
+    <Content Include="Content\grayscale\img\intro-bg.jpg" />
+    <Content Include="Content\grayscale\img\map-marker.png" />
+    <Content Include="Content\grayscale\index.html" />
+    <Content Include="Content\grayscale\js\bootstrap.js" />
+    <Content Include="Content\grayscale\js\bootstrap.min.js" />
+    <Content Include="Content\grayscale\js\grayscale.js" />
+    <Content Include="Content\grayscale\js\jquery.easing.min.js" />
+    <Content Include="Content\grayscale\js\jquery.js" />
+    <Content Include="Content\Images\PIT.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
-    <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="2015101200_gtd.json" />
     <Content Include="MARKOVDATA.xlsx" />
+    <Content Include="2015101108_gtd.json" />
+    <Content Include="Content\grayscale\font-awesome\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\grayscale\font-awesome\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\grayscale\font-awesome\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\grayscale\font-awesome\fonts\FontAwesome.otf" />
+    <Content Include="Content\grayscale\font-awesome\less\bordered-pulled.less" />
+    <Content Include="Content\grayscale\font-awesome\less\core.less" />
+    <Content Include="Content\grayscale\font-awesome\less\fixed-width.less" />
+    <Content Include="Content\grayscale\font-awesome\less\font-awesome.less" />
+    <Content Include="Content\grayscale\font-awesome\less\icons.less" />
+    <Content Include="Content\grayscale\font-awesome\less\larger.less" />
+    <Content Include="Content\grayscale\font-awesome\less\list.less" />
+    <Content Include="Content\grayscale\font-awesome\less\mixins.less" />
+    <Content Include="Content\grayscale\font-awesome\less\path.less" />
+    <Content Include="Content\grayscale\font-awesome\less\rotated-flipped.less" />
+    <Content Include="Content\grayscale\font-awesome\less\spinning.less" />
+    <Content Include="Content\grayscale\font-awesome\less\stacked.less" />
+    <Content Include="Content\grayscale\font-awesome\less\variables.less" />
+    <Content Include="Content\grayscale\font-awesome\scss\font-awesome.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_bordered-pulled.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_core.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_fixed-width.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_icons.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_larger.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_list.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_mixins.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_path.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_rotated-flipped.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_spinning.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_stacked.scss" />
+    <Content Include="Content\grayscale\font-awesome\scss\_variables.scss" />
+    <Content Include="Content\grayscale\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\grayscale\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\grayscale\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\grayscale\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Content\grayscale\less\grayscale.less" />
+    <Content Include="Content\grayscale\less\mixins.less" />
+    <Content Include="Content\grayscale\less\variables.less" />
+    <Content Include="Content\grayscale\LICENSE" />
+    <Content Include="Content\grayscale\README.md" />
+    <Content Include="Content\grayscale\sass\grayscale.scss" />
+    <Content Include="Content\grayscale\sass\_mixins.scss" />
+    <Content Include="Content\grayscale\sass\_variables.scss" />
+    <Content Include="Content\grayscale\fonts\TecmoSet1.TTF" />
+    <Content Include="fonts\TecmoSet1.TTF" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
-    <Content Include="Scripts\jquery-1.10.2.js" />
-    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <Content Include="Scripts\jquery-2.2.1.js" />
+    <Content Include="Scripts\jquery-2.2.1.min.js" />
+    <Content Include="Scripts\jquery-2.2.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery.signalR-2.1.2.js" />
-    <Content Include="Scripts\jquery.signalR-2.1.2.min.js" />
+    <Content Include="Scripts\jquery.signalR-2.0.0.js" />
+    <Content Include="Scripts\jquery.signalR-2.0.0.min.js" />
+    <Content Include="Scripts\jquery.signalR-2.2.0.js" />
+    <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -220,6 +301,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Scripts\RunLive.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -236,7 +318,6 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
@@ -277,13 +358,20 @@
     <Content Include="Views\FFTeams\CreateTeam.cshtml" />
     <Content Include="Views\FFTeams\AvailablePlayers.cshtml" />
     <Content Include="Views\FFTeams\ViewPlayersOnTeam.cshtml" />
-    <Content Include="Views\FFTeams\ViewPlayere.cshtml" />
+    <Content Include="Views\FFTeams\Test.cshtml" />
     <Content Include="Views\FFTeams\RemovePlayers.cshtml" />
     <Content Include="Views\FFTeams\ViewTeamsInLeague.cshtml" />
     <Content Include="Views\FFTeams\Schedule.cshtml" />
+    <Content Include="Views\FFTeams\Scoreboard.cshtml" />
+    <Content Include="Views\FFTeams\RunLive.cshtml" />
+    <Content Include="SeedCSV\2016NFLSchedule.csv" />
+    <Content Include="SeedCSV\NFLNicknames.csv" />
+    <Content Include="SeedCSV\NFLTeams.csv" />
+    <Content Include="SeedCSV\NFLAbbrv.csv" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\grayscale\css\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -291,6 +379,17 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201607222320426_InitialCreate.resx">
+      <DependentUpon>201607222320426_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608121823438_NFLTeams.resx">
+      <DependentUpon>201608121823438_NFLTeams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608130103590_ScheduleDB.resx">
+      <DependentUpon>201608130103590_ScheduleDB.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

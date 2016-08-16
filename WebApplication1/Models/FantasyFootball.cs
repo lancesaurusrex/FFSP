@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json.Linq;
 
 namespace WebApplication1.Models {
     //used to be called FantasyFootball but deleted class may have to rename file?
@@ -89,8 +90,7 @@ namespace WebApplication1.Models {
 
     public class FFGame {
         public FFGame() { }
-        public FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID)
-        { Week = pWeek; Year = pYear; HScore = null; VScore = null; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
+        public FFGame(int pWeek, int pYear, int pHomeTeamID, int pVisTeamID) { Week = pWeek; Year = pYear; HScore = null; VScore = null; HomeTeamID = pHomeTeamID; VisTeamID = pVisTeamID; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FFGameID { get; set; }
@@ -108,21 +108,8 @@ namespace WebApplication1.Models {
         public int FFLeagueID { get; set; }
         [ForeignKey("FFLeagueID")]
         public virtual FFLeague League { get; set; }
-
     }
 
-    //public class FFPlayer {
-
-    //    //This is the FF(NFL)PlayerID with the link to the FFTeam, don't want to make the actual NFLPlayer class the FFPlayer class, make them seperate
-    //    public virtual ICollection<FFPlayer> Players { get; set; }
-
-    //    //A player active check
-    //    public bool isActive { get; set; }
-    //}
-
-    /*  Example keep FFPlayer just need one list of players
-     *  Have a seperate list of players_team that link a playerid to a teamid, since all teamid are unique no need for leagueid!
-     */
     public class TeamNFLPlayer {
 
         [Key]
@@ -137,6 +124,7 @@ namespace WebApplication1.Models {
         public bool isActive { get; set; }
     }
 }
+
 
 //public virtual int UserId { get; set; }
 

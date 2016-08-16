@@ -4,67 +4,109 @@ using System.Linq;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WebApplication1.Models;
+
 
 /// <summary>
 /// Summary description for NFLPlayer
 /// </summary>
-public class NFLPlayer
-{
+public class NFLPlayer {
     public NFLPlayer()
     {
-        isAvailable = true;
-        PassingStats = new PassingGameStats();
-        RushingStats = new RushingGameStats();
-        ReceivingStats = new ReceivingGameStats();
-        FumbleStats = new FumbleGameStats();
-        KickingStats = new KickingGameStats();
+        isAvailable = true; 
     }
 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int id { get; set; }
 
-    //should keep string or just save has both formats nfl string and my string to int 
+    //actual format on nfl.com, keeping just in case needed at some point
     public string id_nflformat { set; get; }
 
     public string name { get; set; }
-
     public string team { get; set; }
-
     public string pos { get; set; }
+    public decimal currentPts { get; set; }
+
     //For Availability in TeamController
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
-
-    public virtual List<FFTeam> Teams { get; set; }
-    //public List<NFLGame> ScheduleGames { get; set; }
-
-    //These need to be put in a game object
-
-    public PassingGameStats PassingStats { get; set; }
-
-    public RushingGameStats RushingStats { get; set; }
-
-    public ReceivingGameStats ReceivingStats { get; set; }
-
-    public FumbleGameStats FumbleStats { get; set; }
-
-    public KickingGameStats KickingStats { get; set; }
 }
 
-//public class NFLGame
-//{
-//    //A game has players, players can play in one game per week but can be in multiple games
-//    //A game has 2 teams, all game goes in a week
-//    //A game has stats for the 2teams
-//}
+public class NFLTeam
+{
+    public NFLTeam() { }
+    public NFLTeam(string nn) { City = null; Nickname = nn; TeamPlayers = null; NFLSchedule = null; }
+    //A team has players, A player can only be on one team
+    //A team has games, plays other teams on a weekly basis
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public string Abbr { get; set; }
+    public string City { get; set; }
+    public string Nickname { get; set; }
 
-//public class NFLTeam
-//{
-//    //A team has players, A player can only be on one team
-//    //A team has games, plays other teams on a weekly basis
-//}
+    public virtual ICollection<NFLPlayer> TeamPlayers { get; set; }
+    public virtual ICollection<NFLGame> NFLSchedule { get; set; }
+    
+}
+
+public class NFLGame {
+    //A game has players, players can play in one game per week but can be in multiple games
+    //A game has 2 teams, all game goes in a week
+    //A game has stats for the 2teams
+    [Key]
+    public int GameID { get; set; }
+    public DateTime DateEST { get; set; }
+    public string Day { get; set; }
+    public string Week { get; set; }
+    public int Year { get; set; }
+    //A game has one NFL Hteam
+    public string HomeTeamID { get; set; }
+    //A game has one NFL Vteam
+    public string VisTeamID { get; set; }
+    public int? HScore { get; set; }
+    public int? VScore { get; set; }
+}
+
+public class StatsYearWeek {
+
+    public StatsYearWeek() {         
+        PassingStats = new PassingGameStats();
+        RushingStats = new RushingGameStats();
+        ReceivingStats = new ReceivingGameStats();
+        FumbleStats = new FumbleGameStats();
+        KickingStats = new KickingGameStats();
+        //placeholders for live
+        name = null;
+        team = null;
+        pos = null;
+    }
+    //For when live kicks in, this will make it WAY easier, don't need it in db though
+    //Fill in model RUNLive and check if the other way works foreach on model, if not run the notmapped placeholders 
+    [NotMapped]
+    public string name { get; set; }
+    [NotMapped]
+    public string team { get; set; }
+    [NotMapped]
+    public string pos { get; set; }
+    //Composite Primary Key with PlayerID, Year, Week, would be [Key, Column(Order = X)]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int id { get; set; }
+    public int PlayerID { get; set; }
+    //A Stat belongs to/has one NFLPlayer
+    [ForeignKey("PlayerID")]
+    public virtual NFLPlayer StatsNFLPlayer { get; set; }
+    public int Year { get; set; }
+    public int Week { get; set; }
+    public decimal currentPts { get; set; }
+
+    public PassingGameStats PassingStats { get; set; }
+    public RushingGameStats RushingStats { get; set; }
+    public ReceivingGameStats ReceivingStats { get; set; }
+    public FumbleGameStats FumbleStats { get; set; }
+    public KickingGameStats KickingStats { get; set; }
+}
 
 public class PassingGameStats
 {
@@ -139,6 +181,9 @@ public class ReceivingGameStats
 
     [JsonProperty("twoptm")]
     public int? RecTwoptm { get; set; }
+
+    [JsonIgnoreAttribute]
+    public int? RecTrg { get; set; }
 }
 
 public class FumbleGameStats
@@ -224,4 +269,11 @@ public class TeamStats
 
     [JsonProperty("top")]
     public string Top { get; set; }
+}
+
+public class GSettings {
+    [Key]
+    public int id { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int CurrentWeek { get;set;}
 }

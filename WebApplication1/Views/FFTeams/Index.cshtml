@@ -4,10 +4,9 @@
     ViewBag.Title = @Model.FFLeague.FFLeagueName;
 }
 
-<h2>@Html.DisplayFor(model => model.TeamName)</h2>
-
+<h2>@Html.DisplayFor(model => model.TeamName) Home Page</h2>
     
-@Model.TeamName
+Team @Model.TeamName in @Model.FFLeague.FFLeagueName League
 
 <table class="table">
     <tr>
@@ -61,4 +60,4 @@
 @Html.ActionLink("View Lineup", "ViewPlayersOnTeam", new { TeamID = Model.FFTeamID }) |
 @Html.ActionLink("Standings", "ViewTeamsInLeague", new { TeamID = Model.FFTeamID }) |
 @Html.ActionLink("Schedule", "Schedule", new { TeamID = Model.FFTeamID }) |
-@Html.ActionLink("Start Live", "StartLive")
+@Html.ActionLink("Scoreboard", "Scoreboard", new { TeamID = Model.FFTeamID }) |

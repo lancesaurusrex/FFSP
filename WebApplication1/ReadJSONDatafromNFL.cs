@@ -20,70 +20,121 @@ using System.Data.Entity;
 
 public class ReadJSONDatafromNFL {
     public ReadJSONDatafromNFL() { }
-    public ReadJSONDatafromNFL(string FileName) {
+    public ReadJSONDatafromNFL(string FileName, string gameIDS) {
         endOfGame = false;
         isUpdate = false;
-        play = null;
-        count = 35;
+        
+        count = 37;
         drivesNum = "1";
 
-        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
-        gameID = ID.ToString();      //Needs to be in string for JSON calls.
-
+        //int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
+        //gameID = ID.ToString();      //Needs to be in string for JSON calls.
+        gameID = gameIDS;
         string Root = HttpContext.Current.Server.MapPath("~/");
         string FullPath = Root + FileName;
         NFLData = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
-        int totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
-        
+        totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
+        NFLPlays = new List<PlaysVM>(); 
     }
     public string gameID { get; set; }
     public bool endOfGame { get; set; }
     public bool isUpdate { get; set; }
-    public JObject play { get; set; }
+
     static public int count { get; set; }
     public JObject NFLData { get; set; }
     public int totalDrives { get; set; }
     static public string drivesNum { get; set; }
+    public List<PlaysVM> NFLPlays {get;set;}
 
-    public bool QuickDe(string FileName) {
-        //reset
-        play = null;
-        isUpdate = false;
+    //makeshift bs for bs sp class
+    public PlaysVM CurrPlay(int i) {
+        if (i < (NFLPlays.Count() - 1))
+            return NFLPlays[i];
+        else 
+            return NFLPlays[NFLPlays.Count() - 1];
+        
 
-        string playNum = Convert.ToString(count);
-        while (Convert.ToInt16(drivesNum) < totalDrives) {
-
-            if (play == null) {
-                count += 1;
-                playNum = Convert.ToString(count);
-            }
-            else  
-                return (isUpdate = true);
-           
-            play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][playNum];
-            //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
-            if (play != null) {
-                var endpl = NFLData[gameID]["drives"][drivesNum]["end"]["yrdln"].ToString();
-                var currplayend = play["yrdln"].ToString();
-                if (endpl == currplayend) {
-                    var a = Convert.ToInt32(drivesNum);
-                    drivesNum = Convert.ToString(a+1);
-
-                }
-            }
-        }
-        return (endOfGame = true);
     }
 
-    public void DeserializeData(string FileName)
+    public List<PlaysVM> QuickParseAfterLive() {
+        //reset
+
+        isUpdate = false;
+        drivesNum = "1";//reset for next game
+        JsonSerializer serializer = new JsonSerializer();
+
+        int playsCount = 0;
+
+        //string playNum = Convert.ToString(count);
+        while (Convert.ToInt16(drivesNum) < totalDrives){
+
+            int numplaysinDrive = (int)NFLData[gameID]["drives"][drivesNum]["numplays"];
+
+            if (playsCount >= numplaysinDrive) {
+                var a = Convert.ToInt16(drivesNum);
+                ++a;
+                drivesNum = a.ToString();
+            }
+            
+            JObject playsInCurrentDrive = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"];
+            string posteam = (string)NFLData[gameID]["drives"][drivesNum]["posteam"];
+                    //taking the key of each individual play and storing into a list
+                    IList<string> playsKeys = playsInCurrentDrive.Properties().Select(p => p.Name).ToList();
+
+                    //going through each key of the ind. play and taking out the play, players and storing into objects
+                    foreach (string key in playsKeys) {
+                        var play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key];
+                        //numofplays
+
+                        //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
+                        PlaysVM convPlay = (PlaysVM)serializer.Deserialize(new JTokenReader(play), typeof(PlaysVM));
+                        JObject playersInCurrentPlay = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"];
+                        IList<string> playersKeys = playersInCurrentPlay.Properties().Select(p => p.Name).ToList();
+                        IList<PlayersVM> PlayersList = new List<PlayersVM>();
+                        //Going through each key and storing the players into players list
+                        //Don't want to store player if playerkey is 0 and making sure that 
+                        //the offense players are only being stored.  Play team poss is equal to the current drive team poss.
+                        
+                        foreach (string playerKey in playersKeys) {
+                            if (playerKey != "0") { //&& possessionteam == to currentpossesionteam
+                                JArray seqKeys = (JArray)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"][playerKey];
+
+                                foreach (var seq in seqKeys) {
+                                    if (posteam == (string)seq["clubcode"]) {
+                                        PlayersVM pa = (PlayersVM)serializer.Deserialize(new JTokenReader(seq), typeof(PlayersVM));
+                                        //statid 10 is rushing
+                                        //convert to yardage and add NFLplayer to list with new yardage totals
+
+                                        string s = RemoveSpecialCharacters(playerKey);   //converts string to int, need int for the key, need string to search JOBject
+                                        int playerIDInt = Convert.ToInt32(s);
+                                        pa.nflID = playerKey;
+                                        pa.id = playerIDInt;
+
+                                        PlayersList.Add(pa);
+                                    }
+                                }
+                            }
+                        }
+                        convPlay.Players = PlayersList;
+
+                        NFLPlays.Add(convPlay);
+
+                        playsCount++;
+                    }
+        }
+        return NFLPlays;
+    }
+
+    //adds game to db, will not work if players are already there (week)
+    public void DeserializeData(string FileName, string gameID)
     {
         //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
         //dynamic game = NFLData;
         //dynamic newGame = new JObject();
         //string FileName = "2015101200_gtd.json";
 
-        int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
-        string gameID = ID.ToString();      //Needs to be in string for JSON calls.
+        //int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
+        //string gameID = FileName;//ID.ToString();      //Needs to be in string for JSON calls.
 
         string Root = HttpContext.Current.Server.MapPath("~/");
         string FullPath = Root + FileName;
@@ -98,11 +149,11 @@ public class ReadJSONDatafromNFL {
         ExpectedPointData = LoadExpectedPointsData(excelFullPath);
 
         var score = (string)NFLData.SelectToken(gameID + ".home.score.1");
-        var homeScore1 = NFLData["2015101200"]["home"]["score"];
-        var homeScoreres = results[gameID]["home"]["score"];
+        //var homeScore1 = NFLData["2015101200"]["home"]["score"];
+        //var homeScoreres = results[gameID]["home"]["score"];
 
-        var firstDrive = results[gameID]["drives"]["1"];
-        var secDrive = results[gameID]["drives"]["2"];
+        //var firstDrive = results[gameID]["drives"]["1"];
+        //var secDrive = results[gameID]["drives"]["2"];
 
         string homeTeam = results[gameID]["home"]["abbr"];
         string awayTeam = results[gameID]["away"]["abbr"];
@@ -207,37 +258,40 @@ public class ReadJSONDatafromNFL {
                         var statsPullJSON = statsJObj[child.Key][playerID];
 
                         //takes pulled stats and adds them to the FoundPlayer
-                        if (child.Key == "passing") {
-                            NFLFoundPlayer.PassingStats = (PassingGameStats)statsPullJSON.ToObject(typeof(PassingGameStats));
-                        }
-                        else if (child.Key == "rushing") {
-                            NFLFoundPlayer.RushingStats = (RushingGameStats)statsPullJSON.ToObject(typeof(RushingGameStats));
-                        }
-                        else if (child.Key == "receiving") {
-                            NFLFoundPlayer.ReceivingStats = (ReceivingGameStats)statsPullJSON.ToObject(typeof(ReceivingGameStats));
-                        }
-                        else if (child.Key == "fumbles") {
-                            NFLFoundPlayer.FumbleStats = (FumbleGameStats)statsPullJSON.ToObject(typeof(FumbleGameStats));
-                        }
-                        else if (child.Key == "kicking") {
-                            NFLFoundPlayer.KickingStats = (KickingGameStats)statsPullJSON.ToObject(typeof(KickingGameStats));
-                        }
-                        else { //throw exception
-                        }
+                        //if (child.Key == "passing") {
+                        //    NFLFoundPlayer.PassingStats = null;//(PassingGameStats)statsPullJSON.ToObject(typeof(PassingGameStats));
+                        //}
+                        //else if (child.Key == "rushing") {
+                        //    NFLFoundPlayer.RushingStats = null;// (RushingGameStats)statsPullJSON.ToObject(typeof(RushingGameStats));
+                        //}
+                        //else if (child.Key == "receiving") {
+                        //    NFLFoundPlayer.ReceivingStats = null;//  (ReceivingGameStats)statsPullJSON.ToObject(typeof(ReceivingGameStats));
+                        //}
+                        //else if (child.Key == "fumbles") {
+                        //    NFLFoundPlayer.FumbleStats = null;// (FumbleGameStats)statsPullJSON.ToObject(typeof(FumbleGameStats));
+                        //}
+                        //else if (child.Key == "kicking") {
+                        //    NFLFoundPlayer.KickingStats = null;// (KickingGameStats)statsPullJSON.ToObject(typeof(KickingGameStats));
+                        //}
+                        //else { //throw exception
+                        //}
 
                         //add in NFLPlayer to Playerlist and DB,  sep function?    
                         var dbaddorupdate = PlayerList.Find(x => x.id == NFLFoundPlayer.id);
                         if (dbaddorupdate == null)
                         {
                             PlayerList.Add(NFLFoundPlayer);
+                        }
+                        //checking to see if found in db if not add 
+                        //Fix this sometime not sure of better way
+                        var dbcheck = db.NFLPlayer.Find(NFLFoundPlayer.id);
+
+                        if (dbcheck == null) 
                             db.NFLPlayer.Add(NFLFoundPlayer);
-                            db.SaveChanges();
-                        }
-                        else
-                        {
+                        else 
                             db.Entry(NFLFoundPlayer).State = EntityState.Modified;
-                            db.SaveChanges();
-                        }
+                            
+                        db.SaveChanges();
                         //empty keys for next iteration
                     }
                     playerIDStringKeys.Clear();
@@ -347,9 +401,6 @@ public class ReadJSONDatafromNFL {
 
                 if (currentDrive != null) {
 
-                    //Not sure the best way to do this, but the Plays and Players aren't Deserializing correctly.
-                    //I could write a custom deserializer or jtokenreader? but not sure how or how long that would take.
-                    //Work around is I can parse it "manually", using the results and keys that are different for every game.
 
                     //throw into using, IDisposable?
                     JsonSerializer serializer = new JsonSerializer();
