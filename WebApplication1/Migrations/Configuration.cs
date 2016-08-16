@@ -16,9 +16,9 @@ namespace WebApplication1.Migrations {
             AutomaticMigrationsEnabled = false;
             ContextKey = "WebApplication1.DAL.FF";
             //Debug seed if necessary
-            if (System.Diagnostics.Debugger.IsAttached == false) {
-                System.Diagnostics.Debugger.Launch();
-            }
+            //if (System.Diagnostics.Debugger.IsAttached == false) {
+            //    System.Diagnostics.Debugger.Launch();
+            //}
         }
 
         protected override void Seed(WebApplication1.DAL.FF FFContext) {
@@ -84,10 +84,10 @@ namespace WebApplication1.Migrations {
             //look at assembly not sure how that works uses system.reflection
             //NFLNicknames FIle
 
-            string fileNickname = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLNicknames.csv";
+            string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLNicknames.csv";
 
             //Putting in NFLNicknames
-            using (StreamReader reader = new StreamReader(fileNickname)) {
+            using (StreamReader reader = new StreamReader(fileName)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 while (csvReader.Read()) {
@@ -100,9 +100,9 @@ namespace WebApplication1.Migrations {
             }
 
             //NFLTeams FIle
-            string resourceName2 = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLTeams.csv";
+            fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLTeams.csv";
             //Putting in FullTeamName (City + NickName)
-            using (StreamReader reader = new StreamReader(resourceName2)) {
+            using (StreamReader reader = new StreamReader(fileName)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 csvReader.Configuration.WillThrowOnMissingField = true;
@@ -116,11 +116,27 @@ namespace WebApplication1.Migrations {
                     FFContext.NFLTeam.AddOrUpdate(c => c.Nickname, team);
                 }
             }
+            //NFLABBRV
+            fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLAbbrv.csv";
+            //Putting in FullTeamName (City + NickName)
+            using (StreamReader reader = new StreamReader(fileName)) {
+
+                CsvReader csvReader = new CsvReader(reader);
+                csvReader.Configuration.WillThrowOnMissingField = true;
+                while (csvReader.Read()) {
+                    var nickName = csvReader.GetField<string>("Nickname");
+                    var abbr = csvReader.GetField<string>("Abbr");
+                    //parse nickname from field, count spaces if more than 1 take word after 2nd space, 1 take next word
+                    var team = FFContext.NFLTeam.Local.Single(c => c.Nickname == nickName);
+                    team.Abbr = abbr;
+                    FFContext.NFLTeam.AddOrUpdate(c => c.Nickname, team);
+                }
+            }
 
             //Putting in NFL Schedule 2016
-            string resourceSchedule = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
+            fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
 
-            using (StreamReader reader = new StreamReader(resourceSchedule)) {
+            using (StreamReader reader = new StreamReader(fileName)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 while (csvReader.Read()) {
@@ -143,18 +159,16 @@ namespace WebApplication1.Migrations {
                     string nickName = null;
                     ParseCityNickname(visTeam, out nickName);
                     if (nickName != null)
-                        game.VisTeamID = FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.TeamID).Single();
+                        game.VisTeamID = FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
 
                     //Find Home team in NFLTeamlist from DB
                     ParseCityNickname(homeTeam, out nickName);
                     if (nickName != null)
-                        game.HomeTeamID = FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.TeamID).Single();
+                        game.HomeTeamID = FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
 
                     FFContext.NFLGame.Add(game);
                 }
             }
-
-
         }
 
         //parses city from full NFLTeam name, will only parse if there is one or two spaces in fullName

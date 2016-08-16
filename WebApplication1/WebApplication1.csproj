@@ -367,6 +367,7 @@
     <Content Include="SeedCSV\2016NFLSchedule.csv" />
     <Content Include="SeedCSV\NFLNicknames.csv" />
     <Content Include="SeedCSV\NFLTeams.csv" />
+    <Content Include="SeedCSV\NFLAbbrv.csv" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

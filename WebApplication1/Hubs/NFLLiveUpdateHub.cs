@@ -40,16 +40,16 @@ namespace WebApplication1.Hubs
          * 
          *********************************/
 
-        public string GetMarketState() {
+        public string GetLiveState() {
             return _statsUpdate.StatsState.ToString();
         }
 
-        public void OpenMarket() {
-            _statsUpdate.OpenMarket();
+        public void LiveStart() {
+            _statsUpdate.LiveStart();
         }
 
-        public void CloseMarket() {
-            _statsUpdate.CloseMarket();
+        public void LiveStop() {
+            _statsUpdate.LiveStop();
         }
 
         public override System.Threading.Tasks.Task OnDisconnected(bool stopCalled) {

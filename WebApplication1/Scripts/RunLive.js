@@ -22,7 +22,7 @@
         $awayPlayerTableBody = $awayPlayerTable.find('tbody'),
         rowTemplate = '<tr id="{Id}"><td>{Name}</td><td>{Team}</td><td>{TotalPts}</td><td>{PYds}</td><td>{PTds}</td><td>{PInts}</td><td>{RuYds}</td><td>{RuTds}</td><td>{ReYds}</td><td>{ReTds}</td></tr>';
 
-    function formatPlayer(NFLPlayer) {
+    function formatPlayer(NFLPlayer, StatsYearWeek) {
         return $.extend(this, {
             Id: NFLPlayer.id,
             Name: NFLPlayer.name,

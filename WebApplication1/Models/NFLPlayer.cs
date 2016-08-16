@@ -13,58 +13,25 @@ using WebApplication1.Models;
 /// Summary description for NFLPlayer
 /// </summary>
 public class NFLPlayer {
-    /*
-     * Slight design flaw, should fix after stupid project bs
-     * Should have a playerstats class with stats in with playerid and year,week,currpts,etc.
-     * 
-     * Player has id and info
-     * Stats is seperate id
-     * PlayerYearWeekDB - PYWID -> NFLPlayerID Year Week Stats
-     * 
-     * Added new class StatsYearWeek, will phase out NFLPlayer stats into StatsYearWeek
-     * Will need to make new branch to do this, 
-    */
-    
     public NFLPlayer()
     {
-        isAvailable = true;
-        PassingStats = new PassingGameStats();
-        RushingStats = new RushingGameStats();
-        ReceivingStats = new ReceivingGameStats();
-        FumbleStats = new FumbleGameStats();
-        KickingStats = new KickingGameStats();
+        isAvailable = true; 
     }
 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int id { get; set; }
 
-    //should keep string or just save has both formats nfl string and my string to int 
+    //actual format on nfl.com, keeping just in case needed at some point
     public string id_nflformat { set; get; }
 
     public string name { get; set; }
-
     public string team { get; set; }
-
     public string pos { get; set; }
     public decimal currentPts { get; set; }
-    public int? week { get; set; }
-
-    public int? year { get; set; }
 
     //For Availability in TeamController
     public bool isAvailable { get; set; }
     public bool isChecked { get; set; }
-
-    //SET TO 0 FOR STUPID PROJECT
-    public PassingGameStats PassingStats { get; set; }
-
-    public RushingGameStats RushingStats { get; set; }
-
-    public ReceivingGameStats ReceivingStats { get; set; }
-
-    public FumbleGameStats FumbleStats { get; set; }
-
-    public KickingGameStats KickingStats { get; set; }
 }
 
 public class NFLTeam
@@ -74,10 +41,11 @@ public class NFLTeam
     //A team has players, A player can only be on one team
     //A team has games, plays other teams on a weekly basis
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int TeamID { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public string Abbr { get; set; }
     public string City { get; set; }
     public string Nickname { get; set; }
+
     public virtual ICollection<NFLPlayer> TeamPlayers { get; set; }
     public virtual ICollection<NFLGame> NFLSchedule { get; set; }
     
@@ -93,10 +61,12 @@ public class NFLGame {
     public string Day { get; set; }
     public string Week { get; set; }
     public int Year { get; set; }
-    public int HomeTeamID { get; set; }
-    public int VisTeamID { get; set; }
-    public decimal HScore { get; set; }
-    public decimal VScore { get; set; }
+    //A game has one NFL Hteam
+    public string HomeTeamID { get; set; }
+    //A game has one NFL Vteam
+    public string VisTeamID { get; set; }
+    public int? HScore { get; set; }
+    public int? VScore { get; set; }
 }
 
 public class StatsYearWeek {
@@ -107,11 +77,26 @@ public class StatsYearWeek {
         ReceivingStats = new ReceivingGameStats();
         FumbleStats = new FumbleGameStats();
         KickingStats = new KickingGameStats();
+        //placeholders for live
+        name = null;
+        team = null;
+        pos = null;
     }
-
+    //For when live kicks in, this will make it WAY easier, don't need it in db though
+    //Fill in model RUNLive and check if the other way works foreach on model, if not run the notmapped placeholders 
+    [NotMapped]
+    public string name { get; set; }
+    [NotMapped]
+    public string team { get; set; }
+    [NotMapped]
+    public string pos { get; set; }
+    //Composite Primary Key with PlayerID, Year, Week, would be [Key, Column(Order = X)]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int id { get; set; }
     public int PlayerID { get; set; }
+    //A Stat belongs to/has one NFLPlayer
+    [ForeignKey("PlayerID")]
+    public virtual NFLPlayer StatsNFLPlayer { get; set; }
     public int Year { get; set; }
     public int Week { get; set; }
     public decimal currentPts { get; set; }

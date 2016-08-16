@@ -110,18 +110,6 @@ namespace WebApplication1.Models {
         public virtual FFLeague League { get; set; }
     }
 
-    //public class FFPlayer {
-
-    //    //This is the FF(NFL)PlayerID with the link to the FFTeam, don't want to make the actual NFLPlayer class the FFPlayer class, make them seperate
-    //    public virtual ICollection<FFPlayer> Players { get; set; }
-
-    //    //A player active check
-    //    public bool isActive { get; set; }
-    //}
-
-    /*  Example keep FFPlayer just need one list of players
-     *  Have a seperate list of players_team that link a playerid to a teamid, since all teamid are unique no need for leagueid!
-     */
     public class TeamNFLPlayer {
 
         [Key]

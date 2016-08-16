@@ -11,21 +11,19 @@ using WebApplication1.Models;
 using WebApplication1.DAL;
 using System.Reflection;//delete me if after project presentation
 
-namespace WebApplication1.Hubs
-{
+namespace WebApplication1.Hubs {
     public enum StatsState {
         Closed,
         Open
     }
 
-    public class NFLStatsUpdate
-    {
+    public class NFLStatsUpdate {
         // Singleton instance
         private readonly static Lazy<NFLStatsUpdate> _instance = new Lazy<NFLStatsUpdate>(
             () => new NFLStatsUpdate(GlobalHost.ConnectionManager.GetHubContext<NFLLiveUpdateHub>().Clients));
 
         private readonly ConcurrentDictionary<int, StatsYearWeek> _playersStats = new ConcurrentDictionary<int, StatsYearWeek>();   //main pool of players, this gets updated first and feeds home/awayPlayers
-        private readonly ConcurrentDictionary<int, StatsYearWeek> _homePlayers = new ConcurrentDictionary<int, StatsYearWeek>();    
+        private readonly ConcurrentDictionary<int, StatsYearWeek> _homePlayers = new ConcurrentDictionary<int, StatsYearWeek>();
         private readonly ConcurrentDictionary<int, StatsYearWeek> _awayPlayers = new ConcurrentDictionary<int, StatsYearWeek>();
 
         private readonly object _updatePlayersStatsLock = new object();
@@ -62,9 +60,17 @@ namespace WebApplication1.Hubs
             Clients = clients;
 
             _playersStats.Clear();
-
-            //better way to do this (pulling current pool of players for the week), not sure how atm, pull by nflgame?
+            //try an isLive bool, pull currentweek schedule
             using (var db = new FF()) {
+                var currentWeekSchedule = db.NFLGame.Where(g => Convert.ToInt16(g.Week) == currentWeekServ && g.Year == currentYear);
+                
+                //Compare	DateTime t1,DateTime t2, Less than zero t1 is earlier than t2.Zero t1 is the same as t2.Greater than zero t1 is later than t2.
+                foreach (var game in currentWeekSchedule) {
+                    var UTCNFLgametime = TimeZoneInfo.ConvertTimeToUtc(game.DateEST);
+                    if ((DateTime.Compare(DateTime.UtcNow, UTCNFLgametime)) < 0) { }   //game earlier than local time
+                    else { }    //game later
+                }
+
                 livePlayerList = db.NFLPlayer.ToList();
             }
 
@@ -85,11 +91,11 @@ namespace WebApplication1.Hubs
             }
 
             livePlayerList.Clear();     //empty list
-                
+
             //make a list of players that got updated and send to updatePlayer?
             //livePlayerList.ForEach(player => _players.TryAdd(player.id, player));
 
-            r = new ReadJSONDatafromNFL("2015101200_gtd.json","2015101200");
+            r = new ReadJSONDatafromNFL("2015101200_gtd.json", "2015101200");
             r2 = new ReadJSONDatafromNFL("2015101108_gtd.json", "2015101108");
             /*****
              * NOTE- For stupid demo I have to null/comment out stats in ReadJSON
@@ -100,54 +106,16 @@ namespace WebApplication1.Hubs
             //_timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
         }
 
-        public void SetSYWToZero(StatsYearWeek Stats) {
-
-            //set all class members to 0, default null
-            Type m1 = Stats.PassingStats.GetType();
-            Type m2 = Stats.RushingStats.GetType();
-            Type m3 = Stats.ReceivingStats.GetType();
-            Type m4 = Stats.KickingStats.GetType();
-            Type m5 = Stats.FumbleStats.GetType();
-            PropertyInfo[] myProps1 = m1.GetProperties();
-            PropertyInfo[] myProps2 = m2.GetProperties();
-            PropertyInfo[] myProps3 = m3.GetProperties();
-            PropertyInfo[] myProps4 = m4.GetProperties();
-            PropertyInfo[] myProps5 = m5.GetProperties();
-            foreach (PropertyInfo p in myProps1)
-            {
-                p.SetValue(Stats.PassingStats, 0);
-            }
-            foreach (PropertyInfo p in myProps2)
-            {
-                p.SetValue(Stats.RushingStats, 0);
-            }
-            foreach (PropertyInfo p in myProps3)
-            {
-                p.SetValue(Stats.ReceivingStats, 0);
-            }
-            foreach (PropertyInfo p in myProps4)
-            {
-                p.SetValue(Stats.KickingStats, 0);
-            }
-            foreach (PropertyInfo p in myProps5)
-            {
-                p.SetValue(Stats.FumbleStats, 0);
-            }
-        }
-  
-        public static NFLStatsUpdate Instance
-        {
-            get
-            {
+        public static NFLStatsUpdate Instance {
+            get {
                 return _instance.Value;
             }
         }
 
         private IHubConnectionContext<dynamic> Clients { get; set; }
-        
 
-        public IEnumerable<StatsYearWeek> GetAllLivePlayers(int gid)
-        {
+
+        public IEnumerable<StatsYearWeek> GetAllLivePlayers(int gid) {
             return _playersStats.Values;
         }
 
@@ -189,15 +157,13 @@ namespace WebApplication1.Hubs
                     liveUpdateList.Add(copy.id);
                 }
                 else { }
-                    //punter, defensive player, will have to figure out that later, but still need to display play
+                //punter, defensive player, will have to figure out that later, but still need to display play
             }
             return playStatus;
         }
 
-        private void UpdatePlayerStats(object state)
-        {
-            lock (_updatePlayersStatsLock)
-            {
+        private void UpdatePlayerStats(object state) {
+            lock (_updatePlayersStatsLock) {
                 var f = r.CurrPlay(playCount);  //go to next play
                 var f2 = r2.CurrPlay(pc2);  //go to next play
                 if (!gameOver) {
@@ -206,15 +172,13 @@ namespace WebApplication1.Hubs
                 }
 
 
-                if (_updatingPlayerStats)
-                {
+                if (_updatingPlayerStats) {
                     BrodcastPlay(f.Desc);
                     BrodcastPlay2(f2.Desc);
                     //go through list of sent players and update accordingly
                     //_updatingPlayerStats = true;
 
-                    if (liveUpdateList.Count != 0)
-                    {
+                    if (liveUpdateList.Count != 0) {
                         foreach (var playerid in liveUpdateList) //find id in _playersStats
                         {
                             StatsYearWeek updatedP;
@@ -222,9 +186,9 @@ namespace WebApplication1.Hubs
                             if (_playersStats.TryGetValue(playerid, out updatedP)) {
 
                                 if (TryUpdateHomePlayerPoint(updatedP))
-                                   BroadcastPlayers(updatedP);                            
+                                    BroadcastPlayers(updatedP);
                                 else if (TryUpdateAwayPlayerPoint(updatedP))    //should be else?
-                                   BroadcastPlayers(updatedP);                               
+                                    BroadcastPlayers(updatedP);
                             }
                             else
                                 throw new Exception("Something went wrong in updateplayerstats _playersStats.TryGetValue!");
@@ -243,7 +207,7 @@ namespace WebApplication1.Hubs
                     gameOver = true;
                     tempsavetodb();
                     if (currentWeekServ < 14)
-                    EndWeek();
+                        EndWeek();
                 }
             }
         }
@@ -254,17 +218,17 @@ namespace WebApplication1.Hubs
                 var game = db.FFGameDB.Find(gameID);
                 db.Entry(game).State = System.Data.Entity.EntityState.Unchanged;
                 decimal total = new decimal();
-                foreach (var h in _homePlayers) 
+                foreach (var h in _homePlayers)
                     total += h.Value.currentPts;
-                    
+
                 game.HScore = total;
                 total = 0;
-                foreach (var a in _awayPlayers) 
+                foreach (var a in _awayPlayers)
                     total += a.Value.currentPts;
-                    
+
                 game.VScore = total;
 
-                foreach (var n in _playersStats)                
+                foreach (var n in _playersStats)
                     db.NFLPlayerStats.Add(n.Value);
 
                 db.SaveChanges();
@@ -298,7 +262,7 @@ namespace WebApplication1.Hubs
                     if (g.VisTeam != null) {
                         awayID = (int)g.VisTeamID;
                         VisTeam = db.FFTeamDB.Find(g.VisTeamID);
-                            if (g.VScore == null) {
+                        if (g.VScore == null) {
                             g.VScore = 0;
                         }
                     }
@@ -352,8 +316,7 @@ namespace WebApplication1.Hubs
             }
         }
 
-        private bool TryUpdateHomePlayerPoint(StatsYearWeek statPlayer)
-        {
+        private bool TryUpdateHomePlayerPoint(StatsYearWeek statPlayer) {
             bool found = false;
             StatsYearWeek homePlayer;
 
@@ -362,12 +325,11 @@ namespace WebApplication1.Hubs
                 found = true;
             }
 
-             return found;
-          
+            return found;
+
         }
 
-        private bool TryUpdateAwayPlayerPoint(StatsYearWeek statPlayer)
-        {
+        private bool TryUpdateAwayPlayerPoint(StatsYearWeek statPlayer) {
             bool found = false;
             StatsYearWeek awayPlayer;
 
@@ -380,24 +342,22 @@ namespace WebApplication1.Hubs
 
         }
 
-        private void BroadcastPlayers(StatsYearWeek player)
-        {
+        private void BroadcastPlayers(StatsYearWeek player) {
             Clients.All.updatePlayers(player);
         }
 
-        private void BrodcastPlay(string play)
-        {
+        private void BrodcastPlay(string play) {
             Clients.All.updatePlay(play);
         }
         private void BrodcastPlay2(string play) {
             Clients.All.updatePlay2(play);
         }
         /* Warning - Database functions ahead.  Proceed with caution.  The DB is a real bitch.
-         ------------------------------------------------------------------------------*/ 
+         ------------------------------------------------------------------------------*/
 
         //could do this is GetAllPlayersonTeam but want to split up due to home/away (2teams) easier to debug
         public int GetHomeTeamIDFromGameID(int GameID) {
-            
+
             FFGame currentGame;
             using (var FFContext = new FF()) {
 
@@ -408,7 +368,7 @@ namespace WebApplication1.Hubs
 
         //could do this is GetAllPlayersonTeam but want to split up due to home/away (2teams) easier to debug
         public int GetAwayTeamIDFromGameID(int GameID) {
-            
+
             FFGame currentGame;
             using (var FFContext = new FF()) {
 
@@ -457,7 +417,7 @@ namespace WebApplication1.Hubs
          * State functions
          */
 
-        public void OpenMarket() {
+        public void LiveStart() {
             lock (_statsStateLock) {
                 if (StatsState != StatsState.Open) {
                     //_timer = new Timer(UpdateStockPrices, null, _updateInterval, _updateInterval);
@@ -468,7 +428,7 @@ namespace WebApplication1.Hubs
         }
 
 
-        public void CloseMarket() {
+        public void LiveStop() {
             lock (_statsStateLock) {
                 if (StatsState == StatsState.Open) {
                     //if (_timer != null) {
@@ -492,15 +452,13 @@ namespace WebApplication1.Hubs
             return SYWID;
         }
 
-        public StatsYearWeek UpdateStat(PlayersVM fromPlay, StatsYearWeek fromSYWList, string note)
-        {
+        public StatsYearWeek UpdateStat(PlayersVM fromPlay, StatsYearWeek fromSYWList, string note) {
             //Take fromPlayer statID and find stat
             //Add in fumbles later, confusing, 
             //whenever a pass, 4 with no playerId comes up, 7 with no playerID -> these will get screened out because no playerID   figure out later
             //Penalties could fuck up yardage
 
-            switch (fromPlay.StatId)
-            {
+            switch (fromPlay.StatId) {
                 case 10:
                     //rush yds
                     fromSYWList.RushingStats.RushAtt += 1;
@@ -538,8 +496,7 @@ namespace WebApplication1.Hubs
                     fromSYWList.PassingStats.PassYds += fromPlay.Yards;
                     fromSYWList.currentPts += Convert.ToDecimal((fromPlay.Yards / 10.00));
 
-                    if (note == "TD")
-                    {
+                    if (note == "TD") {
                         fromSYWList.PassingStats.PassTds += 1;
                         fromSYWList.currentPts += 6;
                     }
@@ -548,8 +505,7 @@ namespace WebApplication1.Hubs
                     break;
                 case 19:
                     //PassINT
-                    if (note == "INT")
-                    {
+                    if (note == "INT") {
                         fromSYWList.PassingStats.PassInts += 1;
                         fromSYWList.currentPts += -2;
                     }
@@ -582,8 +538,7 @@ namespace WebApplication1.Hubs
                     break;
                 case 69:
                     //FGMiss
-                    if (note == "FGM")
-                    {
+                    if (note == "FGM") {
                         fromSYWList.KickingStats.Fga += 1;
                         fromSYWList.KickingStats.Fgyds += fromPlay.Yards;
                     }
@@ -592,8 +547,7 @@ namespace WebApplication1.Hubs
                     break;
                 case 70:
                     //FG
-                    if (note == "FG")
-                    {
+                    if (note == "FG") {
                         fromSYWList.KickingStats.Fga += 1;
                         fromSYWList.KickingStats.Fgm += 1;
                         fromSYWList.KickingStats.Fgyds += fromPlay.Yards;
@@ -610,8 +564,7 @@ namespace WebApplication1.Hubs
                     break;
                 case 72:
                     //XP
-                    if (note == "XP")
-                    {
+                    if (note == "XP") {
                         fromSYWList.KickingStats.Xpa += 1;
                         fromSYWList.KickingStats.Xpmade += 1;
                         fromSYWList.KickingStats.Xptot += 1;
@@ -642,7 +595,37 @@ namespace WebApplication1.Hubs
                     break;
             }
 
-            return fromSYWList; 
+            return fromSYWList;
+        }
+
+        //set all class members to 0, default null
+        public void SetSYWToZero(StatsYearWeek Stats) {
+
+            Type m1 = Stats.PassingStats.GetType();
+            Type m2 = Stats.RushingStats.GetType();
+            Type m3 = Stats.ReceivingStats.GetType();
+            Type m4 = Stats.KickingStats.GetType();
+            Type m5 = Stats.FumbleStats.GetType();
+            PropertyInfo[] myProps1 = m1.GetProperties();
+            PropertyInfo[] myProps2 = m2.GetProperties();
+            PropertyInfo[] myProps3 = m3.GetProperties();
+            PropertyInfo[] myProps4 = m4.GetProperties();
+            PropertyInfo[] myProps5 = m5.GetProperties();
+            foreach (PropertyInfo p in myProps1) {
+                p.SetValue(Stats.PassingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps2) {
+                p.SetValue(Stats.RushingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps3) {
+                p.SetValue(Stats.ReceivingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps4) {
+                p.SetValue(Stats.KickingStats, 0);
+            }
+            foreach (PropertyInfo p in myProps5) {
+                p.SetValue(Stats.FumbleStats, 0);
+            }
         }
     }
 }
