@@ -16,28 +16,29 @@ namespace WebApplication1.Migrations {
             AutomaticMigrationsEnabled = false;
             ContextKey = "WebApplication1.DAL.FF";
             //Debug seed if necessary
-            //if (System.Diagnostics.Debugger.IsAttached == false) {
-            //    System.Diagnostics.Debugger.Launch();
-            //}
+            if (System.Diagnostics.Debugger.IsAttached == false) {
+                System.Diagnostics.Debugger.Launch();
+                //System.Diagnostics.Debugger.Break();  //Force Break at this point
+            }   
         }
 
         protected override void Seed(WebApplication1.DAL.FF FFContext) {
             int currentYear = 2016;
-            //  This method will be called after migrating to the latest version.
+              /*This method will be called after migrating to the latest version.
 
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+              You can use the DbSet<T>.AddOrUpdate() helper extension method 
+              to avoid creating duplicate seed data. E.g.
+            
+                context.People.AddOrUpdate(
+                  p => p.FullName,
+                  new Person { FullName = "Andrew Peters" },
+                  new Person { FullName = "Brice Lambson" },
+                  new Person { FullName = "Rowan Miller" }
+                );
+            
 
-            //League Testing
-            //Due to autoinc on id, this adds a new league with a different id then 
+            League Testing
+            Due to autoinc on id, this adds a new league with a different id then */
             FFLeague ffl1 = new FFLeague();
             ffl1.FFLeagueID = 2;
             ffl1.FFLeagueName = "Lardo";
@@ -81,8 +82,8 @@ namespace WebApplication1.Migrations {
 
                 );
 
-            //look at assembly not sure how that works uses system.reflection
             //NFLNicknames FIle
+            /* Take NFL Nicknames from CSV file and addorupdate NFLTeam DB update-*/
 
             string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLNicknames.csv";
 
@@ -101,7 +102,8 @@ namespace WebApplication1.Migrations {
 
             //NFLTeams FIle
             fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLTeams.csv";
-            //Putting in FullTeamName (City + NickName)
+            //Pulling Nickname from NFLTeam DB and adding city, Putting in FullTeamName (City + NickName)
+
             using (StreamReader reader = new StreamReader(fileName)) {
 
                 CsvReader csvReader = new CsvReader(reader);
@@ -116,9 +118,10 @@ namespace WebApplication1.Migrations {
                     FFContext.NFLTeam.AddOrUpdate(c => c.Nickname, team);
                 }
             }
+
             //NFLABBRV
             fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLAbbrv.csv";
-            //Putting in FullTeamName (City + NickName)
+            //Pulling Nickname from NFLTeam DB and adding abbr
             using (StreamReader reader = new StreamReader(fileName)) {
 
                 CsvReader csvReader = new CsvReader(reader);
@@ -131,25 +134,47 @@ namespace WebApplication1.Migrations {
                     team.Abbr = abbr;
                     FFContext.NFLTeam.AddOrUpdate(c => c.Nickname, team);
                 }
+                FFContext.SaveChanges();
             }
 
             //Putting in NFL Schedule 2016
             fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
+            //Read NFLSchedule Game one by one and parse into fields, changing week string into int and finding NFLTeams, etc.
 
             using (StreamReader reader = new StreamReader(fileName)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 while (csvReader.Read()) {
                     csvReader.Configuration.WillThrowOnMissingField = false;
+                    string strWeek = csvReader.GetField<string>("Week");
 
-                    //parse line by line
-                    var game = csvReader.GetRecord<NFLGame>();
+                    NFLGame game = new NFLGame();
+                    //Check week in pull and change isNOTreg to True and change PREX to X
+                    /*Will pull week column as string regardless of format, 
+                     * if strWeek has Pre it is a preseason game and needs int changed to higher number
+                     * then take pulled csv string and parse into int
+                    */
+                    if (strWeek != null) {
+                        if (strWeek.Contains("Pre")) {
+                            var arrWeek = strWeek.Where(Char.IsDigit).ToArray();   //remove letters and such, keep int
+                            strWeek = new string(arrWeek);
+                            game.NOTRegular = true;
+                        }
+
+                        int parsedString;
+                        if (Int32.TryParse(strWeek, out parsedString))
+                            game.Week = parsedString;
+                        else
+                            game.Week = null;
+                    }
 
                     //Week,Day,CalendarDate,VisTeam,,HomeTeam,TimeEST
                     var calDate = csvReader.GetField<string>("CalendarDate");
                     var visTeam = csvReader.GetField<string>("VisTeam");
                     var homeTeam = csvReader.GetField<string>("HomeTeam");
                     var time = csvReader.GetField<string>("TimeEST");
+                    var day = csvReader.GetField<string>("Day");
+                    game.Day = day;
                     game.Year = currentYear;
 
                     //Do date/time
@@ -167,10 +192,12 @@ namespace WebApplication1.Migrations {
                         game.HomeTeamID = FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
 
                     FFContext.NFLGame.Add(game);
+                    FFContext.SaveChanges();
                 }
             }
         }
 
+        /*CUSTOM NFL PARSE FUNCTIONS, Parse(NFL)CityNickName, ParseDateTime(calendarDate,year,team)*/
         //parses city from full NFLTeam name, will only parse if there is one or two spaces in fullName
         //e.g. Arizona Cardinals->Arizona, New England Patriots->New England, San Tuskaloo Red Storm -> null
         string ParseCityNickname(string fullTeamName, out string nickName) {

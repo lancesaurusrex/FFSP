@@ -20,10 +20,11 @@ using System.Data.Entity;
 
 public class ReadJSONDatafromNFL {
     public ReadJSONDatafromNFL() { }
+
     public ReadJSONDatafromNFL(string FileName, string gameIDS) {
         endOfGame = false;
         isUpdate = false;
-        
+
         count = 37;
         drivesNum = "1";
 
@@ -34,8 +35,23 @@ public class ReadJSONDatafromNFL {
         string FullPath = Root + FileName;
         NFLData = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
         totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
-        NFLPlays = new List<PlaysVM>(); 
+        NFLPlays = new List<PlaysVM>();
     }
+
+    public ReadJSONDatafromNFL(Uri nflLink, string gameID) {
+        endOfGame = false;
+        isUpdate = false;
+
+        count = 37;
+        drivesNum = "1";
+
+        string nflLinkString = nflLink.ToString();
+        string NFLDataStr = get_web_content(nflLinkString);
+        NFLData = JsonConvert.DeserializeObject<dynamic>(NFLDataStr);
+        totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];
+        NFLPlays = new List<PlaysVM>();
+    }
+
     public string gameID { get; set; }
     public bool endOfGame { get; set; }
     public bool isUpdate { get; set; }
@@ -44,21 +60,19 @@ public class ReadJSONDatafromNFL {
     public JObject NFLData { get; set; }
     public int totalDrives { get; set; }
     static public string drivesNum { get; set; }
-    public List<PlaysVM> NFLPlays {get;set;}
+    public List<PlaysVM> NFLPlays { get; set; }
 
     //makeshift bs for bs sp class
     public PlaysVM CurrPlay(int i) {
         if (i < (NFLPlays.Count() - 1))
             return NFLPlays[i];
-        else 
+        else
             return NFLPlays[NFLPlays.Count() - 1];
-        
-
     }
 
+    //Figure out how I made this work and comment what's going on, I forgot
     public List<PlaysVM> QuickParseAfterLive() {
         //reset
-
         isUpdate = false;
         drivesNum = "1";//reset for next game
         JsonSerializer serializer = new JsonSerializer();
@@ -66,7 +80,7 @@ public class ReadJSONDatafromNFL {
         int playsCount = 0;
 
         //string playNum = Convert.ToString(count);
-        while (Convert.ToInt16(drivesNum) < totalDrives){
+        while (Convert.ToInt16(drivesNum) < totalDrives) {
 
             int numplaysinDrive = (int)NFLData[gameID]["drives"][drivesNum]["numplays"];
 
@@ -75,59 +89,57 @@ public class ReadJSONDatafromNFL {
                 ++a;
                 drivesNum = a.ToString();
             }
-            
+
             JObject playsInCurrentDrive = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"];
             string posteam = (string)NFLData[gameID]["drives"][drivesNum]["posteam"];
-                    //taking the key of each individual play and storing into a list
-                    IList<string> playsKeys = playsInCurrentDrive.Properties().Select(p => p.Name).ToList();
+            //taking the key of each individual play and storing into a list
+            IList<string> playsKeys = playsInCurrentDrive.Properties().Select(p => p.Name).ToList();
 
-                    //going through each key of the ind. play and taking out the play, players and storing into objects
-                    foreach (string key in playsKeys) {
-                        var play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key];
-                        //numofplays
+            //going through each key of the ind. play and taking out the play, players and storing into objects
+            foreach (string key in playsKeys) {
+                var play = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key];
+                //numofplays
 
-                        //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
-                        PlaysVM convPlay = (PlaysVM)serializer.Deserialize(new JTokenReader(play), typeof(PlaysVM));
-                        JObject playersInCurrentPlay = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"];
-                        IList<string> playersKeys = playersInCurrentPlay.Properties().Select(p => p.Name).ToList();
-                        IList<PlayersVM> PlayersList = new List<PlayersVM>();
-                        //Going through each key and storing the players into players list
-                        //Don't want to store player if playerkey is 0 and making sure that 
-                        //the offense players are only being stored.  Play team poss is equal to the current drive team poss.
-                        
-                        foreach (string playerKey in playersKeys) {
-                            if (playerKey != "0") { //&& possessionteam == to currentpossesionteam
-                                JArray seqKeys = (JArray)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"][playerKey];
+                //string endplay = (string)NFLData[gameID]["drives"][drivesNum]["end"];
+                PlaysVM convPlay = (PlaysVM)serializer.Deserialize(new JTokenReader(play), typeof(PlaysVM));
+                JObject playersInCurrentPlay = (JObject)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"];
+                IList<string> playersKeys = playersInCurrentPlay.Properties().Select(p => p.Name).ToList();
+                IList<PlayersVM> PlayersList = new List<PlayersVM>();
+                //Going through each key and storing the players into players list
+                //Don't want to store player if playerkey is 0 and making sure that 
+                //the offense players are only being stored.  Play team poss is equal to the current drive team poss.
 
-                                foreach (var seq in seqKeys) {
-                                    if (posteam == (string)seq["clubcode"]) {
-                                        PlayersVM pa = (PlayersVM)serializer.Deserialize(new JTokenReader(seq), typeof(PlayersVM));
-                                        //statid 10 is rushing
-                                        //convert to yardage and add NFLplayer to list with new yardage totals
+                foreach (string playerKey in playersKeys) {
+                    if (playerKey != "0") { //&& possessionteam == to currentpossesionteam
+                        JArray seqKeys = (JArray)NFLData[gameID]["drives"][drivesNum]["plays"][key]["players"][playerKey];
 
-                                        string s = RemoveSpecialCharacters(playerKey);   //converts string to int, need int for the key, need string to search JOBject
-                                        int playerIDInt = Convert.ToInt32(s);
-                                        pa.nflID = playerKey;
-                                        pa.id = playerIDInt;
+                        foreach (var seq in seqKeys) {
+                            if (posteam == (string)seq["clubcode"]) {
+                                PlayersVM pa = (PlayersVM)serializer.Deserialize(new JTokenReader(seq), typeof(PlayersVM));
+                                //statid 10 is rushing
+                                //convert to yardage and add NFLplayer to list with new yardage totals
 
-                                        PlayersList.Add(pa);
-                                    }
-                                }
+                                string s = RemoveSpecialCharacters(playerKey);   //converts string to int, need int for the key, need string to search JOBject
+                                int playerIDInt = Convert.ToInt32(s);
+                                pa.nflID = playerKey;
+                                pa.id = playerIDInt;
+
+                                PlayersList.Add(pa);
                             }
                         }
-                        convPlay.Players = PlayersList;
-
-                        NFLPlays.Add(convPlay);
-
-                        playsCount++;
                     }
+                }
+                convPlay.Players = PlayersList;
+
+                NFLPlays.Add(convPlay);
+
+                playsCount++;
+            }
         }
         return NFLPlays;
     }
 
-    //adds game to db, will not work if players are already there (week)
-    public void DeserializeData(string FileName, string gameID)
-    {
+    public void DeserializeData(string FileName, string gameID) {
         //string json = get_web_content("http://localhost:54551/2015101200_gtd.json"); //NFL.com address
         //dynamic game = NFLData;
         //dynamic newGame = new JObject();
@@ -136,10 +148,12 @@ public class ReadJSONDatafromNFL {
         //int ID = 2015101200;                //Parse from somewhere, prob web addr call or my schedule database
         //string gameID = FileName;//ID.ToString();      //Needs to be in string for JSON calls.
 
-        string Root = HttpContext.Current.Server.MapPath("~/");
-        string FullPath = Root + FileName;
-        var results = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(FullPath));
-        JObject NFLData = JObject.Parse(File.ReadAllText(FullPath));
+        string Root = HttpContext.Current.Server.MapPath("~/");     //FOR FILE SYSTEM CALL
+
+        if (FileName != null) {
+            string FullPath = Root + FileName;
+        }
+
         List<NFLEPMarkov> ExpectedPointData = new List<NFLEPMarkov>();
 
         string excelFileName = "MARKOVDATA.xlsx";
@@ -155,27 +169,24 @@ public class ReadJSONDatafromNFL {
         //var firstDrive = results[gameID]["drives"]["1"];
         //var secDrive = results[gameID]["drives"]["2"];
 
-        string homeTeam = results[gameID]["home"]["abbr"];
-        string awayTeam = results[gameID]["away"]["abbr"];
-        JObject homeStats = results[gameID]["home"]["stats"];
-        JObject awayStats = results[gameID]["away"]["stats"];
+        string homeTeam = (string)NFLData[gameID]["home"]["abbr"];
+        string awayTeam = (string)NFLData[gameID]["away"]["abbr"];
+        JObject homeStats = (JObject)NFLData[gameID]["home"]["stats"];
+        JObject awayStats = (JObject)NFLData[gameID]["away"]["stats"];
 
         DeserializePlayerStats(homeStats, homeTeam, awayStats, awayTeam);
         DeserializeTeamStats(homeStats, homeTeam, awayStats, awayTeam);
 
-        int totalDrives = results[gameID]["drives"]["crntdrv"];     //if game is over crntdrive will be the total # of drives
-        JObject drives = results[gameID]["drives"];
+        int totalDrives = (int)NFLData[gameID]["drives"]["crntdrv"];     //if game is over crntdrive will be the total # of drives
+        JObject drives = (JObject)NFLData[gameID]["drives"];
 
         DeserializeDrives(ExpectedPointData, totalDrives, drives);
     }
 
-    public static string RemoveSpecialCharacters(string str)
-    {
+    public static string RemoveSpecialCharacters(string str) {
         StringBuilder sb = new StringBuilder();
-        foreach (char c in str)
-        {
-            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_')
-            {
+        foreach (char c in str) {
+            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '.' || c == '_') {
                 sb.Append(c);
             }
         }
@@ -213,16 +224,16 @@ public class ReadJSONDatafromNFL {
                     JObject getIDs = (JObject)statsJObj[child.Key];
 
                     playerIDStringKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
-                    
+
                     foreach (string playerID in playerIDStringKeys) {
                         /*PsC - Create list of players
                           Get PlayerID of player about to be added
                          Compare to List of players
                          If Found*/
-                        NFLPlayer NFLFoundPlayer = null;                       
+                        NFLPlayer NFLFoundPlayer = null;
 
-                            string s = RemoveSpecialCharacters(playerID);   //converts string to int, need int for the key, need string to search JOBject
-                            int playerIDInt = Convert.ToInt32(s);
+                        string s = RemoveSpecialCharacters(playerID);   //converts string to int, need int for the key, need string to search JOBject
+                        int playerIDInt = Convert.ToInt32(s);
 
                         //going through the list of already made players and pulling the player if the id's match
                         //if found add stats according to child (pass,rec, rush, etc)
@@ -278,28 +289,27 @@ public class ReadJSONDatafromNFL {
 
                         //add in NFLPlayer to Playerlist and DB,  sep function?    
                         var dbaddorupdate = PlayerList.Find(x => x.id == NFLFoundPlayer.id);
-                        if (dbaddorupdate == null)
-                        {
+                        if (dbaddorupdate == null) {
                             PlayerList.Add(NFLFoundPlayer);
                         }
                         //checking to see if found in db if not add 
                         //Fix this sometime not sure of better way
                         var dbcheck = db.NFLPlayer.Find(NFLFoundPlayer.id);
 
-                        if (dbcheck == null) 
+                        if (dbcheck == null)
                             db.NFLPlayer.Add(NFLFoundPlayer);
-                        else 
+                        else
                             db.Entry(NFLFoundPlayer).State = EntityState.Modified;
-                            
+
                         db.SaveChanges();
                         //empty keys for next iteration
                     }
                     playerIDStringKeys.Clear();
                 }
-            }            
+            }
         }
     }
-    
+
 
     //Quick change don't need the whole table just the states, that's how I'll link them.
     public List<NFLEPMarkov> LoadExpectedPointsData(string path) {
@@ -452,7 +462,7 @@ public class ReadJSONDatafromNFL {
                     //---> should handle start and end drive data in seperate function!  <----
 
                     sDrive = serializer.Deserialize<Start>(new JTokenReader(currentDrive["start"]));
-                    eDrive = serializer.Deserialize<End>(new JTokenReader(currentDrive["end"]));    //?  Make this live ready, you don't know the end if it's live
+                    eDrive = serializer.Deserialize<End>(new JTokenReader(currentDrive["end"])); 
                     StartEndDrive(PlaysCurrDrive, sDrive, eDrive);
                     //clear PlayA List
                     Plays startPlay = PlaysCurrDrive.First();
@@ -488,7 +498,6 @@ public class ReadJSONDatafromNFL {
             }
         }
     }
-
 
     public string get_web_content(string url) {
         Uri uri = new Uri(url);

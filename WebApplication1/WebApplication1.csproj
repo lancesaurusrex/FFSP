@@ -182,8 +182,10 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\NFLPlayersController.cs" />
     <Compile Include="DAL\NFLdbInitializer.cs" />
+    <Compile Include="GameData\GameData.cs" />
     <Compile Include="Hubs\NFLLiveUpdateHub.cs" />
     <Compile Include="Hubs\NFLStatsUpdate.cs" />
+    <Compile Include="Hubs\NFLStatsUpdateOld.cs" />
     <Compile Include="App_Start\Startup.SignalR.cs" />
     <Compile Include="Migrations\201607222320426_InitialCreate.cs" />
     <Compile Include="Migrations\201607222320426_InitialCreate.Designer.cs">
@@ -197,6 +199,18 @@
     <Compile Include="Migrations\201608130103590_ScheduleDB.Designer.cs">
       <DependentUpon>201608130103590_ScheduleDB.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609111623392_DBUpdate.cs" />
+    <Compile Include="Migrations\201609111623392_DBUpdate.Designer.cs">
+      <DependentUpon>201609111623392_DBUpdate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201609132043308_wontdebug.cs" />
+    <Compile Include="Migrations\201609132043308_wontdebug.Designer.cs">
+      <DependentUpon>201609132043308_wontdebug.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201609141932198_changeNFLgameweekstringtoint.cs" />
+    <Compile Include="Migrations\201609141932198_changeNFLgameweekstringtoint.Designer.cs">
+      <DependentUpon>201609141932198_changeNFLgameweekstringtoint.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Drives.cs" />
     <Compile Include="Global.asax.cs">
@@ -209,6 +223,7 @@
     <Compile Include="DAL\NFLdatabase.cs" />
     <Compile Include="Models\NFLEPMarkov.cs" />
     <Compile Include="Models\NFLPlayer.cs" />
+    <Compile Include="Models\NFLWeekSetup.cs" />
     <Compile Include="Models\PlaysViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadJSONDatafromNFL.cs" />
@@ -389,6 +404,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608130103590_ScheduleDB.resx">
       <DependentUpon>201608130103590_ScheduleDB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609111623392_DBUpdate.resx">
+      <DependentUpon>201609111623392_DBUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609132043308_wontdebug.resx">
+      <DependentUpon>201609132043308_wontdebug.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609141932198_changeNFLgameweekstringtoint.resx">
+      <DependentUpon>201609141932198_changeNFLgameweekstringtoint.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

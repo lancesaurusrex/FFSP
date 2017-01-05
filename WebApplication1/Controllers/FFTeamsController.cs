@@ -10,9 +10,9 @@ using WebApplication1.DAL;
 using WebApplication1.Models;
 using Microsoft.AspNet.Identity;
 //test below
-using System.Collections.Concurrent;
-using Newtonsoft.Json;
-using System.Threading;
+//using System.Collections.Concurrent;
+//using Newtonsoft.Json;
+//using System.Threading;
 
 
 //Merge Two Collections without duplicates, elegant and speedy
@@ -580,40 +580,9 @@ namespace WebApplication1.Controllers {
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-        //Test shit
-        public ActionResult Test()
-        {
-            return View();
-        }
-        static ConcurrentQueue<PingData> pings = new ConcurrentQueue<PingData>();
-
-        public void Ping(int userID)
-        {
-            pings.Enqueue(new PingData { UserID = userID });
-        }
-        
-        public void Message()
-        {
-            Response.ContentType = "text/event-stream";
-            do
-            {
-                PingData nextPing;
-                if (pings.TryDequeue(out nextPing))
-                {
-                    Response.Write("data:" + JsonConvert.SerializeObject(nextPing, Formatting.None) + "\n\n");
-                }
-                Response.Flush();
-                Thread.Sleep(1000);
-            } while (true);
-        }
     }
 }
-public class PingData
-{
-    public PingData() {Date = DateTime.Now;}
-    public int UserID { get; set; }
-    public DateTime Date { get; set; }
-}
+
 
 
 //Schedule Algortihtntngkm
@@ -634,3 +603,9 @@ Listof4 0,++,5 rem 4,5
 LoL->6
 Listof6 0,++,7 rem 6,7
 next iter */
+//public class PingData
+//{
+//    public PingData() {Date = DateTime.Now;}
+//    public int UserID { get; set; }
+//    public DateTime Date { get; set; }
+//}

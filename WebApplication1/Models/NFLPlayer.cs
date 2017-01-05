@@ -28,9 +28,9 @@ public class NFLPlayer {
     public string team { get; set; }
     public string pos { get; set; }
     public decimal currentPts { get; set; }
-
-    //For Availability in TeamController
+    //might of got rid of this
     public bool isAvailable { get; set; }
+    //For Availability in TeamController
     public bool isChecked { get; set; }
 }
 
@@ -55,11 +55,12 @@ public class NFLGame {
     //A game has players, players can play in one game per week but can be in multiple games
     //A game has 2 teams, all game goes in a week
     //A game has stats for the 2teams
+    public NFLGame() { NOTRegular = false; }
     [Key]
     public int GameID { get; set; }
     public DateTime DateEST { get; set; }
     public string Day { get; set; }
-    public string Week { get; set; }
+    public int? Week { get; set; }  //bad parse set to null
     public int Year { get; set; }
     //A game has one NFL Hteam
     public string HomeTeamID { get; set; }
@@ -67,6 +68,7 @@ public class NFLGame {
     public string VisTeamID { get; set; }
     public int? HScore { get; set; }
     public int? VScore { get; set; }
+    public bool NOTRegular { get; set; }
 }
 
 public class StatsYearWeek {
