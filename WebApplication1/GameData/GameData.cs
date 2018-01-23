@@ -6,6 +6,7 @@ using System.Web;
 using WebApplication1.Models;
 
 //Should be able to do for both, If the games are live and if the games are not live, isNFLLive
+//Now that nfl.com has the schedule, can go through that by year ubstead of thorugh .csv
 
 namespace WebApplication1.GameData {
 
