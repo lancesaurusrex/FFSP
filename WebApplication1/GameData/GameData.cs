@@ -29,6 +29,7 @@ namespace WebApplication1.GameData {
         public void OfflineDataPull() {
             //Start by getting URL of data to pull from and gameID;
             //Example Address - http://www.nfl.com/liveupdate/game-center/2016091807/2016091807_gtd.json
+            //Can change this, see configuration.cs in project, line 140ish
 
             foreach (var id in NFLGamesID) {
                 //create uri

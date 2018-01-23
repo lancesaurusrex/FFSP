@@ -137,6 +137,13 @@ namespace WebApplication1.Migrations {
                 FFContext.SaveChanges();
             }
 
+            /* Muy Importante - 
+             * Current week: http://www.nfl.com/liveupdate/scorestrip/ss.xml
+             * http://www.nfl.com/ajax/scorestrip?season=%d&seasonType=%s&week=%d
+             * seasonType can be PRE, REG, or POST. For reg or post, weeks go 1-22 (18 is WC, 19 Div, 20 Conf Championship, 21 is blank, 22 is SB). For pre, 0-4 IIRC.
+             */
+
+
             //Putting in NFL Schedule 2016
             fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
             //Read NFLSchedule Game one by one and parse into fields, changing week string into int and finding NFLTeams, etc.
