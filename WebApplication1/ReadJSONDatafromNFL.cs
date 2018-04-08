@@ -214,86 +214,85 @@ public class ReadJSONDatafromNFL {
         List<string> playerIDStringKeys = new List<string>();
         List<NFLPlayer> PlayerList = new List<NFLPlayer>();     //List of made NFL Players
 
-        using (var db = new FF()) {
-            //goes by passing, rushing, rec, etc. goes by home/away player
-            foreach (KeyValuePair<string, string> child in StatsChildren) {
-                foreach (KeyValuePair<string, JObject> objName in JObjectHomeAway) {
+        //goes by passing, rushing, rec, etc. goes by home/away player
+        foreach (KeyValuePair<string, string> child in StatsChildren) {
+            foreach (KeyValuePair<string, JObject> objName in JObjectHomeAway) {
 
-                    JObject statsJObj = objName.Value;   //passed in from dict, is either the homeStats or awayStats jObject
-                    string objPropertyName = objName.Key;
-                    JObject getIDs = (JObject)statsJObj[child.Key];
+                JObject statsJObj = objName.Value;   //passed in from dict, is either the homeStats or awayStats jObject
+                string objPropertyName = objName.Key;
+                JObject getIDs = (JObject)statsJObj[child.Key];
 
-                    playerIDStringKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
+                playerIDStringKeys.AddRange(getIDs.Properties().Select(p => p.Name).ToList());
 
-                    foreach (string playerID in playerIDStringKeys) {
-                        /*PsC - Create list of players
-                          Get PlayerID of player about to be added
-                         Compare to List of players
-                         If Found*/
-                        NFLPlayer NFLFoundPlayer = null;
+                foreach (string playerID in playerIDStringKeys) {
+                    /*PsC - Create list of players
+                      Get PlayerID of player about to be added
+                     Compare to List of players 
+                     Add to DB if not found, copy to obj if found*/
 
-                        string s = RemoveSpecialCharacters(playerID);   //converts string to int, need int for the key, need string to search JOBject
-                        int playerIDInt = Convert.ToInt32(s);
+                    /*DB - FFontext.NFLPlayer is base for NFLPlayers create instance of nflplayer
+                     Instance of FFContext.StatsYearWeeks is linking current stat to singular nflplayer*/
+                    NFLPlayer NFLFoundPlayer = null;
 
-                        //going through the list of already made players and pulling the player if the id's match
-                        //if found add stats according to child (pass,rec, rush, etc)
-                        //if not found, create player and copy material
-                        if (PlayerList.Count() != 0) {
-                            NFLFoundPlayer = PlayerList.Find(x => x.id == playerIDInt);
+                    string s = RemoveSpecialCharacters(playerID);   //converts string to int, need int for the key, need string to search JOBject
+                    int playerIDInt = Convert.ToInt32(s);
+
+                    if (PlayerList.Count() != 0)
+                        NFLFoundPlayer = PlayerList.Find(x => x.id == playerIDInt);
+
+                    if (NFLFoundPlayer == null) {
+                        NFLFoundPlayer = new NFLPlayer();
+
+                        NFLFoundPlayer.id = playerIDInt;    //PlayerID in int format
+                        NFLFoundPlayer.id_nflformat = playerID;     //PlayerID in NFL string format
+                        //Using homeStats and awayStats as property names., jObj is home or awayStats jObject                  
+                        NFLFoundPlayer.name = statsJObj[child.Key][playerID]["name"].ToString();
+
+                        if (objPropertyName == "homeStats") {
+                            NFLFoundPlayer.team = homeTeam;
+                        }
+                        else if (objPropertyName == "awayStats") {
+                            NFLFoundPlayer.team = awayTeam;
+                        }
+                        else {
+                            NFLFoundPlayer.team = "XXX";
                         }
 
+                    }
+                    else { }
 
-                        //Player not found if null, so create and fill in player info
-                        if (NFLFoundPlayer == null) {
-                            NFLFoundPlayer = new NFLPlayer();
+                    //Finds the correct type of stats with the playerId and puts it into a JOnject
+                    var statsPullJSON = statsJObj[child.Key][playerID];
 
-                            NFLFoundPlayer.id = playerIDInt;    //PlayerID in int format
-                            NFLFoundPlayer.id_nflformat = playerID;     //PlayerID in NFL string format
-                            //Using homeStats and awayStats as property names., jObj is home or awayStats jObject                  
-                            NFLFoundPlayer.name = statsJObj[child.Key][playerID]["name"].ToString();
+                    //should function up the category stat stuff and maybe db stuff
 
-                            if (objPropertyName == "homeStats") {
-                                NFLFoundPlayer.team = homeTeam;
-                            }
-                            else if (objPropertyName == "awayStats") {
-                                NFLFoundPlayer.team = awayTeam;
-                            }
-                            else {
-                                NFLFoundPlayer.team = "XXX";
-                            }
+                    //takes pulled stats and adds them to the FoundPlayer
+                    //if (child.Key == "passing") {
+                    //    NFLFoundPlayer.PassingStats = null;//(PassingGameStats)statsPullJSON.ToObject(typeof(PassingGameStats));
+                    //}
+                    //else if (child.Key == "rushing") {
+                    //    NFLFoundPlayer.RushingStats = null;// (RushingGameStats)statsPullJSON.ToObject(typeof(RushingGameStats));
+                    //}
+                    //else if (child.Key == "receiving") {
+                    //    NFLFoundPlayer.ReceivingStats = null;//  (ReceivingGameStats)statsPullJSON.ToObject(typeof(ReceivingGameStats));
+                    //}
+                    //else if (child.Key == "fumbles") {
+                    //    NFLFoundPlayer.FumbleStats = null;// (FumbleGameStats)statsPullJSON.ToObject(typeof(FumbleGameStats));
+                    //}
+                    //else if (child.Key == "kicking") {
+                    //    NFLFoundPlayer.KickingStats = null;// (KickingGameStats)statsPullJSON.ToObject(typeof(KickingGameStats));
+                    //}
+                    //else { //throw exception
+                    //}
 
-                        }
-                        else { }
-
-                        //Finds the correct type of stats with the playerId and puts it into a JOnject
-                        var statsPullJSON = statsJObj[child.Key][playerID];
-
-                        //takes pulled stats and adds them to the FoundPlayer
-                        //if (child.Key == "passing") {
-                        //    NFLFoundPlayer.PassingStats = null;//(PassingGameStats)statsPullJSON.ToObject(typeof(PassingGameStats));
-                        //}
-                        //else if (child.Key == "rushing") {
-                        //    NFLFoundPlayer.RushingStats = null;// (RushingGameStats)statsPullJSON.ToObject(typeof(RushingGameStats));
-                        //}
-                        //else if (child.Key == "receiving") {
-                        //    NFLFoundPlayer.ReceivingStats = null;//  (ReceivingGameStats)statsPullJSON.ToObject(typeof(ReceivingGameStats));
-                        //}
-                        //else if (child.Key == "fumbles") {
-                        //    NFLFoundPlayer.FumbleStats = null;// (FumbleGameStats)statsPullJSON.ToObject(typeof(FumbleGameStats));
-                        //}
-                        //else if (child.Key == "kicking") {
-                        //    NFLFoundPlayer.KickingStats = null;// (KickingGameStats)statsPullJSON.ToObject(typeof(KickingGameStats));
-                        //}
-                        //else { //throw exception
-                        //}
-
-                        //add in NFLPlayer to Playerlist and DB,  sep function?    
-                        var dbaddorupdate = PlayerList.Find(x => x.id == NFLFoundPlayer.id);
-                        if (dbaddorupdate == null) {
-                            PlayerList.Add(NFLFoundPlayer);
-                        }
-                        //checking to see if found in db if not add 
-                        //Fix this sometime not sure of better way
+                    //add in NFLPlayer to Playerlist and DB,  sep function?    
+                    var dbaddorupdate = PlayerList.Find(x => x.id == NFLFoundPlayer.id);
+                    if (dbaddorupdate == null) {
+                        PlayerList.Add(NFLFoundPlayer);
+                    }
+                    //checking to see if found in db if not add 
+                    //Fix this sometime not sure of better way
+                    using (var db = new FF()) {
                         var dbcheck = db.NFLPlayer.Find(NFLFoundPlayer.id);
 
                         if (dbcheck == null)
@@ -304,10 +303,11 @@ public class ReadJSONDatafromNFL {
                         db.SaveChanges();
                         //empty keys for next iteration
                     }
-                    playerIDStringKeys.Clear();
                 }
+                playerIDStringKeys.Clear();
             }
         }
+
     }
 
 
@@ -411,7 +411,6 @@ public class ReadJSONDatafromNFL {
 
                 if (currentDrive != null) {
 
-
                     //throw into using, IDisposable?
                     JsonSerializer serializer = new JsonSerializer();
                     //Store currentDrive into Drives object
@@ -462,7 +461,7 @@ public class ReadJSONDatafromNFL {
                     //---> should handle start and end drive data in seperate function!  <----
 
                     sDrive = serializer.Deserialize<Start>(new JTokenReader(currentDrive["start"]));
-                    eDrive = serializer.Deserialize<End>(new JTokenReader(currentDrive["end"])); 
+                    eDrive = serializer.Deserialize<End>(new JTokenReader(currentDrive["end"]));
                     StartEndDrive(PlaysCurrDrive, sDrive, eDrive);
                     //clear PlayA List
                     Plays startPlay = PlaysCurrDrive.First();

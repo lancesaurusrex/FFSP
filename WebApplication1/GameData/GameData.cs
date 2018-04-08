@@ -26,7 +26,7 @@ namespace WebApplication1.GameData {
             NFLGamesID = WeekData.CreateNFLcomIDs();
         }
 
-        public void OfflineDataPull() {
+        public void OfflineDataPullByWeek() {
             //Start by getting URL of data to pull from and gameID;
             //Example Address - http://www.nfl.com/liveupdate/game-center/2016091807/2016091807_gtd.json
 

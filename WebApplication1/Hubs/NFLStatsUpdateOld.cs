@@ -11,7 +11,7 @@ using WebApplication1.Models;
 using WebApplication1.DAL;
 using System.Reflection;
 
-namespace WebApplication1.Hubs2 {
+//namespace WebApplication1.Hubs2 {
     public enum StatsState {
         Closed,
         Open
@@ -99,11 +99,11 @@ namespace WebApplication1.Hubs2 {
             //_timer = new Timer(UpdatePlayerStats, null, _updateInterval, _updateInterval);
         }
 
-        public static NFLStatsUpdateOld Instance {
-            //get {
-            //    //return _instance.Value;
-            //}
-        }
+        //public static NFLStatsUpdateOld Instance {
+        //    get {
+        //        return _instance.Value;
+        //    }
+        //}
 
         private IHubConnectionContext<dynamic> Clients { get; set; }
 
@@ -621,4 +621,4 @@ namespace WebApplication1.Hubs2 {
             }
         }
     }
-}
+//}

@@ -55,7 +55,7 @@ public class NFLGame {
     //A game has players, players can play in one game per week but can be in multiple games
     //A game has 2 teams, all game goes in a week
     //A game has stats for the 2teams
-    public NFLGame() { NOTRegular = false; }
+    public NFLGame() { IsExhibition = false; }
     [Key]
     public int GameID { get; set; }
     public DateTime DateEST { get; set; }
@@ -68,7 +68,7 @@ public class NFLGame {
     public string VisTeamID { get; set; }
     public int? HScore { get; set; }
     public int? VScore { get; set; }
-    public bool NOTRegular { get; set; }
+    public bool IsExhibition { get; set; }
 }
 
 public class StatsYearWeek {

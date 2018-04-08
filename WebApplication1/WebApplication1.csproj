@@ -182,6 +182,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\NFLPlayersController.cs" />
     <Compile Include="DAL\NFLdbInitializer.cs" />
+    <Compile Include="DAL\UnitOfWorkDB.cs" />
     <Compile Include="GameData\GameData.cs" />
     <Compile Include="Hubs\NFLLiveUpdateHub.cs" />
     <Compile Include="Hubs\NFLStatsUpdate.cs" />
@@ -212,6 +213,7 @@
       <DependentUpon>201609141932198_changeNFLgameweekstringtoint.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\FFDBInitHelper.cs" />
     <Compile Include="Models\Drives.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

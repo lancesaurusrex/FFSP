@@ -62,7 +62,7 @@ namespace WebApplication1.Hubs {
             foreach (NFLPlayer n in livePlayerList) {
                 //Creating a new StatsYearWeek to track Stats with and connect with NFLPlayer
                 StatsYearWeek s = new StatsYearWeek();
-                SetSYWToZero(s);
+                //SetSYWToZero(s);  ADD FUNCTION
                 //Remember im doing this live not for stupid class demo, so ill need to make statid off of player
                 //will need NOTregular check to avoid duplicate keys, will need to make week seperate higher number for preseason 110,111,112...?
                 s.PlayerID = n.id;
@@ -135,6 +135,33 @@ namespace WebApplication1.Hubs {
                     //BroadcastMarketStateChange(MarketState.Closed);
                 }
             }
+        }
+
+        public IEnumerable<StatsYearWeek> GetAllLivePlayers(int gid) {
+            return _playersStats.Values;
+        }
+
+        public IEnumerable<StatsYearWeek> GetAllHomePlayers(int gid) {
+            gameID = gid;
+            //var homeID = GetHomeTeamIDFromGameID(gid);
+            //var homePlayersID = GetAllPlayersIDOnTeam(homeID);
+            //var homePlayersList = GetAllStatsFromPlayersID(homePlayersID);
+            //homePlayersList.ForEach(player => _homePlayers.TryAdd(player.id, player));
+
+            return _homePlayers.Values;
+        }
+        //https://blog.oneunicorn.com/2012/05/03/the-key-to-addorupdate/
+        //Move over players to stats should keep list of home/away players
+        //should also create new stats on the basis of the home/away players and store into equ statslist
+        //store stats in db on create and update after game ends
+
+        public IEnumerable<StatsYearWeek> GetAllAwayPlayers(int gid) {
+            //var awayID = GetAwayTeamIDFromGameID(gid);
+            //var awayPlayersID = GetAllPlayersIDOnTeam(awayID);
+            //var awayPlayersList = GetAllStatsFromPlayersID(awayPlayersID);
+            //awayPlayersList.ForEach(player => _awayPlayers.TryAdd(player.id, player));
+
+            return _awayPlayers.Values;
         }
     }
 }
