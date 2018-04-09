@@ -6,6 +6,9 @@ using System.Web;
 using WebApplication1.Models;
 
 //Should be able to do for both, If the games are live and if the games are not live, isNFLLive
+//Now that nfl.com has the schedule, can go through that by year ubstead of thorugh .csv
+
+//I think the point of me making this was to store old data from past years and figure out where the nfl season is.  Both can be done through this
 
 namespace WebApplication1.GameData {
 
@@ -29,6 +32,7 @@ namespace WebApplication1.GameData {
         public void OfflineDataPullByWeek() {
             //Start by getting URL of data to pull from and gameID;
             //Example Address - http://www.nfl.com/liveupdate/game-center/2016091807/2016091807_gtd.json
+            //Can change this, see configuration.cs in project, line 140ish
 
             foreach (var id in NFLGamesID) {
                 //create uri
