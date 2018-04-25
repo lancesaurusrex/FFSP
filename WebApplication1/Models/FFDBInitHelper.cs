@@ -11,21 +11,37 @@ using WebApplication1.DAL;
 
 namespace WebApplication1.Models {
     public class FFDBInitHelper {
-        public UnitOfWorkDB UOW;
+        private UnitOfWorkDB UOW;
+        string FilePathtoSeedCSV;
+        List<NFLTeam> NFLNickNamesList = new List<NFLTeam>();
+
         //http://mehdi.me/ambient-dbcontext-in-ef6/
         //https://www.codeguru.com/csharp/.net/net_asp/mvc/using-the-repository-pattern-with-asp.net-mvc-and-entity-framework.htm
 
-        public FFDBInitHelper() { UOW = new UnitOfWorkDB(); }
-        List<NFLTeam> NFLNickNamesList = new List<NFLTeam>();
+        public FFDBInitHelper() {
+            UOW = new UnitOfWorkDB();
+
+            string pathtoFileName = "\\SeedCSV\\";
+
+            string dirName = AppDomain.CurrentDomain.BaseDirectory; // Starting Dir
+            FileInfo fileInfo = new FileInfo(dirName);
+            DirectoryInfo parentDir = fileInfo.Directory.Parent;
+            string parentDirName = parentDir.FullName; // Parent of Starting Dir
+
+
+            FilePathtoSeedCSV = parentDirName + pathtoFileName;
+        }
+        
 
         public void NFLNicknames1() {
             //NFLNicknames FIle
             /* Take NFL Nicknames from CSV file and addorupdate NFLTeam DB update-*/
 
-            string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLNicknames.csv";
+            string fileName = "NFLNicknames.csv";
+            string fileRead1 = FilePathtoSeedCSV + fileName;
 
             //Putting in NFLNicknames
-            using (StreamReader reader = new StreamReader(fileName)) {
+            using (StreamReader reader = new StreamReader(fileRead1)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 while (csvReader.Read()) {
@@ -43,10 +59,13 @@ namespace WebApplication1.Models {
 
         public void NFLTeams2() {
             //NFLTeams FIle
-            string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLTeams.csv";
+            string fileName = "NFLTeams.csv";
+            string fileRead1 = FilePathtoSeedCSV + fileName;
+
+            //string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLTeams.csv";
             //Pulling Nickname from NFLTeam DB and adding city, Putting in FullTeamName (City + NickName)
 
-            using (StreamReader reader = new StreamReader(fileName)) {
+            using (StreamReader reader = new StreamReader(fileRead1)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 csvReader.Configuration.WillThrowOnMissingField = true;
@@ -63,10 +82,13 @@ namespace WebApplication1.Models {
         }
 
         public void NFLAbbr3() {
+
+            string fileName = "NFLAbbrv.csv";
+            string fileRead1 = FilePathtoSeedCSV + fileName;
             //NFLABBRV
-            string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLAbbrv.csv";
+            //string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\NFLAbbrv.csv";
             //Pulling Nickname from NFLTeam DB and adding abbr
-            using (StreamReader reader = new StreamReader(fileName)) {
+            using (StreamReader reader = new StreamReader(fileRead1)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 csvReader.Configuration.WillThrowOnMissingField = true;
@@ -100,7 +122,10 @@ namespace WebApplication1.Models {
             //Putting in NFL Schedule 2016
             //The FileName for the schedule file must have the current year as the first 4 characters, it is how I will
             //keep track of which year is which, e.g. 20XXNFLSchedule.csv
-            string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
+            string fileName = "2016NFLSchedule.csv";
+            string fileRead1 = FilePathtoSeedCSV + fileName;
+
+            //string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
             //Pull Year from schedule fileName
             var actualfileName = Path.GetFileName(fileName);
             string firstfourcharactersofschedulefilename = new string(actualfileName.Take(4).ToArray());
@@ -108,7 +133,7 @@ namespace WebApplication1.Models {
 
             //Read NFLSchedule Game one by one and parse into fields, changing week string into int and finding NFLTeams, etc.
 
-            using (StreamReader reader = new StreamReader(fileName)) {
+            using (StreamReader reader = new StreamReader(fileRead1)) {
 
                 CsvReader csvReader = new CsvReader(reader);
                 while (csvReader.Read()) {

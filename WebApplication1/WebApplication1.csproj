@@ -21,6 +21,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -211,6 +212,10 @@
     <Compile Include="Migrations\201609141932198_changeNFLgameweekstringtoint.cs" />
     <Compile Include="Migrations\201609141932198_changeNFLgameweekstringtoint.Designer.cs">
       <DependentUpon>201609141932198_changeNFLgameweekstringtoint.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804102024234_New.cs" />
+    <Compile Include="Migrations\201804102024234_New.Designer.cs">
+      <DependentUpon>201804102024234_New.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FFDBInitHelper.cs" />
@@ -415,6 +420,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609141932198_changeNFLgameweekstringtoint.resx">
       <DependentUpon>201609141932198_changeNFLgameweekstringtoint.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804102024234_New.resx">
+      <DependentUpon>201804102024234_New.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
