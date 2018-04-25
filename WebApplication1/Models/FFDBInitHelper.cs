@@ -20,14 +20,14 @@ namespace WebApplication1.Models {
 
         public FFDBInitHelper() {
             UOW = new UnitOfWorkDB();
-
+            
+            //setting up relative path to csv files.  Filepath changes from cpu to cpu
             string pathtoFileName = "\\SeedCSV\\";
 
             string dirName = AppDomain.CurrentDomain.BaseDirectory; // Starting Dir
             FileInfo fileInfo = new FileInfo(dirName);
             DirectoryInfo parentDir = fileInfo.Directory.Parent;
             string parentDirName = parentDir.FullName; // Parent of Starting Dir
-
 
             FilePathtoSeedCSV = parentDirName + pathtoFileName;
         }
@@ -242,6 +242,4 @@ namespace WebApplication1.Models {
 
         }
     }
-
-
 }
