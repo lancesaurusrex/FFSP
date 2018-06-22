@@ -32,7 +32,7 @@ namespace WebApplication1.Migrations {
             a.NFLTeams2();
             a.NFLAbbr3();
             a.AddNFLNamesListtoDB();
-            a.NFLSchedule();
+            a.NFLScheduleYearLooping();
 
 
 

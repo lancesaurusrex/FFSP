@@ -9,6 +9,9 @@ using WebApplication1.Models;
 using System.Data.Entity;
 using WebApplication1.DAL;
 
+//Interesting odds site https://fantasydata.com/nfl-stats/point-spreads-and-odds
+//http://www.picksfootball.com/DrawLibrary.aspx
+
 namespace WebApplication1.Models {
     public class FFDBInitHelper {
         private UnitOfWorkDB UOW;
@@ -31,7 +34,13 @@ namespace WebApplication1.Models {
 
             FilePathtoSeedCSV = parentDirName + pathtoFileName;
         }
-        
+
+        /*  The way the csv files were made by mystery people.  The Nickname1 func/file stores just NFL nicknames in a list.
+         *  The NFL Teams file is comma-sep by full city and nickname (e.g. Atlanta Falcons, Chicago Funzos, ...)
+         *  NFLTeams2 func uses a parse function to seperate city&nickname,  It then uses the nicknames from the first function 
+         *  to find the nicknames and match the city to it.
+         *  The NFL Abbrv csv file is abbr,nn (e.g. NE, Patriots, CHI, Funzos)  Takes Nickname and matches in list and adds abbrv
+         */
 
         public void NFLNicknames1() {
             //NFLNicknames FIle
@@ -117,12 +126,24 @@ namespace WebApplication1.Models {
             UOW.FFSave();
         }
 
-        public void NFLSchedule() {
+        public void NFLScheduleYearLooping() {
 
+            int startYear = 2016;
+            int numYears = 3;   //Do years 2016,2017 & 2018
+
+            while (numYears > 0) {
+                NFLSchedule(startYear);
+                startYear += 1;
+                --numYears;
+            }
+        }
+
+        public void NFLSchedule(int scheduleYear) {
             //Putting in NFL Schedule 2016
             //The FileName for the schedule file must have the current year as the first 4 characters, it is how I will
             //keep track of which year is which, e.g. 20XXNFLSchedule.csv
-            string fileName = "2016NFLSchedule.csv";
+
+            string fileName = scheduleYear + "NFLSchedule.csv";
             string fileRead1 = FilePathtoSeedCSV + fileName;
 
             //string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
@@ -132,7 +153,7 @@ namespace WebApplication1.Models {
             int currentScheduleYear = Convert.ToInt32(firstfourcharactersofschedulefilename);
 
             //Read NFLSchedule Game one by one and parse into fields, changing week string into int and finding NFLTeams, etc.
-
+            
             using (StreamReader reader = new StreamReader(fileRead1)) {
 
                 CsvReader csvReader = new CsvReader(reader);
@@ -160,7 +181,7 @@ namespace WebApplication1.Models {
                             game.Week = null;
                     }
 
-                    //Week,Day,CalendarDate,VisTeam,,HomeTeam,TimeEST
+                    //For Format: Week,Day,CalendarDate,VisTeam,,HomeTeam,TimeEST
                     var calDate = csvReader.GetField<string>("CalendarDate");
                     var visTeam = csvReader.GetField<string>("VisTeam");
                     var homeTeam = csvReader.GetField<string>("HomeTeam");
@@ -169,6 +190,25 @@ namespace WebApplication1.Models {
                     game.Day = day;
                     game.Year = currentScheduleYear;
 
+                    /* For Format:Week,Day,CalendarDate,TimeEST,Winner/tie,at,Loser/tie,,Pts,Pts,YdsW,TOW,YdsL,TOL
+                    Just need up to blank after loser, 
+                    In theory, visTeam and homeTeam will be blank, rewrite code below to take both winTeam and loseTeam */
+                    
+                    var winTeam = csvReader.GetField<string>("Winner/tie");
+                    var loseTeam = csvReader.GetField<string>("Loser/tie");
+                    if (winTeam != null && loseTeam != null) {
+                        var at = csvReader.GetField<string>("at");
+                        //No @ means winner is hometeam
+                        if (String.Compare(at,"@") == 0) { //want at == @
+                            homeTeam = loseTeam;
+                            visTeam = winTeam;
+                        }
+                        else {
+                            homeTeam = winTeam;
+                            visTeam = loseTeam;
+                        }
+                        
+                    }
                     //Do date/time
                     game.DateEST = parseDateTimeString(calDate, currentScheduleYear, time);
 
@@ -187,6 +227,7 @@ namespace WebApplication1.Models {
                 }
             }
         }
+
 
         public string ParseCityNickname(string fullTeamName, out string nickName) {
 
