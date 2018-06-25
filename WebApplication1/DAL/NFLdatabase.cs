@@ -26,7 +26,8 @@ namespace WebApplication1.DAL {
 
     public class FF : DbContext {
         public FF() : base("FFContext") {
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<FF, WebApplication1.Migrations.Configuration>("FFContext"));
+            //Database.SetInitializer(new MigrateDatabaseToLatestVersion<FF, WebApplication1.Migrations.Configuration>("FFContext"));
+            Database.SetInitializer<FF>(new DropCreateDatabaseAlways<FF>());
         }
 
         public DbSet<FFTeam> FFTeamDB { get; set; }

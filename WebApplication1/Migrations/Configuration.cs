@@ -14,12 +14,16 @@ namespace WebApplication1.Migrations {
         public Configuration() {
             AutomaticMigrationsEnabled = false;
             ContextKey = "WebApplication1.DAL.FF";
-
         }
 
         protected override void Seed(WebApplication1.DAL.FF FFContext) {
             //Add NFLTeams and NFLSchedule to DB.
             //Debug seed if necessary
+
+            /* Running into primary key problems.  
+             * update-database once with db.delete uncommented, update-database again with commented*/
+            //FFContext.Database.Delete();
+
             if (System.Diagnostics.Debugger.IsAttached == false)
             {
                 System.Diagnostics.Debugger.Launch();
@@ -32,7 +36,7 @@ namespace WebApplication1.Migrations {
             a.NFLTeams2();
             a.NFLAbbr3();
             a.AddNFLNamesListtoDB();
-            a.NFLScheduleYearLooping();
+            a.NFLScheduleYearLooping(); //could easily set looping constraints here and parameter pass
 
 
 

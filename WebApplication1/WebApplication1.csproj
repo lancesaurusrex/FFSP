@@ -217,6 +217,10 @@
     <Compile Include="Migrations\201804102024234_New.Designer.cs">
       <DependentUpon>201804102024234_New.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806250019196_addschedule.cs" />
+    <Compile Include="Migrations\201806250019196_addschedule.Designer.cs">
+      <DependentUpon>201806250019196_addschedule.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FFDBInitHelper.cs" />
     <Compile Include="Models\Drives.cs" />
@@ -425,6 +429,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201804102024234_New.resx">
       <DependentUpon>201804102024234_New.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806250019196_addschedule.resx">
+      <DependentUpon>201806250019196_addschedule.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
