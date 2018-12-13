@@ -184,7 +184,6 @@
     <Compile Include="Controllers\NFLPlayersController.cs" />
     <Compile Include="DAL\NFLdbInitializer.cs" />
     <Compile Include="DAL\UnitOfWorkDB.cs" />
-    <Compile Include="GameData\GameData.cs" />
     <Compile Include="Hubs\NFLLiveUpdateHub.cs" />
     <Compile Include="Hubs\NFLStatsUpdate.cs" />
     <Compile Include="Hubs\NFLStatsUpdateOld.cs" />
@@ -221,6 +220,50 @@
     <Compile Include="Migrations\201806250019196_addschedule.Designer.cs">
       <DependentUpon>201806250019196_addschedule.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201812110243375_ClassTeamGameChanges.cs" />
+    <Compile Include="Migrations\201812110243375_ClassTeamGameChanges.Designer.cs">
+      <DependentUpon>201812110243375_ClassTeamGameChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812110305485_ChangeNFLGameIDDatabaseGenerated.cs" />
+    <Compile Include="Migrations\201812110305485_ChangeNFLGameIDDatabaseGenerated.Designer.cs">
+      <DependentUpon>201812110305485_ChangeNFLGameIDDatabaseGenerated.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812120315410_gameidbacktoDBNone.cs" />
+    <Compile Include="Migrations\201812120315410_gameidbacktoDBNone.Designer.cs">
+      <DependentUpon>201812120315410_gameidbacktoDBNone.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812120350477_FuckIdentityColumn.cs" />
+    <Compile Include="Migrations\201812120350477_FuckIdentityColumn.Designer.cs">
+      <DependentUpon>201812120350477_FuckIdentityColumn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812120356186_FuckIdentityColumn2.cs" />
+    <Compile Include="Migrations\201812120356186_FuckIdentityColumn2.Designer.cs">
+      <DependentUpon>201812120356186_FuckIdentityColumn2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812120408035_FuckIdentityColumn1.cs" />
+    <Compile Include="Migrations\201812120408035_FuckIdentityColumn1.Designer.cs">
+      <DependentUpon>201812120408035_FuckIdentityColumn1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812120412141_FuckIdentityCo.cs" />
+    <Compile Include="Migrations\201812120412141_FuckIdentityCo.Designer.cs">
+      <DependentUpon>201812120412141_FuckIdentityCo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812120418022_FuckIdentityCo1.cs" />
+    <Compile Include="Migrations\201812120418022_FuckIdentityCo1.Designer.cs">
+      <DependentUpon>201812120418022_FuckIdentityCo1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812130047391_[-IhateMigrations].cs" />
+    <Compile Include="Migrations\201812130047391_[-IhateMigrations].Designer.cs">
+      <DependentUpon>201812130047391_[-IhateMigrations].cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812130057127_[-FuckMe].cs" />
+    <Compile Include="Migrations\201812130057127_[-FuckMe].Designer.cs">
+      <DependentUpon>201812130057127_[-FuckMe].cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201812130104075_[-FuckMe2].cs" />
+    <Compile Include="Migrations\201812130104075_[-FuckMe2].Designer.cs">
+      <DependentUpon>201812130104075_[-FuckMe2].cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FFDBInitHelper.cs" />
     <Compile Include="Models\Drives.cs" />
@@ -234,8 +277,9 @@
     <Compile Include="DAL\NFLdatabase.cs" />
     <Compile Include="Models\NFLEPMarkov.cs" />
     <Compile Include="Models\NFLPlayer.cs" />
-    <Compile Include="Models\NFLWeekSetup.cs" />
+    <Compile Include="Models\NFLXml.cs" />
     <Compile Include="Models\PlaysViewModel.cs" />
+    <Compile Include="Models\XMLHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadJSONDatafromNFL.cs" />
     <Compile Include="Startup.cs" />
@@ -310,6 +354,7 @@
     <Content Include="Content\grayscale\sass\_variables.scss" />
     <Content Include="Content\grayscale\fonts\TecmoSet1.TTF" />
     <Content Include="fonts\TecmoSet1.TTF" />
+    <Content Include="ClassDiagram1.cd" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.1.js" />
     <Content Include="Scripts\jquery-2.2.1.min.js" />
@@ -396,7 +441,7 @@
     <Content Include="SeedCSV\NFLAbbrv.csv" />
     <Content Include="SeedCSV\2017NFLSchedule.csv" />
     <Content Include="SeedCSV\2018NFLSchedule.csv" />
-    <Content Include="SeedCSV\95currentNFLlines.csv" />
+    <Content Include="SeedCSV\1995currentLines.csv" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -433,6 +478,39 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806250019196_addschedule.resx">
       <DependentUpon>201806250019196_addschedule.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812110243375_ClassTeamGameChanges.resx">
+      <DependentUpon>201812110243375_ClassTeamGameChanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812110305485_ChangeNFLGameIDDatabaseGenerated.resx">
+      <DependentUpon>201812110305485_ChangeNFLGameIDDatabaseGenerated.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812120315410_gameidbacktoDBNone.resx">
+      <DependentUpon>201812120315410_gameidbacktoDBNone.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812120350477_FuckIdentityColumn.resx">
+      <DependentUpon>201812120350477_FuckIdentityColumn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812120356186_FuckIdentityColumn2.resx">
+      <DependentUpon>201812120356186_FuckIdentityColumn2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812120408035_FuckIdentityColumn1.resx">
+      <DependentUpon>201812120408035_FuckIdentityColumn1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812120412141_FuckIdentityCo.resx">
+      <DependentUpon>201812120412141_FuckIdentityCo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812120418022_FuckIdentityCo1.resx">
+      <DependentUpon>201812120418022_FuckIdentityCo1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812130047391_[-IhateMigrations].resx">
+      <DependentUpon>201812130047391_[-IhateMigrations].cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812130057127_[-FuckMe].resx">
+      <DependentUpon>201812130057127_[-FuckMe].cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812130104075_[-FuckMe2].resx">
+      <DependentUpon>201812130104075_[-FuckMe2].cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -24,21 +24,32 @@ namespace WebApplication1.Migrations {
              * update-database once with db.delete uncommented, update-database again with commented*/
             //FFContext.Database.Delete();
 
-            if (System.Diagnostics.Debugger.IsAttached == false)
-            {
+            if (System.Diagnostics.Debugger.IsAttached == false) {
                 System.Diagnostics.Debugger.Launch();
                 System.Diagnostics.Debugger.Break();  //Force Break at this point
             }
-
+            
             FFDBInitHelper a = new FFDBInitHelper();
-
+            /*This code is kept but does nothing other than pull stuff from text, it doesn't get saved in the db aka no call with Add or SaveChanges */
             a.NFLNicknames1();
             a.NFLTeams2();
             a.NFLAbbr3();
-            a.AddNFLNamesListtoDB();
-            a.NFLScheduleYearLooping(); //could easily set looping constraints here and parameter pass
-
-
+            var num = a.NFLGameCount();
+            /*This code is kept but does nothing other than pull stuff from text, it doesn't get saved in the db aka no call with Add or SaveChanges */
+            
+            
+            //Only need to run when db.NFLGames is empty
+            //for (int i = 1978; i <= 2018; ++i) {
+            //    int week = 1;
+            //    int st = 1;
+            //    while (week != 23) {//18 is post 21 is week before SB(empty), 22 is SB
+            //        if (week == 18)
+            //             st = 2;
+            //        a.PullSchedulesFromNFLcom(i, week, st); //j,k
+            //        week++;
+                    
+            //    }
+            //}
 
             /*This method will be called after migrating to the latest version.
 

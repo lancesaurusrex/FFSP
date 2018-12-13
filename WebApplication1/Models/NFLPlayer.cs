@@ -33,11 +33,12 @@ public class NFLPlayer {
     //For Availability in TeamController
     public bool isChecked { get; set; }
 }
-
+[Serializable]
 public class NFLTeam
 {
-    public NFLTeam() { }
+    public NFLTeam() { IsDefunct = false; }
     public NFLTeam(string nn) { City = null; Nickname = nn; TeamPlayers = null; NFLSchedule = null; }
+    public NFLTeam(string city, string nn, string abbr) { Abbr = abbr; City = city; Nickname = nn; currentLocation = " "; IsDefunct = true; TeamPlayers = null; NFLSchedule = null; }
     //A team has players, A player can only be on one team
     //A team has games, plays other teams on a weekly basis
     [Key]
@@ -45,6 +46,9 @@ public class NFLTeam
     public string Abbr { get; set; }
     public string City { get; set; }
     public string Nickname { get; set; }
+    //For teams no longer around, IsDefunct will say if they are still around and add currentLocation
+    public bool IsDefunct { get; set; }
+    public string currentLocation { get; set; }
 
     public virtual ICollection<NFLPlayer> TeamPlayers { get; set; }
     public virtual ICollection<NFLGame> NFLSchedule { get; set; }
@@ -56,9 +60,11 @@ public class NFLGame {
     //A game has 2 teams, all game goes in a week
     //A game has stats for the 2teams
     public NFLGame() { IsExhibition = false; }
-    [Key]
-    public int GameID { get; set; }
-    public DateTime DateEST { get; set; }
+    [Required, Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int Id { get; set; }
+    public int GSIS { get; set; }   //This come from NFL.com/ajax/scorestrip, it may or may not be necessary
+    public DateTime? DateEST { get; set; }
+    public string StartTime { get; set; }
     public string Day { get; set; }
     public int? Week { get; set; }  //bad parse set to null
     public int Year { get; set; }

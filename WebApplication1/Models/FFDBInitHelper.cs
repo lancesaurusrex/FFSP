@@ -8,6 +8,9 @@ using System.Globalization;
 using WebApplication1.Models;
 using System.Data.Entity;
 using WebApplication1.DAL;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Diagnostics;
 
 //Interesting odds site https://fantasydata.com/nfl-stats/point-spreads-and-odds
 //http://www.picksfootball.com/DrawLibrary.aspx
@@ -16,7 +19,7 @@ namespace WebApplication1.Models {
     public class FFDBInitHelper {
         private UnitOfWorkDB UOW;
         string FilePathtoSeedCSV;
-        List<NFLTeam> NFLNickNamesList = new List<NFLTeam>();
+        private List<NFLTeam> NFLNickNamesList = new List<NFLTeam>();
 
         //http://mehdi.me/ambient-dbcontext-in-ef6/
         //https://www.codeguru.com/csharp/.net/net_asp/mvc/using-the-repository-pattern-with-asp.net-mvc-and-entity-framework.htm
@@ -110,124 +113,237 @@ namespace WebApplication1.Models {
                 }
             }
             //Done with pulling from 3 nflteam related csv files, NFLX, abbrv, niucnames, teams
-        }
 
-        public void AddNFLNamesListtoDB() {
-            //Pull List into Add
-            UOW.FFContext.NFLTeam.AddRange(NFLNickNamesList);
-            //Actual Save
+            UOW.AddRangeNFLTeamToDB(NFLNickNamesList);
+
             UOW.FFSave();
         }
 
-        private void AddNFLGametoDB(NFLGame ng) {
-            //Add
-            UOW.FFContext.NFLGame.Add(ng);
-            //Actual Save
-            UOW.FFSave();
-        }
+        public string StrTypeConvert(int a) {
 
-        public void NFLScheduleYearLooping() {
-
-            int startYear = 2016;
-            int numYears = 3;   //Do years 2016,2017 & 2018
-
-            while (numYears > 0) {
-                NFLSchedule(startYear);
-                startYear += 1;
-                --numYears;
+                if (a == 0)
+                    return "PRE";
+                else if (a == 1)
+                    return "REG";
+                else if (a == 2)
+                    return "POST";
+                else
+                    throw new Exception();
             }
+        enum seasonType {
+            PRE,REG,POST
         }
 
-        public void NFLSchedule(int scheduleYear) {
-            //Putting in NFL Schedule 2016
-            //The FileName for the schedule file must have the current year as the first 4 characters, it is how I will
-            //keep track of which year is which, e.g. 20XXNFLSchedule.csv
-
-            string fileName = scheduleYear + "NFLSchedule.csv";
-            string fileRead1 = FilePathtoSeedCSV + fileName;
-
-            //string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
-            //Pull Year from schedule fileName
-            var actualfileName = Path.GetFileName(fileName);
-            string firstfourcharactersofschedulefilename = new string(actualfileName.Take(4).ToArray());
-            int currentScheduleYear = Convert.ToInt32(firstfourcharactersofschedulefilename);
-
-            //Read NFLSchedule Game one by one and parse into fields, changing week string into int and finding NFLTeams, etc.
+        public int NFLGameCount() {
+            return UOW.FFContext.NFLGame.Count();
+        }
+        public void PullSchedulesFromNFLcom(int scheduleYear, int week, int seasonType) {
             
-            using (StreamReader reader = new StreamReader(fileRead1)) {
+            XMLHelper t = new XMLHelper();
+            string strType = StrTypeConvert(seasonType);
+            //whats are loop constraints?  PRE to POST
+           
+                string url = "www.nfl.com/ajax/scorestrip?season=" + scheduleYear + "&seasonType=" + strType + "&week=" + week.ToString();
+                ss xmlData = new ss();
+                xmlData = t.GetXmlRequest<ss>(url);
+                ssGms[] xmlArr = null;
+                if (xmlData.Items != null)
+                    xmlArr = xmlData.Items.ToArray();
+                else
+                    xmlArr = new ssGms[0];
+                foreach (var i in xmlArr) {
+                    var gameArr = i.g.ToArray();
+                    //Check Game database for games already in DO TIHIS B4 RUNN
+                    //run count of week and compare at end, throw ex if not equal
+                    foreach (var game in gameArr) {
+                        NFLGame gameObj = new NFLGame();
+                        //set week & year of game
+                        gameObj.Week = Convert.ToInt32(i.w);
+                        gameObj.Year = Convert.ToInt32(i.y);
+                        //set date and time of game
+                        gameObj.StartTime = game.t;
+                        gameObj.Day = game.d;
+                        //set id
+                        gameObj.Id = Convert.ToInt32(game.eid);
+                        gameObj.GSIS = Convert.ToInt32(game.gsis);
 
-                CsvReader csvReader = new CsvReader(reader);
-                while (csvReader.Read()) {
-                    csvReader.Configuration.WillThrowOnMissingField = false;    //CSV file has blank field for @ symbol
-                    string strWeek = csvReader.GetField<string>("Week");
-
-                    NFLGame game = new NFLGame();
-                    //Check week in pull and change isNOTreg to True and change PREX to X
-                    /*Will pull week column as string regardless of format, 
-                     * if strWeek has Pre it is a preseason game and needs int changed to higher number
-                     * then take pulled csv string and parse into int
-                    */
-                    if (strWeek != null) {
-                        if (strWeek.Contains("Pre")) {
-                            var arrWeek = strWeek.Where(Char.IsDigit).ToArray();   //remove letters and such, keep int
-                            strWeek = new string(arrWeek);
-                            game.IsExhibition = true;
+                        if (game.q == "F" || game.q == "FO") {
+                            gameObj.HScore = Convert.ToInt32(game.hs);
+                            gameObj.VScore = Convert.ToInt32(game.vs);
                         }
 
-                        int parsedString;
-                        if (Int32.TryParse(strWeek, out parsedString))
-                            game.Week = parsedString;
-                        else
-                            game.Week = null;
+                        //FIGURED OUT A PROBLEM what happen when a team like the STL RAMS is added?  Crash and burn
+                        //Find NFLTeams and add ID to game
+                        try {
+                            NFLTeam home = UOW.FFContext.NFLTeam.Find(game.h);
+                            NFLTeam away = UOW.FFContext.NFLTeam.Find(game.v);
+                            List<NFLTeam> excpList = new List<NFLTeam>();
+                            if (home == null) {
+                                NFLTeam team = new NFLTeam(game.hnn, game.hnn, game.h);
+                                excpList.Add(team);
+                            }
+                            if (away == null) {
+                                NFLTeam team = new NFLTeam(game.vnn, game.vnn, game.v);
+                                excpList.Add(team);
+                            }
+                            if (excpList.Count() > 0) {
+                                var ex = new KeyNotFoundException() { Data = { { "excpList", excpList } } };
+                                throw ex;
+                            }
+
+                            if (home != null)
+                                gameObj.HomeTeamID = home.Abbr;
+                            if (away != null)
+                                gameObj.VisTeamID = away.Abbr;
+                        }
+                        catch (KeyNotFoundException ex) {
+                            UOW = new UnitOfWorkDB();
+                            Debug.WriteLine(ex);
+
+                            foreach (System.Collections.DictionaryEntry de in ex.Data) {
+ 
+                                NFLTeam NT = null;
+                                foreach (var item in (dynamic)(de.Value)) {
+                                    NT = (NFLTeam)item;
+                                }
+                                UOW.AddNFLTeamToDB(NT);
+                            }
+
+                            UOW.FFSave();
+                        }
+                        //add in gameType enum?
+                        if (seasonType == 0)
+                            gameObj.IsExhibition = true;
+
+                        UOW.AddNFLGameToDB(gameObj);
                     }
-
-                    //For Format: Week,Day,CalendarDate,VisTeam,,HomeTeam,TimeEST
-                    var calDate = csvReader.GetField<string>("CalendarDate");
-                    var visTeam = csvReader.GetField<string>("VisTeam");
-                    var homeTeam = csvReader.GetField<string>("HomeTeam");
-                    var time = csvReader.GetField<string>("TimeEST");
-                    var day = csvReader.GetField<string>("Day");
-                    game.Day = day;
-                    game.Year = currentScheduleYear;
-
-                    /* For Format:Week,Day,CalendarDate,TimeEST,Winner/tie,at,Loser/tie,,Pts,Pts,YdsW,TOW,YdsL,TOL
-                    Just need up to blank after loser, 
-                    In theory, visTeam and homeTeam will be blank, rewrite code below to take both winTeam and loseTeam */
                     
-                    var winTeam = csvReader.GetField<string>("Winner/tie");
-                    var loseTeam = csvReader.GetField<string>("Loser/tie");
-                    if (winTeam != null && loseTeam != null) {
-                        var at = csvReader.GetField<string>("at");
-                        //No @ means winner is hometeam
-                        if (String.Compare(at,"@") == 0) { //want at == @
-                            homeTeam = loseTeam;
-                            visTeam = winTeam;
-                        }
-                        else {
-                            homeTeam = winTeam;
-                            visTeam = loseTeam;
-                        }
-                        
-                    }
-                    //Do date/time
-                    game.DateEST = parseDateTimeString(calDate, currentScheduleYear, time);
-
-                    //Find Visiting team in NFLTeamlist from DB
-                    string nickName = null;
-                    ParseCityNickname(visTeam, out nickName);
-                    if (nickName != null)
-                        game.VisTeamID = UOW.FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
-
-                    //Find Home team in NFLTeamlist from DB
-                    ParseCityNickname(homeTeam, out nickName);
-                    if (nickName != null)
-                        game.HomeTeamID = UOW.FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
-
-                    AddNFLGametoDB(game);
                 }
-            }
+
+        UOW.FFSave();
         }
 
+        //Can prob delete this
+        //public void NFLScheduleYearLooping() {
+
+        //    int startYear = 2016;
+        //    int numYears = 3;   //Do years 2016,2017 & 2018
+
+        //    //Can do two different NFLSchedule looping through the years with the one file and using startYear 0 for 
+        //    //the other NFLlines file
+        //    while (numYears > 0) {
+        //        NFLSchedule(startYear);
+        //        startYear += 1;
+        //        --numYears;
+        //    }
+
+        //    //Now do for new NFLlinesfile
+        //    NFLSchedule(0);
+        //}
+
+        //public void NFLSchedule(int currentScheduleYear) {
+
+
+        //    string filePath = FileNameWithCurrentYear(currentScheduleYear);
+        //    int year = currentScheduleYear;
+        //    //Read NFLSchedule Game one by one and parse into fields, changing week string into int and finding NFLTeams, etc.
+            
+        //    using (StreamReader reader = new StreamReader(filePath)) {
+                
+        //        CsvReader csvReader = new CsvReader(reader);
+        //        while (csvReader.Read()) {
+        //            csvReader.Configuration.WillThrowOnMissingField = false;    //CSV file has blank field for @ symbol
+        //            string strWeek = csvReader.GetField<string>("Week");
+
+        //            //check on file, using different file on 0
+        //            if (currentScheduleYear == 0) {
+        //                year = csvReader.GetField<int>("Year");
+        //            }
+
+        //            NFLGame game = new NFLGame();
+        //            //Check week in pull and change isNOTreg to True and change PREX to X
+        //            /*Will pull week column as string regardless of format, 
+        //             * if strWeek has Pre it is a preseason game and needs int changed to higher number
+        //             * then take pulled csv string and parse into int
+        //            */
+        //            if (strWeek != null) {
+        //                if (strWeek.Contains("Pre")) {
+        //                    var arrWeek = strWeek.Where(Char.IsDigit).ToArray();   //remove letters and such, keep int
+        //                    strWeek = new string(arrWeek);
+        //                    game.IsExhibition = true;
+        //                }
+
+        //                int parsedString;
+        //                if (Int32.TryParse(strWeek, out parsedString))
+        //                    game.Week = parsedString;
+        //                else
+        //                    game.Week = null;
+        //            }
+
+        //            //For Format: Week,Day,CalendarDate,VisTeam,,HomeTeam,TimeEST
+        //            var calDate = csvReader.GetField<string>("CalendarDate");
+        //            var visTeam = csvReader.GetField<string>("VisTeam");
+        //            var homeTeam = csvReader.GetField<string>("HomeTeam");
+        //            var time = csvReader.GetField<string>("TimeEST");
+        //            var day = csvReader.GetField<string>("Day");
+        //            game.Day = day;
+        //            game.Year = year;
+
+        //            /* For Format:Week,Day,CalendarDate,TimeEST,Winner/tie,at,Loser/tie,,Pts,Pts,YdsW,TOW,YdsL,TOL
+        //            Just need up to blank after loser, 
+        //            In theory, visTeam and homeTeam will be blank, rewrite code below to take both winTeam and loseTeam */
+                    
+        //            var winTeam = csvReader.GetField<string>("Winner/tie");
+        //            var loseTeam = csvReader.GetField<string>("Loser/tie");
+        //            if (winTeam != null && loseTeam != null) {
+        //                var at = csvReader.GetField<string>("at");
+        //                //No @ means winner is hometeam
+        //                if (String.Compare(at,"@") == 0) { //want at == @
+        //                    homeTeam = loseTeam;
+        //                    visTeam = winTeam;
+        //                }
+        //                else {
+        //                    homeTeam = winTeam;
+        //                    visTeam = loseTeam;
+        //                }
+                        
+        //            }
+        //            //***Will need to figure out best way to parse multiple formats from both filetypes
+        //            game.DateEST = parseDateTimeString(calDate, year, time);
+
+        //            //Find Visiting team in NFLTeamlist from DB
+        //            string nickName = null;
+        //            ParseCityNickname(visTeam, out nickName);
+        //            if (nickName != null)
+        //                game.VisTeamID = UOW.FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
+
+        //            //Find Home team in NFLTeamlist from DB
+        //            ParseCityNickname(homeTeam, out nickName);
+        //            if (nickName != null)
+        //                game.HomeTeamID = UOW.FFContext.NFLTeam.Where(t => t.Nickname == nickName).Select(t => t.Abbr).Single();
+
+        //            AddNFLGametoDB(game);
+        //        }
+        //    }
+        //}
+
+        //public string FileNameWithCurrentYear(int currentScheduleYear) {
+        //    string fileName;
+        //    //Do lines file (somewhat different using currentScheduleYear equal to zero)
+        //    if (currentScheduleYear == 0)
+        //        fileName = "1995currentLines.csv";
+        //    else {
+        //        //Putting in NFL Schedule 2016
+        //        //The FileName for the schedule file must have the current year as the first 4 characters, it is how I will
+        //        //keep track of which year is which, e.g. 20XXNFLSchedule.csv
+        //        fileName = currentScheduleYear + "NFLSchedule.csv";                
+        //    }
+        //    //string fileName = "C:\\Users\\Lance\\Source\\Repos\\FFSP\\WebApplication1\\SeedCSV\\2016NFLSchedule.csv";
+
+        //    string fileRead1 = FilePathtoSeedCSV + fileName;
+
+        //    return fileRead1;
+        //}
 
         public string ParseCityNickname(string fullTeamName, out string nickName) {
 

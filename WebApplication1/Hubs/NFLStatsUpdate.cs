@@ -45,7 +45,7 @@ namespace WebApplication1.Hubs {
         public int currentWeekServ = 1;
         public const int currentYear = 2016;
 
-        public NFLWeekSetup WeekData;       //Create NFL.com GameID's
+        //public NFLWeekSetup WeekData;       //Create NFL.com GameID's
         public List<string> NFLGamesID;     //Store for week/year in GameID's
 
         private NFLStatsUpdate(IHubConnectionContext<dynamic> clients) {
